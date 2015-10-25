@@ -12,11 +12,20 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    
+    var pushButton: UIBarButtonItem?
 
-
+    func applicationDidFinishLaunching(application: UIApplication) {
+        //pushButton.action = Selector("pushButtonClick")
+    }
+    
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         return true
+    }
+    
+    func pushButtonClick(){
+        print ("Hello, welcome to Stanle's app")
     }
 
     func applicationWillResignActive(application: UIApplication) {
@@ -43,4 +52,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 }
+
+
 
