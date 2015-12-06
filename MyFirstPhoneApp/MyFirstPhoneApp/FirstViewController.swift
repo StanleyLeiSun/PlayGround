@@ -10,12 +10,18 @@ import UIKit
 
 class FirstViewController: UIViewController {
     
-
+    var THParameter = "&w=80&h=80&c=7";
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        LoadImgList( "hello");
+        GlobalSetting.RefreshTasks();
+        SetImgSize();
+        
+        LoadImgList();
+        
+        MoveToNextLabel()
     }
     @IBOutlet weak var TopImg: UIImageView!
 
@@ -32,29 +38,56 @@ class FirstViewController: UIViewController {
     //ImgData
     var TopImgList : [String] = [];
     var BottomImgList : [String] = [];
+    var LabelResult : [Int] = [];
     
     var CurrentImgPairIdx : Int = 0;
     
-    func LoadImgList( url:String ) {
-        var url = NSURL(string: url)
+    func SetImgSize(){
+        //Prepare th parameter
+        var w :Int = 0;
+        var h : Int = 0;
+        switch GlobalSetting.CurImageSize
+        {
+        case "80x80": w = 80;  h = 80; break;
+        case "1024x1024": w = 1024; h = 1024; break;
+        case "120x80" : w = 120; h = 80; break;
+        default: break;
+        }
+        THParameter = String(format: "&w=%d&h=%d&c=7&pid=popnow&pid=popnow", w,h);
+        //Reset the layout
+
+        //TopImg.bounds.size.width = CGFloat(w);
+        //TopImg.bounds.size.height = CGFloat(h);
+        //TopImg.frame.size.width = CGFloat(w);
+        //TopImg.frame.size.height = CGFloat(w);
+        
+
+        //BottomImg.bounds.size.width = CGFloat(w);
+        //BottomImg.bounds.size.height = CGFloat(h);
+
+    }
+    
+    func LoadImgList() {
+        
+        //var url = NSURL(string: url)
         //var data = NSData(contentsOfURL: url!)
-        var data = NSData(contentsOfFile: "ImgList")
-        var str = NSString(data: data!, encoding: NSUTF8StringEncoding)
+        let data = NSData(contentsOfFile: "/Users/stanleysun/Documents/Projects/PlayGround/PlayGround/MyFirstPhoneApp/MyFirstPhoneApp/ImgList")
+        let str = NSString(data: data!, encoding: NSUTF8StringEncoding)
         
         //var str : NSString = "img1\timg2\r\nimg3\timg4";
         
-        var strList = str!.componentsSeparatedByString("\r\n")
+        let strList = str!.componentsSeparatedByString("\r\n")
         for s in strList
         {
-            var imgPair = s.componentsSeparatedByString("\t")
+            var imgPair = s.componentsSeparatedByString(" ")
             
             if (imgPair.count != 2)
             {
                 continue
             }
             
-            self.TopImgList.append(imgPair[0] as! String)
-            self.BottomImgList.append(imgPair[1] as! String)
+            self.TopImgList.append(imgPair[0] + THParameter)
+            self.BottomImgList.append(imgPair[1] + THParameter)
             
         }
         
@@ -66,8 +99,13 @@ class FirstViewController: UIViewController {
             return;//Already done all the cases
         }
         
+        NSString.
+        let url : NSurl = NSURL(NSString.GlobalSetting.ServiceAddr + "?"
+        var webResult = try NSString(contentsOfURL: url!, encoding: NSUTF8StringEncoding);
+        var tasks = webResult.substringToIndex(2);
+        
         TopImg.image = GetImgData(TopImgList[CurrentImgPairIdx]);
-        BottomImg.image = GetImgData(BottomImgList[CurrentImgPairIdx]);
+        SecondImg.image = GetImgData(BottomImgList[CurrentImgPairIdx]);
         
         CurrentImgPairIdx++;
         
@@ -75,33 +113,40 @@ class FirstViewController: UIViewController {
     
     func GetImgData(url:NSString ) -> UIImage? {
         
-        var nsd = NSData(contentsOfURL:NSURL(string: url as String )!)
+        let nsd = NSData(contentsOfURL:NSURL(string: url as String )!)
         
+        if (nsd == nil)
+        {
+            return nil;
+        }
         return UIImage(data: nsd!);
     }
     
-    
-    @IBAction func startGame(){
-        let myalert = UIAlertView()
-        myalert.title = "准备好了吗"
-        //myalert.message = "准备好开始了吗？"
-        myalert.addButtonWithTitle("Ready, go!")
+    //1: top 2: Bottom 3: OnPar
+    @IBAction func TopBetter(){
         
-        var url = NSURL(string: "http://ww2.sinaimg.cn/bmiddle/632dab64jw1ehgcjf2rd5j20ak07w767.jpg" )
-        NSLog("Scheme: %@", url!.host!)
-        
-        var nsd = NSData(contentsOfURL:url!)
-        
-        var img = UIImage(data: nsd!);
-        TopImg.image = img;//  = UIImageView(image: img);
-        SecondImg.image = img;
-        TopImgName.text = "http://ww2.sinaimg.cn/bmiddle/632dab64jw1ehgcjf2rd5j20ak07w767.jpg" ;
-        //vImg.frame.origin = CGPoint(x:0,y:20);
-        //self.view.addSubview(vImg);
-        
-        myalert.show()
+        LabelResult.append(1)
+        MoveToNextLabel()
     }
-
+    
+    @IBAction func BottomBetter(){
+        
+        LabelResult.append(2)
+        MoveToNextLabel()
+    }
+    
+    @IBAction func Skip(){
+        
+        LabelResult.append(3)
+        MoveToNextLabel()
+    }
+    
+    @IBAction func Skip2(){
+        
+        LabelResult.append(3)
+        MoveToNextLabel()
+    }
+    
 
 }
 

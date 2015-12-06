@@ -1,0 +1,6 @@
+{“result”:[
+{“TaskID”:”Task1”,”TaskName”:”Name1”,”ImageSize”:[{“o”:”80x80”},{“o”:“100x100”}]},
+{“TaskID”:”Task2”,”TaskName”:”Name2”,”ImageSize”:[{“o”:”80x80”},{“o”:“100x100”}]},
+{“TaskID”:”Task3”,”TaskName”:”Name3”,”ImageSize”:[{“o”:”80x80”},{“o”:“100x100”}]}
+]
+}

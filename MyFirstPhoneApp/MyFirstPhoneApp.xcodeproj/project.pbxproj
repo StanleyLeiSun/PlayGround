@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		6D0332931BDD0DE10072B767 /* ImgList in Resources */ = {isa = PBXBuildFile; fileRef = 6D0332921BDD0DE10072B767 /* ImgList */; };
+		6D0E51761C0AF55E00E4A5DB /* GlobalSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0E51751C0AF55E00E4A5DB /* GlobalSetting.swift */; };
 		6DDF64381B92EF0300ACF238 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDF64371B92EF0300ACF238 /* AppDelegate.swift */; };
 		6DDF643A1B92EF0300ACF238 /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDF64391B92EF0300ACF238 /* FirstViewController.swift */; };
 		6DDF643C1B92EF0300ACF238 /* SecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDF643B1B92EF0300ACF238 /* SecondViewController.swift */; };
@@ -28,7 +29,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		6D0332921BDD0DE10072B767 /* ImgList */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ImgList; path = MyFirstPhoneApp/ImgList; sourceTree = SOURCE_ROOT; };
+		6D0332921BDD0DE10072B767 /* ImgList */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; lineEnding = 2; name = ImgList; path = MyFirstPhoneApp/ImgList; sourceTree = SOURCE_ROOT; };
+		6D0E51751C0AF55E00E4A5DB /* GlobalSetting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlobalSetting.swift; sourceTree = "<group>"; };
 		6DDF64321B92EF0300ACF238 /* MyFirstPhoneApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyFirstPhoneApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6DDF64361B92EF0300ACF238 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6DDF64371B92EF0300ACF238 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -88,6 +90,7 @@
 				6DDF643D1B92EF0300ACF238 /* Main.storyboard */,
 				6DDF64401B92EF0300ACF238 /* Images.xcassets */,
 				6DDF64351B92EF0300ACF238 /* Supporting Files */,
+				6D0E51751C0AF55E00E4A5DB /* GlobalSetting.swift */,
 			);
 			path = MyFirstPhoneApp;
 			sourceTree = "<group>";
@@ -162,7 +165,9 @@
 		6DDF642A1B92EF0300ACF238 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0640;
+				LastSwiftMigration = 0710;
+				LastSwiftUpdateCheck = 0710;
+				LastUpgradeCheck = 0710;
 				ORGANIZATIONNAME = "Stanley Sun";
 				TargetAttributes = {
 					6DDF64311B92EF0300ACF238 = {
@@ -220,6 +225,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6DDF643C1B92EF0300ACF238 /* SecondViewController.swift in Sources */,
+				6D0E51761C0AF55E00E4A5DB /* GlobalSetting.swift in Sources */,
 				6DDF64381B92EF0300ACF238 /* AppDelegate.swift in Sources */,
 				6DDF643A1B92EF0300ACF238 /* FirstViewController.swift in Sources */,
 			);
@@ -284,6 +290,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -350,6 +357,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = MyFirstPhoneApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "Stanley.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -361,6 +369,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = MyFirstPhoneApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "Stanley.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -380,6 +389,7 @@
 				);
 				INFOPLIST_FILE = MyFirstPhoneAppTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "Stanley.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyFirstPhoneApp.app/MyFirstPhoneApp";
 			};
@@ -395,6 +405,7 @@
 				);
 				INFOPLIST_FILE = MyFirstPhoneAppTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "Stanley.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyFirstPhoneApp.app/MyFirstPhoneApp";
 			};
