@@ -23,12 +23,22 @@ public class GlobalSetting{
         let url = NSURL(string:ServiceAddr)
         
         do{
-            var webResult = try NSString(contentsOfURL: url!, encoding: NSUTF8StringEncoding);
-            var tasks = webResult.substringToIndex(2);
+            //var webResult = try NSString(contentsOfURL: url!, encoding: NSUTF8StringEncoding);
+            
+            let jsonData = NSData(contentsOfURL: url!);
+            let json  =  try! NSJSONSerialization.JSONObjectWithData(jsonData!, options:NSJSONReadingOptions.AllowFragments)
+            
+            let tasks = json as! NSArray;
+            TaskList.removeAll();
+            for i in tasks
+            {
+                TaskList.append(i as! String);
+            }
+            //var tasks = webResult.substringToIndex(2);
             
         }catch {}
         
-        //var data = NSData(contentsOfURL: url!
+        CurTask = TaskList[0];
         
     }
 }

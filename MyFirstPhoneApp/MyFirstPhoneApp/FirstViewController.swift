@@ -99,10 +99,19 @@ class FirstViewController: UIViewController {
             return;//Already done all the cases
         }
         
-        NSString.
-        let url : NSurl = NSURL(NSString.GlobalSetting.ServiceAddr + "?"
-        var webResult = try NSString(contentsOfURL: url!, encoding: NSUTF8StringEncoding);
-        var tasks = webResult.substringToIndex(2);
+        //NSString.
+        let url : NSURL = NSURL(string:
+            String(format:"%@?task=%@&idx=%d",
+                GlobalSetting.ServiceAddr,
+                GlobalSetting.CurTask,
+                CurrentImgPairIdx+1))!;
+        
+        //var webResult = try NSString(contentsOfURL: url!, encoding: NSUTF8StringEncoding);
+        //var tasks = webResult.substringToIndex(2);
+        let jsonData = NSData(contentsOfURL: url)
+        let json  =  try! NSJSONSerialization.JSONObjectWithData(jsonData!, options:NSJSONReadingOptions.AllowFragments)
+        
+        
         
         TopImg.image = GetImgData(TopImgList[CurrentImgPairIdx]);
         SecondImg.image = GetImgData(BottomImgList[CurrentImgPairIdx]);
