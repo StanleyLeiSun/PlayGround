@@ -29,6 +29,7 @@ class SecondViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         {
             GlobalSetting.CurTask = GlobalSetting.TaskList[selectedTask];
             GlobalSetting.CurItemIdx = 0;
+            GlobalSetting.CurTaskCount = GlobalSetting.TaskCountList[selectedTask];
         }
         
         GlobalSetting.CurImageSize = GlobalSetting.ImgSizes[selectedSize];
@@ -56,20 +57,10 @@ class SecondViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         do{
          let JsonData = NSData(contentsOfFile: TaskFilePath as String)
          //text2 = try NSString(contentsOfFile: TaskFilePath as String, encoding: NSUTF8StringEncoding)
-            
-         //let json  =  try! NSJSONSerialization.JSONObjectWithData(JsonData!,options:NSJSONReadingOptions.AllowFragments)
+
             
         }catch{}
         
-
-        //for i in json.objectForKey("result") as! NSArray
-        //{
-            //var t : LabelingTask;
-            //t.TaskID = i.objectForKey("TaskID")
-            //t.TaskName = i.objectForKey("TaskName")
-            //t.ImageSize = i.objectForKey("ImageSize")
-        //}
-
     }
     
     func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {

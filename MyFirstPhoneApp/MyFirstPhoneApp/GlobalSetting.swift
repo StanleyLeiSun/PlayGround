@@ -11,11 +11,14 @@ import Foundation
 public class GlobalSetting{
     public static var CurTask : String = "LowQuality";
     public static var CurItemIdx : Int = 0;
+    public static var CurTaskCount : Int = 0;
     public static var CurImageSize : String = "120x80"//"1024x1024";//"80x80"
     
     public static var ImgSizes = ["80x80", "120x80", "1024x1024"]
     
     public static var TaskList = [ "LowQualityImage", "BeautifulOnOpal", "ChartImage"];
+    
+    public static var TaskCountList = [3,3,3];
     
     public static let ServiceAddr : String = "https://stanleysun.azurewebsites.net/api/ImgLabeling";
     public static func RefreshTasks()
@@ -30,15 +33,19 @@ public class GlobalSetting{
             
             let tasks = json as! NSArray;
             TaskList.removeAll();
+            TaskCountList.removeAll();
             for i in tasks
             {
-                TaskList.append(i as! String);
+                let item = i as! NSDictionary;
+                TaskList.append(item["TaskName"] as! String);
+                TaskCountList.append(item["TaskCounts"] as! Int);
             }
             //var tasks = webResult.substringToIndex(2);
             
         }catch {}
         
         CurTask = TaskList[0];
+        CurTaskCount = TaskCountList[0];
         
     }
 }

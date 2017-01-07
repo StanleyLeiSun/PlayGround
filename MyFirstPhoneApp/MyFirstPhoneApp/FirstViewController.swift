@@ -111,7 +111,13 @@ class FirstViewController: UIViewController {
         let jsonData = NSData(contentsOfURL: url)
         let json  =  try! NSJSONSerialization.JSONObjectWithData(jsonData!, options:NSJSONReadingOptions.AllowFragments)
         
-        
+        if (json.length <= 0)
+        {
+            return;
+        }
+        let task = json[0] as! NSDictionary;
+        let Img1 = task["Img1"] as! String;
+        let Img2 = task["Img2"] as! String;
         
         TopImg.image = GetImgData(TopImgList[CurrentImgPairIdx]);
         SecondImg.image = GetImgData(BottomImgList[CurrentImgPairIdx]);
