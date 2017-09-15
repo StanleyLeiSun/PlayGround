@@ -1,0 +1,27 @@
+UnifiedView =
+    VIEW @"/shares/searchDM/distrib/released/CompetitiveUnifiedView/CompetitiveUnifiedPageView.view"
+    PARAMS
+    (
+        Start = @"2017-08-23",
+        End = @"2017-08-29",
+        //get IE8,9,10,11 at one time
+        Source = @"DesktopIE",
+        UseSample = true,
+        ReturnHttpsUrl = true
+    );
+
+// Step2. Write your query 
+data =
+    SELECT Source,
+           User_UserId,
+           Query_RawQuery,
+           Request_Url,
+           Request_RequestTime;
+    //WHERE User_ReverseIpInfo.Country.ToLower() == "united states";
+
+ClickUrls =
+    SELECT Request_Url,
+           COUNT( * ) AS count
+    FROM data
+    GROUP BY Request_Url;
+
