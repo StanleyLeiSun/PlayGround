@@ -3,13 +3,19 @@ from flask import Flask
 from weixinInterface import WeixinInterface
 from xml import etree
 import xml.etree.ElementTree as ET
+from dbWrapper import RobertLogMSSQL
 
 app = Flask(__name__)
 
 weixin = WeixinInterface()
 
+ms = RobertLogMSSQL(host="robertlog.database.windows.net",user="rluser",pwd="Xiaoluobo666",db="robertlog")
+
 @app.route('/')
 def hello_world():
+  ms.ExecNonQuery("INSERT INTO [dbo].[RawMsg] ([TimeStamp], [RawMsg], [FromUser], [ToUser]) VALUES "+\
+           "('1993','Msg1','FromUser','ToUser')" )
+
   str_xml =  "<xml><ToUserName><![CDATA[fromUser]]></ToUserName>" +\
         "<FromUserName><![CDATA[toUser]]></FromUserName>" +\
         "<CreateTime>123445</CreateTime>" +\
@@ -21,6 +27,7 @@ def hello_world():
   msgType=xml.find("MsgType").text
   fromUser=xml.find("FromUserName").text
   toUser=xml.find("ToUserName").text
+
   return content
 
 @app.route('/weixin', methods=['GET'])
