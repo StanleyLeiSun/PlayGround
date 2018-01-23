@@ -11,8 +11,7 @@ weixin = WeixinInterface()
 
 ms = RobertLogMSSQL(host="robertlog.database.windows.net",user="rluser",pwd="Xiaoluobo666",db="robertlog")
 
-@app.route('/')
-def hello_world():
+def Test1():
   ms.ExecNonQuery("INSERT INTO [dbo].[RawMsg] ([TimeStamp], [RawMsg], [FromUser], [ToUser]) VALUES "+\
            "('1993','Msg1','FromUser','ToUser')" )
 
@@ -28,7 +27,9 @@ def hello_world():
   fromUser=xml.find("FromUserName").text
   toUser=xml.find("ToUserName").text
 
-  return content
+@app.route('/')
+def hello_world():
+  return 'Hello World'
 
 @app.route('/weixin', methods=['GET'])
 def weixin_get():
