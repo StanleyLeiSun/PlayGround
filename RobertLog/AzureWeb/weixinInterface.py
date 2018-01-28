@@ -13,6 +13,7 @@ class WeixinInterface:
     def __init__(self):
         self.app_root = os.path.dirname(__file__)
         self.templates_root = os.path.join(self.app_root, 'templates')
+        self.actCenter = ActionCenter()
         #self.render = web.template.render(self.templates_root)
 
     def GET(self):
@@ -54,7 +55,7 @@ class WeixinInterface:
         fromUser=xml.find("FromUserName").text
         toUser=xml.find("ToUserName").text
 
-        ret = actCenter.Receive(str_xml)
+        ret = self.actCenter.Receive(str_xml)
 
         return render_template("main_ret.ret",\
             toUser = fromUser, fromUser = toUser,\

@@ -10,6 +10,11 @@ class ActionCenter:
     #Action List
     FeedKeywords = {u"吃了",u"喂了", u"喂奶", u"吃奶"}
     ReportsKeywords = {u"报告", u"总结", u"情况"}
+    mLKeywords = {u"ml",u"毫升"}
+    MinKeywords = {u"分钟", u"一会"}
+    ADKeywords = {u"AD"}
+    PoopKeywords = {u"拉屎"}
+    BathKeywords = {u"洗澡"}
 
     def check_strList(self, str, listStr):
         for s in listStr:
@@ -26,11 +31,21 @@ class ActionCenter:
             nums = re.findall(r"\d+",action.message.RawContent)
             if len(nums) > 0:
                 action.Detail = nums[0]
+                if self.check_strList(msg.RawContent, self.MinKeywords):
+                    action.Detail += u"分钟"
+                else:
+                    action.Detail += "mL"
 
         elif self.check_strList(msg.RawContent, self.ReportsKeywords):
             #reports
             action.Type = ActionType.Reports
             action.Status = Action.Active
+        elif self.check_strList(msg.RawContent, self.ADKeywords):
+            action.Type = ActionType.AD
+        elif self.check_strList(msg.RawContent, self.PoopKeywords):
+            action.Type = Actiontype.Poop
+        elif self.check_strList(msg.RawContent, self.BathKeywords):
+            action.Type = ActionType.Bath
         else:
             action.Type = ActionType.UnKnown
         
@@ -40,13 +55,17 @@ class ActionCenter:
         response = "Please repeat"
         
         if action.Type == ActionType.Feed:
-            response = "Got it, he got {0}mL at {1}".format(action.Detail, action.TimeStamp)
+            response = "Got it, he got {0} at {1}".format(action.Detail, action.TimeStamp)
         elif action.Type == ActionType.Reports:
             response = "Here is the list \n"
             actions = self.rlSQL.GetActionReports()
             for a in actions:
-                response += a.GenBrief()
-                response += "\n"
+                if a.Type not in {ActionType.UnKnown, ActionType.Reports} :
+                    response += a.GenBrief()
+                    response += "\n"
+        
+        else:
+            response = action.GenBrief()
 
         return response 
 
@@ -55,7 +74,7 @@ class ActionCenter:
         self.rlSQL.LogMessage(msg)
         
         action = self.DetectAction(msg)
-        if action.Status not in {ActionType.UnKnown, ActionType.Reports} :
+        if action.Type not in {ActionType.UnKnown, ActionType.Reports} :
             self.rlSQL.AppendAction(action)
         else:
             pass

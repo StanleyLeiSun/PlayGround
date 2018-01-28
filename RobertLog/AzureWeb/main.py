@@ -21,7 +21,14 @@ str_feedcmd_xml =  "<xml><ToUserName><![CDATA[fromUser]]></ToUserName>" +\
         "<Content><![CDATA[喂了200]]></Content>"+\
         "</xml>"
 
-def Test1():
+str_cmdtemplate_xml =  "<xml><ToUserName><![CDATA[fromUser]]></ToUserName>" +\
+        "<FromUserName><![CDATA[toUser]]></FromUserName>" +\
+        "<CreateTime>123445</CreateTime>" +\
+        "<MsgType><![CDATA[text]]></MsgType>"+\
+        "<Content><![CDATA[{0}]]></Content>"+\
+        "</xml>"
+
+def AdhocTest():
   ms.ExecNonQuery("INSERT INTO [dbo].[RawMsg] ([TimeStamp], [RawMsg], [FromUser], [ToUser]) VALUES "+\
            "('1993','Msg1','FromUser','ToUser')" )
 
@@ -35,7 +42,11 @@ def Test1():
 def TestActions():
   print (actCenter.Receive(str_feedcmd_xml))
 
-#print (str_feedcmd_xml)
+def TestReport():
+  str_report = str_cmdtemplate_xml.format("今日情况")
+  print (actCenter.Receive(str_report))
+
+TestReport()
 #TestActions()
 
 @app.route('/')

@@ -1,4 +1,5 @@
 import pyodbc
+import datetime
 from entityClasses import Message, Action
 
 class RobertLogMSSQL:
@@ -44,17 +45,17 @@ class RobertLogMSSQL:
         #print(cmdstr)
         self.ExecNonQuery(cmdstr)
 
-    def GetActionReports(self, num = 10):
+    def GetActionReports(self, num = 30):
         cmd = "SELECT TOP %s * FROM [dbo].[Actions] ORDER BY CreateTime DESC" % num
         actList = self.ExecQuery(cmd)
         retList = []
         for a in actList:
-            act = Action("")#TODO
+            act = Action()#TODO
             act.FromUser = a.FromUser
             act.Status = a.ActionStatus
-            act.Type = a.ActionType
+            act.Type = a.ActionType.strip()
             act.Detail = a.ActionDetail
-            act.TimeStamp = a.CreateTime
+            act.TimeStamp = datetime.datetime.strptime(a.CreateTime.strip().rstrip('0'), '%Y-%m-%d %H:%M:%S.%f')
             retList.append(act)
 
         return retList

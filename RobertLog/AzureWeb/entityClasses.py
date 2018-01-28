@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import datetime
+import time
 
 class Message:
     
@@ -17,16 +18,17 @@ class Action:
     Active = "Active"
     Deleted = "Deleted"
 
-    def __init__(self, msg):
-        self.message = msg
-        self.FromUser = msg.FromUser
-        self.Status = "Active"
-        self.Type = "UnKnown"
-        self.Detail = msg.RawContent
-        self.TimeStamp = msg.TimeStamp
+    def __init__(self, msg = None):
+        if msg :
+            self.message = msg
+            self.FromUser =msg.FromUser
+            self.Status = "Active"
+            self.Type = "UnKnown"
+            self.Detail = msg.RawContent
+            self.TimeStamp = msg.TimeStamp
 
     def GenBrief(self):
-        brief = "[{0}] [{1}] ".format(self.TimeStamp, self.ActionType)
+        brief = "[{0}] [{1}] ".format(self.TimeStamp.strftime( "%m-%d %H:%M"), self.Type)
 
         if self.Type == ActionType.Feed:
             brief += self.Detail
