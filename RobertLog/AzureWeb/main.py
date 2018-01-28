@@ -1,31 +1,42 @@
+#coding=utf-8
 from flask import Flask
 #from flask import render_template
 from weixinInterface import WeixinInterface
 from xml import etree
 import xml.etree.ElementTree as ET
 from dbWrapper import RobertLogMSSQL
+from actionCenter import ActionCenter
 
 app = Flask(__name__)
 
 weixin = WeixinInterface()
+actCenter = ActionCenter()
 
 ms = RobertLogMSSQL(host="robertlog.database.windows.net",user="rluser",pwd="Xiaoluobo666",db="robertlog")
+
+str_feedcmd_xml =  "<xml><ToUserName><![CDATA[fromUser]]></ToUserName>" +\
+        "<FromUserName><![CDATA[toUser]]></FromUserName>" +\
+        "<CreateTime>123445</CreateTime>" +\
+        "<MsgType><![CDATA[text]]></MsgType>"+\
+        "<Content><![CDATA[喂了200]]></Content>"+\
+        "</xml>"
 
 def Test1():
   ms.ExecNonQuery("INSERT INTO [dbo].[RawMsg] ([TimeStamp], [RawMsg], [FromUser], [ToUser]) VALUES "+\
            "('1993','Msg1','FromUser','ToUser')" )
 
-  str_xml =  "<xml><ToUserName><![CDATA[fromUser]]></ToUserName>" +\
-        "<FromUserName><![CDATA[toUser]]></FromUserName>" +\
-        "<CreateTime>123445</CreateTime>" +\
-        "<MsgType><![CDATA[text]]></MsgType>"+\
-        "<Content><![CDATA[content]]></Content>"+\
-        "</xml>"
-  xml = ET.fromstring(str_xml)
+  
+  xml = ET.fromstring(str_feedcmd_xml)
   content=xml.find("Content").text
   msgType=xml.find("MsgType").text
   fromUser=xml.find("FromUserName").text
   toUser=xml.find("ToUserName").text
+
+def TestActions():
+  print (actCenter.Receive(str_feedcmd_xml))
+
+#print (str_feedcmd_xml)
+#TestActions()
 
 @app.route('/')
 def hello_world():

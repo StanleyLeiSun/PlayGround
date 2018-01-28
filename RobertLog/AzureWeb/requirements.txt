@@ -1,3 +1,4 @@
+--find-links wheelhouse
 Flask==0.12.1
 urllib3==1.22
 pyodbc==4.0.22

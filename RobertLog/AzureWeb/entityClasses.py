@@ -25,7 +25,20 @@ class Action:
         self.Detail = msg.RawContent
         self.TimeStamp = msg.TimeStamp
 
-    
+    def GenBrief(self):
+        brief = "[{0}] [{1}] ".format(self.TimeStamp, self.ActionType)
+
+        if self.Type == ActionType.Feed:
+            brief += self.Detail
+        elif self.Type == ActionType.Poop:
+            pass
+        elif self.Type == ActionType.AD:
+            pass
+        else:
+            pass
+        return brief
+
+
 class ActionType :
     UnKnown = "UnKnown"
     Feed = "Feed"

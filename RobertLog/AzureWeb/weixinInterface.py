@@ -6,6 +6,7 @@ import os
 import json
 from xml import etree
 import xml.etree.ElementTree as ET
+from actionCenter import ActionCenter
 
 class WeixinInterface:
 
@@ -52,7 +53,10 @@ class WeixinInterface:
         msgType=xml.find("MsgType").text
         fromUser=xml.find("FromUserName").text
         toUser=xml.find("ToUserName").text
+
+        ret = actCenter.Receive(str_xml)
+
         return render_template("main_ret.ret",\
             toUser = fromUser, fromUser = toUser,\
             createTime = int(time.time()),\
-            content = u"Simply copy:"+content)
+            content = ret)

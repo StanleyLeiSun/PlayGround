@@ -7,7 +7,8 @@ class RobertLogMSSQL:
         self.database = db
         self.username = user
         self.password = pwd
-        self.driver= '{ODBC Driver 13 for SQL Server}'
+        self.driver= '{SQL Server}'
+        #self.driver= '{ODBC Driver 13 for SQL Server}'
         #self.driver= '{SQL Server Native Client 11.0}'
 
     def __GetConnect(self):
@@ -34,12 +35,28 @@ class RobertLogMSSQL:
 
     def LogMessage(self, msg):
         cmd = "INSERT INTO [dbo].[RawMsg] ([TimeStamp], [RawMsg], [FromUser], [ToUser]) VALUES "+\
-           "('%s','%s','%s','%s')" % (msg.TimeStamp, msg.RawMsg, msg.FromUser, msg.ToUser)
+           "('%s','%s','%s','%s')" % (msg.TimeStamp, msg.RawContent, msg.FromUser, msg.ToUser)
         self.ExecNonQuery(cmd)
 
     def AppendAction(self, act):
-        cmd = "INSERT INTO [dbo].[Actions] ([TimeStamp], [ActionType], [FromUser], [ActionDetail], [ActionStatus]) VALUES "+\
-           "('%s','%s','%s','%s, %s')" % (act.TimeStamp, act.Type, act.FromUser, act.Detail, act.Status)
-        self.ExecNonQuery(cmd)
+        cmdstr = "INSERT INTO [dbo].[Actions] ([CreateTime], [ActionType], [FromUser], [ActionDetail], [ActionStatus]) VALUES "+\
+           "('%s','%s','%s','%s', '%s')" % (act.TimeStamp, act.Type, act.FromUser, act.Detail, act.Status)
+        #print(cmdstr)
+        self.ExecNonQuery(cmdstr)
+
+    def GetActionReports(self, num = 10):
+        cmd = "SELECT TOP %s * FROM [dbo].[Actions] ORDER BY CreateTime DESC" % num
+        actList = self.ExecQuery(cmd)
+        retList = []
+        for a in actList:
+            act = Action("")#TODO
+            act.FromUser = a.FromUser
+            act.Status = a.ActionStatus
+            act.Type = a.ActionType
+            act.Detail = a.ActionDetail
+            act.TimeStamp = a.CreateTime
+            retList.append(act)
+
+        return retList
 
     
