@@ -1,11 +1,9 @@
 #coding=utf-8
 from flask import Flask
-#from flask import render_template
 from weixinInterface import WeixinInterface
-from xml import etree
-import xml.etree.ElementTree as ET
 from dbWrapper import RobertLogMSSQL
 from actionCenter import ActionCenter
+import xml.etree.ElementTree as ET
 
 app = Flask(__name__)
 
@@ -40,26 +38,26 @@ def AdhocTest():
   toUser=xml.find("ToUserName").text
 
 def TestActions():
-  print (actCenter.Receive(str_feedcmd_xml))
+    print(actCenter.Receive(str_feedcmd_xml))
 
 def TestReport():
-  str_report = str_cmdtemplate_xml.format("今日情况")
-  print (actCenter.Receive(str_report))
+    str_report = str_cmdtemplate_xml.format("今日情况")
+    print(actCenter.Receive(str_report))
 
 TestReport()
 #TestActions()
 
 @app.route('/')
 def hello_world():
-  return 'Hello World'
+    return 'Hello World'
 
 @app.route('/weixin', methods=['GET'])
 def weixin_get():
-  return weixin.GET()
+    return weixin.callback_get()
 
 @app.route('/weixin', methods=['POST'])
 def weixin_post():
-  return weixin.POST()
+    return weixin.callback_post()
 
 if __name__ == '__main__':
-  app.run()
+    app.run()

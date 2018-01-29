@@ -1,63 +1,61 @@
+# -*- coding: utf-8 -*-
+"""
+WeiXinInterface
+~~~~~~~~~~~~~~~~
+Define the interface to WeiChat
+
+    #developer id wx53b8a28638e040d3
+    #token stansun
+    #encoding key gJ3g38Z7NXVSBxarCStIDWS8RIhrzR131lLyOfi7ulZ
+"""
 import hashlib
-from flask import render_template
-from flask import request
 import time
 import os
-import json
-from xml import etree
 import xml.etree.ElementTree as ET
 from actionCenter import ActionCenter
+from flask import render_template
+from flask import request
 
 class WeixinInterface:
-
+    """
+    Main class
+        >>>callback_get: use to check the authority of the caller
+        >>>callback_post: Receive the message and response
+    """
     def __init__(self):
         self.app_root = os.path.dirname(__file__)
         self.templates_root = os.path.join(self.app_root, 'templates')
         self.actCenter = ActionCenter()
-        #self.render = web.template.render(self.templates_root)
 
-    def GET(self):
+    def callback_get(self):
+        """Authority the caller"""
+        
         signature = request.args.get("signature")
         timestamp = request.args.get("timestamp")
         nonce = request.args.get("nonce")
         echostr = request.args.get("echostr")
-        token="stansun"
-        #encoding key gJ3g38Z7NXVSBxarCStIDWS8RIhrzR131lLyOfi7ulZ
-        #developer id wx53b8a28638e040d3
+        token = "stansun"
 
-        list=[token,timestamp,nonce]
-        list.sort()
-        sha1=hashlib.sha1()
-        map(sha1.update,list)
-        hashcode=sha1.hexdigest()
+        stamp_list = [token, timestamp, nonce]
+        stamp_list.sort()
+        sha1 = hashlib.sha1()
+        map(sha1.update, stamp_list)
+        hashcode = sha1.hexdigest()
 
         if hashcode == signature:
             return echostr
-    
-    # def POST(self):
-    #     return "<xml><ToUserName><![CDATA[fromUser]]></ToUserName>" +\
-    #     "<FromUserName><![CDATA[toUser]]></FromUserName>" +\
-    #     "<CreateTime>123445</CreateTime>" +\
-    #     "<MsgType><![CDATA[text]]></MsgType>"+\
-    #     "<Content><![CDATA["+request.data+"]]></Content>"+\
-    #     "</xml>"
 
-    def POST(self):
-        #return render_template("main_ret.ret",\
-        #    toUser = "fromUser", fromUser = "toUser",\
-        #    createTime = int(time.time()),\
-        #    content = u"Simply copy:"+content)
+    def callback_post(self):
+        """receive message and do all the works"""
 
         str_xml = request.data
         xml = ET.fromstring(str_xml)
-        content=xml.find("Content").text
-        msgType=xml.find("MsgType").text
-        fromUser=xml.find("FromUserName").text
-        toUser=xml.find("ToUserName").text
+        fromuser = xml.find("FromUserName").text
+        touser = xml.find("ToUserName").text
 
         ret = self.actCenter.Receive(str_xml)
 
         return render_template("main_ret.ret",\
-            toUser = fromUser, fromUser = toUser,\
+            toUser = fromuser, fromUser = touser,\
             createTime = int(time.time()),\
             content = ret)

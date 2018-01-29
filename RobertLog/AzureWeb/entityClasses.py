@@ -1,9 +1,12 @@
+"""
+Key structures
+"""
 import xml.etree.ElementTree as ET
 import datetime
-import time
 
 class Message:
-    
+    """Structurlized Message between WeiChat and backend"""
+
     def __init__(self, msg):
         xml = ET.fromstring(msg)
         self.RawContent=xml.find("Content").text
@@ -12,9 +15,9 @@ class Message:
         self.ToUser=xml.find("ToUserName").text
         self.TimeStamp = datetime.datetime.utcnow()
 
-
 class Action:
-
+    """Interprete a message to an action"""
+    
     Active = "Active"
     Deleted = "Deleted"
 
@@ -28,6 +31,8 @@ class Action:
             self.TimeStamp = msg.TimeStamp
 
     def GenBrief(self):
+        """Brief the action as a str"""
+
         brief = "[{0}] [{1}] ".format(self.TimeStamp.strftime( "%m-%d %H:%M"), self.Type)
 
         if self.Type == ActionType.Feed:
@@ -41,7 +46,9 @@ class Action:
         return brief
 
 
-class ActionType :
+class ActionType:
+    """Enum of the types"""
+
     UnKnown = "UnKnown"
     Feed = "Feed"
     Poop = "Poop"
