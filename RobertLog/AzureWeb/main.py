@@ -44,7 +44,7 @@ def TestReport():
     str_report = str_cmdtemplate_xml.format("今日情况")
     print(actCenter.Receive(str_report))
 
-TestReport()
+#TestReport()
 #TestActions()
 
 @app.route('/')

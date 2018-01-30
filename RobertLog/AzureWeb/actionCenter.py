@@ -54,7 +54,7 @@ class ActionCenter:
         response = "Please repeat"
         
         if action.Type == ActionType.Feed:
-            response = "Got it, he got {0} at {1}".format(action.Detail, action.TimeStamp)
+            response = "Got it, he got {0} at {1}".format(action.Detail, action.TimeStamp.strftime( "%H:%M"))
         elif action.Type == ActionType.Reports:
             response = "Here is the list \n"
             actions = self.rlSQL.GetActionReports()
