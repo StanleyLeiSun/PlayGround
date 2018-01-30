@@ -30,11 +30,10 @@ class ActionCenter:
             action.Status = Action.Active
             nums = re.findall(r"\d+",action.message.RawContent)
             if len(nums) > 0:
-                action.Detail = nums[0]
                 if self.check_strList(msg.RawContent, self.MinKeywords):
-                    action.Detail += u"分钟"
+                    action.Detail = "母乳:" + nums[0] + u"分钟"
                 else:
-                    action.Detail += "mL"
+                    action.Detail = "奶瓶:" + nums[0] + "mL"
 
         elif self.check_strList(msg.RawContent, self.ReportsKeywords):
             #reports
@@ -43,7 +42,7 @@ class ActionCenter:
         elif self.check_strList(msg.RawContent, self.ADKeywords):
             action.Type = ActionType.AD
         elif self.check_strList(msg.RawContent, self.PoopKeywords):
-            action.Type = Actiontype.Poop
+            action.Type = ActionType.Poop
         elif self.check_strList(msg.RawContent, self.BathKeywords):
             action.Type = ActionType.Bath
         else:

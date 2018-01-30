@@ -17,7 +17,7 @@ class Message:
 
 class Action:
     """Interprete a message to an action"""
-    
+
     Active = "Active"
     Deleted = "Deleted"
 
@@ -33,7 +33,7 @@ class Action:
     def GenBrief(self):
         """Brief the action as a str"""
 
-        brief = "[{0}] [{1}] ".format(self.TimeStamp.strftime( "%m-%d %H:%M"), self.Type)
+        brief = "[{0}] [{1}] ".format(self.TimeStamp.strftime( "%m-%d %H:%M"), ActionType.actionNames[self.Type])
 
         if self.Type == ActionType.Feed:
             brief += self.Detail
@@ -56,3 +56,5 @@ class ActionType:
     Bath = "Bath"
     Reports = "Report"
 
+    actionNames = {UnKnown:"未知", Feed:"喂奶", Poop:"拉屎了", AD:"吃了AD", Bath:"洗澡", Reports:"汇报"}
+    
