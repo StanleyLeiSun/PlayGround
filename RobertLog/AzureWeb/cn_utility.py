@@ -1,6 +1,6 @@
 #coding: utf-8
-#import re
-#import string
+import re
+import string
 
 class num_cn2digital:
 
@@ -19,7 +19,7 @@ class num_cn2digital:
         r = 1 #unit 1,10,100 or ...
         for i in range(len(uchars_chinese) - 1, -1, -1):
             val = self.common_used_numerals.get(uchars_chinese[i])
-            if val >= 10 and i == 0:  #应对 十三 十四 十*之类
+            if val >= 10 and i == 0: # 11,12...
                 if val > r:
                     r = val
                     total = total + val
@@ -34,3 +34,27 @@ class num_cn2digital:
             else:
                 total = total + r * val
         return total
+
+    def replace_cn_digital(self, cn_str):
+        ret = cn_str
+        number = re.compile(u"[一二三四五六七八九零十百千万亿]*")
+        #number = re.compile(u"[一二三四五六七八九零十百千万亿]+|[0-9]+[,]*[0-9]+.[0-9]+")
+        #number = re.compile("[1-9]")
+        pattern = re.compile(number)
+        all = pattern.findall(cn_str)
+        for i in all:
+            if len(i) > 0:
+                d = self.chinese2digits(i)
+                ret = ret.replace(i,str(d),1)
+        
+        return ret
+
+    def Test(self):
+        t = u"一百八"
+        print("{0} => {1}", t, self.replace_cn_digital(t))
+        t = u"一百毫升"
+        print("{0} => {1}", t, self.replace_cn_digital(t))
+        t = u"喂了一百二十毫升"
+        print("{0} => {1}", t, self.replace_cn_digital(t))
+        t = u"八十八"
+        print("{0} => {1}", t, self.replace_cn_digital(t))

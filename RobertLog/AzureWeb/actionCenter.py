@@ -1,5 +1,6 @@
 from entityClasses import Message, Action, ActionType
 from dbWrapper import RobertLogMSSQL
+from cn_utility import num_cn2digital
 import re
 
 class ActionCenter:
@@ -69,7 +70,8 @@ class ActionCenter:
         return response 
 
     def Receive(self, raw_str):
-        msg = Message(raw_str)
+        num2d = num_cn2digital()
+        msg = Message(num2d.replace_cn_digital(raw_str))
         self.rlSQL.LogMessage(msg)
         
         action = self.DetectAction(msg)

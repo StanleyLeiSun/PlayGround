@@ -4,6 +4,7 @@ from weixinInterface import WeixinInterface
 from dbWrapper import RobertLogMSSQL
 from actionCenter import ActionCenter
 import xml.etree.ElementTree as ET
+from cn_utility import num_cn2digital
 
 app = Flask(__name__)
 
@@ -46,6 +47,9 @@ def TestReport():
 
 #TestReport()
 #TestActions()
+
+cn2d = num_cn2digital()
+#cn2d.Test()
 
 @app.route('/')
 def hello_world():
