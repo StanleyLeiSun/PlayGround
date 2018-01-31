@@ -25,13 +25,15 @@ class ActionCenter:
 
     def DetectAction(self, msg):
         action = Action(msg)
-        if self.check_strList(msg.RawContent, self.FeedKeywords):
+        num2d = num_cn2digital()
+        content = num2d.replace_cn_digital(msg.RawContent)
+        if self.check_strList(content, self.FeedKeywords):
             #feed
             action.Type = ActionType.Feed
             action.Status = Action.Active
-            nums = re.findall(r"\d+",action.message.RawContent)
+            nums = re.findall(r"\d+",content)
             if len(nums) > 0:
-                if self.check_strList(msg.RawContent, self.MinKeywords):
+                if self.check_strList(content, self.MinKeywords):
                     action.Detail = "母乳:" + nums[0] + u"分钟"
                 else:
                     action.Detail = "奶瓶:" + nums[0] + "mL"
@@ -70,8 +72,7 @@ class ActionCenter:
         return response 
 
     def Receive(self, raw_str):
-        num2d = num_cn2digital()
-        msg = Message(num2d.replace_cn_digital(raw_str))
+        msg = Message(raw_str)
         self.rlSQL.LogMessage(msg)
         
         action = self.DetectAction(msg)
