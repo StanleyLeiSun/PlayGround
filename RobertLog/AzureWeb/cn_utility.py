@@ -68,7 +68,7 @@ class extract_cn_time:
     #cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?|([1-24]\d点[0-60]\d分)|([1-24]\点)')
     #cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?|([1-24]\d点[0-60]\d分?)|([1-24]\点半?)')
     #cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?|([1-24]点\d*分?)|([1-24]\点半?)')
-    cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?|((0?[0-9]|1[0-9]|2[0-3])点\d*分?)|((0?[0-9]|1[0-9]|2[0-3])点半)')
+    cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?|((0?[0-9]|1[0-9]|2[0-3])点\d+分?)|((0?[0-9]|1[0-9]|2[0-3])点半)')
     cn_date_pattern = re.compile(r'((\d{4}|\d{2})(-|/|.)\d{1,2}\3\d{1,2})|(\d{4}年\d{1,2}月\d{1,2}日)|(\d{1,2}月\d{1,2}日)|(\d{1,2}日)')
 
     def extract_time(self, cn_str):
@@ -98,18 +98,33 @@ class extract_cn_time:
                 dt_ret.append(t2)
         return  dt_ret
     
+    def remove_time(self, cn_str):
+        tstr_list = self.cn_time_pattern.findall(cn_str)
+        ret = cn_str
+        if len(tstr_list) <= 0 : return
+        for tstr in tstr_list[0]:
+            if len(tstr) > 0 and (u"点" in tstr or u"时" in tstr) : #cn time
+                #print("tstr:", tstr, "ret", ret)
+                ret = ret.replace(tstr,"")
+        return ret
+
     def Test(self):
         cn2d = num_cn2digital()
         t = u"十二点二十分"
         t1 = cn2d.replace_cn_digital(t)
         print("t1:",t1)
         print( t, self.extract_time(t1))
+        print(t, self.remove_time(t1))
+
         t = u"三点半喂奶二十毫升"
         t1 = cn2d.replace_cn_digital(t)
         print("t1:",t1)
         print( t, self.extract_time(t1))
+        print(t, "removed", self.remove_time(t1))
+
         t = u"九点五分"
         t1 = cn2d.replace_cn_digital(t)
         print("t1:",t1)
         print( t, self.extract_time(t1))
+        print(t, "removed", self.remove_time(t1))
         

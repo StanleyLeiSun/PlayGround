@@ -17,7 +17,7 @@ str_feedcmd_xml =  "<xml><ToUserName><![CDATA[fromUser]]></ToUserName>" +\
         "<FromUserName><![CDATA[toUser]]></FromUserName>" +\
         "<CreateTime>123445</CreateTime>" +\
         "<MsgType><![CDATA[text]]></MsgType>"+\
-        "<Content><![CDATA[喂了200]]></Content>"+\
+        "<Content><![CDATA[两点半喂了200]]></Content>"+\
         "</xml>"
 
 str_cmdtemplate_xml =  "<xml><ToUserName><![CDATA[fromUser]]></ToUserName>" +\
@@ -50,8 +50,8 @@ def TestReport():
 
 #cn2d = num_cn2digital()
 #cn2d.Test()
-ect = extract_cn_time()
-ect.Test()
+#ect = extract_cn_time()
+#ect.Test()
 
 @app.route('/')
 def hello_world():
@@ -67,5 +67,5 @@ def weixin_post():
 
 if __name__ == '__main__':
     #app.run()
-    #app.run(host="0.0.0.0", port=80)
+    app.run(host="0.0.0.0", port=80)
     pass

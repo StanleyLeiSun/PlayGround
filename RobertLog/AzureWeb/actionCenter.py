@@ -1,6 +1,6 @@
 from entityClasses import Message, Action, ActionType
 from dbWrapper import RobertLogMSSQL
-from cn_utility import num_cn2digital
+from cn_utility import num_cn2digital, extract_cn_time
 import re
 
 class ActionCenter:
@@ -26,7 +26,13 @@ class ActionCenter:
     def DetectAction(self, msg):
         action = Action(msg)
         num2d = num_cn2digital()
+        ect = extract_cn_time()
         content = num2d.replace_cn_digital(msg.RawContent)
+        t = ect.extract_time(content)
+        if len(t) > 0:
+            action.TimeStamp = t[0]
+            content = ect.remove_time(content)
+
         if self.check_strList(content, self.FeedKeywords):
             #feed
             action.Type = ActionType.Feed
