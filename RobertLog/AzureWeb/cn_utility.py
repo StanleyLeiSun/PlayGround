@@ -65,8 +65,10 @@ class num_cn2digital:
 
 class extract_cn_time:
     
-    cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?|((0?[0-9]|1[0-9]|2[0-3])点\d+分?)|((0?[0-9]|1[0-9]|2[0-3])点半)')
-    cn_date_pattern = re.compile(r'((\d{4}|\d{2})(-|/|.)\d{1,2}\3\d{1,2})|(\d{4}年\d{1,2}月\d{1,2}日)|(\d{1,2}月\d{1,2}日)|(\d{1,2}日)')
+    cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?\
+    |((0?[0-9]|1[0-9]|2[0-3])点\d+分?)|((0?[0-9]|1[0-9]|2[0-3])点半?)')
+    cn_date_pattern = re.compile(r'((\d{4}|\d{2})(-|/|.)\d{1,2}\3\d{1,2})|(\d{4}年\d{1,2}月\
+    \d{1,2}日)|(\d{1,2}月\d{1,2}日)|(\d{1,2}日)')
 
     def extract_time(self, cn_str):
         dt_ret = []
@@ -108,6 +110,7 @@ class extract_cn_time:
     def Test(self):
         cn2d = num_cn2digital()
         t = u"十二点二十分"
+        print(t)
         t1 = cn2d.replace_cn_digital(t)
         print("t1:",t1)
         print( t, self.extract_time(t1))
@@ -119,7 +122,13 @@ class extract_cn_time:
         print( t, self.extract_time(t1))
         print(t, "removed", self.remove_time(t1))
 
-        t = u"九点五分"
+        t = u"九点五分喂了10分钟"
+        t1 = cn2d.replace_cn_digital(t)
+        print("t1:",t1)
+        print( t, self.extract_time(t1))
+        print(t, "removed", self.remove_time(t1))
+
+        t = u"九点喂奶十分钟"
         t1 = cn2d.replace_cn_digital(t)
         print("t1:",t1)
         print( t, self.extract_time(t1))

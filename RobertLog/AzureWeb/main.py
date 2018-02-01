@@ -5,6 +5,10 @@ from dbWrapper import RobertLogMSSQL
 from actionCenter import ActionCenter
 import xml.etree.ElementTree as ET
 from cn_utility import num_cn2digital, extract_cn_time
+#import sys 
+
+#reload(sys)
+#sys.setdefaultencoding('utf-8')
 
 app = Flask(__name__)
 
