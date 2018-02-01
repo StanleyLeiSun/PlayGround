@@ -29,7 +29,7 @@ class ActionCenter:
         ect = extract_cn_time()
         content = num2d.replace_cn_digital(msg.RawContent)
         t = ect.extract_time(content)
-        if len(t) > 0:
+        if t is not None and len(t) > 0:
             action.TimeStamp = t[0]
             content = ect.remove_time(content)
 
