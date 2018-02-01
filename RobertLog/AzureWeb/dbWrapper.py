@@ -64,8 +64,9 @@ class RobertLogMSSQL:
             act.Status = a.ActionStatus
             act.Type = a.ActionType.strip()
             act.Detail = a.ActionDetail
-            act.TimeStamp = datetime.datetime.strptime(a.CreateTime.strip().rstrip('0'), \
-            '%Y-%m-%d %H:%M:%S.%f')
+            pos = a.CreateTime.index['.']
+            timestr = a.CreateTime[pos].strip()
+            act.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
             retList.append(act)
 
         return retList
