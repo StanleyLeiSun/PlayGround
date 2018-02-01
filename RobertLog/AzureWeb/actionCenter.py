@@ -60,13 +60,13 @@ class ActionCenter:
         return action
     
     def GenResponse(self, action):
-        response = "Please repeat"
+        response = "抱歉没听懂."
         
         if action.Type == ActionType.Feed:
-            response = "Got it, he got {0} at {1}".format(action.Detail, action.TimeStamp.strftime( "%H:%M"))
+            response = "收到,萝卜在{1}吃了{0}".format(action.Detail, action.TimeStamp.strftime( "%H:%M"))
         elif action.Type == ActionType.Reports:
-            response = "Here is the list \n"
-            actions = self.rlSQL.GetActionReports()
+            response = "记录: \n"
+            actions = self.rlSQL.GetActionReports(10)
             for a in actions:
                 if a.Type not in {ActionType.UnKnown, ActionType.Reports} :
                     response += a.GenBrief()
