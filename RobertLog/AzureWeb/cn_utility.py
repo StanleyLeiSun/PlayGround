@@ -65,21 +65,23 @@ class num_cn2digital:
 
 class extract_cn_time:
     
-    cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?\
-    |((0?[0-9]|1[0-9]|2[0-3])点\d+分?)|((0?[0-9]|1[0-9]|2[0-3])点半?)')
-    cn_date_pattern = re.compile(r'((\d{4}|\d{2})(-|/|.)\d{1,2}\3\d{1,2})|(\d{4}年\d{1,2}月\
-    \d{1,2}日)|(\d{1,2}月\d{1,2}日)|(\d{1,2}日)')
+    cn_time_pattern = re.compile(r'((([0-1]?[0-9])|2[0-3]):([0-5]?[0-9])(:([0-5]?[0-9]))?)'+\
+    r'|((0?[0-9]|1[0-9]|2[0-3])点\d+分?)|((0?[0-9]|1[0-9]|2[0-3])点半?)')
+    cn_date_pattern = re.compile(r'((\d{4}|\d{2})(-|/|.)\d{1,2}\3\d{1,2})|(\d{4}年\d{1,2}月'+\
+    r'\d{1,2}日)|(\d{1,2}月\d{1,2}日)|(\d{1,2}日)')
 
     def extract_time(self, cn_str):
         dt_ret = []
         tstr_list = self.cn_time_pattern.findall(cn_str)
+        #print(tstr_list)
         if len(tstr_list) <= 0: return
         for tstr in tstr_list[0]:
-            if len(tstr) > 0 and (u"点" in tstr or u"时" in tstr): #cn time
-                numbs = re.findall(r'\d*', tstr)
-                print("numb:",numbs, "tstr:", tstr)
-                hour = int(numbs[0])
+            if len(tstr) > 0:
+                hour = 0
                 minute = 0
+                numbs = re.findall(r'\d*', tstr)
+                #print(numbs)
+                hour = int(numbs[0])
                 if len(numbs) > 2 and len(numbs[2]) > 0:
                     minute = int(numbs[2])
                 elif r"半" in tstr:
@@ -95,6 +97,7 @@ class extract_cn_time:
                 
                 #print(t)
                 dt_ret.append(t2)
+                break
         return  dt_ret
     
     def remove_time(self, cn_str):
@@ -102,12 +105,21 @@ class extract_cn_time:
         ret = cn_str
         if len(tstr_list) <= 0 : return
         for tstr in tstr_list[0]:
-            if len(tstr) > 0 and (u"点" in tstr or u"时" in tstr) : #cn time
-                #print("tstr:", tstr, "ret", ret)
-                ret = ret.replace(tstr,"")
+            if len(tstr) > 0:
+                ret = ret.replace(tstr,"", 1)
+                break
         return ret
 
     def Test(self):
+
+        cn2d = num_cn2digital()
+        t = u"23:20 喂奶20毫升"
+        print(t)
+        t1 = cn2d.replace_cn_digital(t)
+        print("t1:",t1)
+        print( t, self.extract_time(t1))
+        print(t, self.remove_time(t1))
+
         cn2d = num_cn2digital()
         t = u"十二点二十分"
         print(t)
