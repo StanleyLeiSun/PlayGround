@@ -2,6 +2,7 @@ from entityClasses import Message, Action, ActionType
 from dbWrapper import RobertLogMSSQL
 from cn_utility import num_cn2digital, extract_cn_time
 import re
+import datetime
 
 class ActionCenter:
 
@@ -66,7 +67,7 @@ class ActionCenter:
             response = "收到,萝卜在{1}吃了{0}".format(action.Detail, action.TimeStamp.strftime( "%H:%M"))
         elif action.Type == ActionType.Reports:
             response = "统计结果: \n"
-            cur = datetime.datetime.utcnow() + datetime.timedelta(day=2)
+            cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
             actions = self.rlSQL.GetActionReports(10)
             for a in actions:
                 if a.Type not in {ActionType.UnKnown, ActionType.Reports} :
