@@ -65,18 +65,15 @@ class num_cn2digital:
 
 class extract_cn_time:
     
-    #cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?|([1-24]\d点[0-60]\d分)|([1-24]\点)')
-    #cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?|([1-24]\d点[0-60]\d分?)|([1-24]\点半?)')
-    #cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?|([1-24]点\d*分?)|([1-24]\点半?)')
     cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?|((0?[0-9]|1[0-9]|2[0-3])点\d+分?)|((0?[0-9]|1[0-9]|2[0-3])点半)')
     cn_date_pattern = re.compile(r'((\d{4}|\d{2})(-|/|.)\d{1,2}\3\d{1,2})|(\d{4}年\d{1,2}月\d{1,2}日)|(\d{1,2}月\d{1,2}日)|(\d{1,2}日)')
 
     def extract_time(self, cn_str):
         dt_ret = []
         tstr_list = self.cn_time_pattern.findall(cn_str)
-        if len(tstr_list) <= 0 : return
+        if len(tstr_list) <= 0: return
         for tstr in tstr_list[0]:
-            if len(tstr) > 0 and (u"点" in tstr or u"时" in tstr) : #cn time
+            if len(tstr) > 0 and (u"点" in tstr or u"时" in tstr): #cn time
                 numbs = re.findall(r'\d*', tstr)
                 print("numb:",numbs, "tstr:", tstr)
                 hour = int(numbs[0])
