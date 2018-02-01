@@ -65,10 +65,14 @@ class ActionCenter:
         if action.Type == ActionType.Feed:
             response = "收到,萝卜在{1}吃了{0}".format(action.Detail, action.TimeStamp.strftime( "%H:%M"))
         elif action.Type == ActionType.Reports:
-            response = "记录: \n"
+            response = "统计结果: \n"
+            cur = datetime.datetime.utcnow() + datetime.timedelta(day=2)
             actions = self.rlSQL.GetActionReports(10)
             for a in actions:
                 if a.Type not in {ActionType.UnKnown, ActionType.Reports} :
+                    if a.TimeStamp.day != cur.day:
+                        cur = a.TimeStamp
+                        response += "{0}日记录:\n".format(cur.strftime("%m-%d")) 
                     response += a.GenBrief()
                     response += "\n"
         

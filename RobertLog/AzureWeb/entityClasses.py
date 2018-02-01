@@ -33,7 +33,7 @@ class Action:
     def GenBrief(self):
         """Brief the action as a str"""
 
-        brief = "[{0}] [{1}] ".format(self.TimeStamp.strftime( "%m-%d %H:%M"), ActionType.actionNames[self.Type])
+        brief = "[{0}] {1} ".format(self.TimeStamp.strftime( "%H:%M"), ActionType.actionNames[self.Type])
 
         if self.Type == ActionType.Feed:
             brief += self.Detail
