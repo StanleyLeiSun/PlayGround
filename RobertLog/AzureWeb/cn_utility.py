@@ -1,6 +1,7 @@
 #coding: utf-8
 import re
 import string
+import datetime
 
 class num_cn2digital:
 
@@ -37,14 +38,16 @@ class num_cn2digital:
 
     def replace_cn_digital(self, cn_str):
         ret = cn_str
-        number = re.compile(u"[一二三四五六七八九零十百千万亿]*")
+        number = re.compile(u"[一二两三四五六七八九零十百千万亿]*")
         #number = re.compile(u"[一二三四五六七八九零十百千万亿]+|[0-9]+[,]*[0-9]+.[0-9]+")
         #number = re.compile("[1-9]")
         pattern = re.compile(number)
         all = pattern.findall(cn_str)
         for i in all:
+            #print(i)
             if len(i) > 0:
                 d = self.chinese2digits(i)
+                #print(d,i)
                 ret = ret.replace(i,str(d),1)
         
         return ret
@@ -58,3 +61,55 @@ class num_cn2digital:
         print("{0} => {1}", t, self.replace_cn_digital(t))
         t = u"八十八"
         print("{0} => {1}", t, self.replace_cn_digital(t))
+
+
+class extract_cn_time:
+    
+    #cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?|([1-24]\d点[0-60]\d分)|([1-24]\点)')
+    #cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?|([1-24]\d点[0-60]\d分?)|([1-24]\点半?)')
+    #cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?|([1-24]点\d*分?)|([1-24]\点半?)')
+    cn_time_pattern = re.compile(r'(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?|((0?[0-9]|1[0-9]|2[0-3])点\d*分?)|((0?[0-9]|1[0-9]|2[0-3])点半)')
+    cn_date_pattern = re.compile(r'((\d{4}|\d{2})(-|/|.)\d{1,2}\3\d{1,2})|(\d{4}年\d{1,2}月\d{1,2}日)|(\d{1,2}月\d{1,2}日)|(\d{1,2}日)')
+
+    def extract_time(self, cn_str):
+        dt_ret = []
+        tstr_list = self.cn_time_pattern.findall(cn_str)
+        if len(tstr_list) <= 0 : return
+        for tstr in tstr_list[0]:
+            if len(tstr) > 0 and (u"点" in tstr or u"时" in tstr) : #cn time
+                numbs = re.findall(r'\d*', tstr)
+                print("numb:",numbs, "tstr:", tstr)
+                hour = int(numbs[0])
+                minute = 0
+                if len(numbs) > 2 and len(numbs[2]) > 0:
+                    minute = int(numbs[2])
+                elif r"半" in tstr:
+                    minute = 30
+                
+                t = datetime.datetime.utcnow()  + datetime.timedelta(hours=+8)
+                if t.hour > 12 and hour < 12: 
+                    hour += 12 
+                
+                t2 = t.replace(hour = hour, minute = minute, second = 0, microsecond = 0)
+                if t2 > t : 
+                    t2 = t2 + datetime.timedelta(hours = -12)
+                
+                #print(t)
+                dt_ret.append(t2)
+        return  dt_ret
+    
+    def Test(self):
+        cn2d = num_cn2digital()
+        t = u"十二点二十分"
+        t1 = cn2d.replace_cn_digital(t)
+        print("t1:",t1)
+        print( t, self.extract_time(t1))
+        t = u"三点半喂奶二十毫升"
+        t1 = cn2d.replace_cn_digital(t)
+        print("t1:",t1)
+        print( t, self.extract_time(t1))
+        t = u"九点五分"
+        t1 = cn2d.replace_cn_digital(t)
+        print("t1:",t1)
+        print( t, self.extract_time(t1))
+        

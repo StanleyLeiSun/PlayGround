@@ -4,7 +4,7 @@ from weixinInterface import WeixinInterface
 from dbWrapper import RobertLogMSSQL
 from actionCenter import ActionCenter
 import xml.etree.ElementTree as ET
-from cn_utility import num_cn2digital
+from cn_utility import num_cn2digital, extract_cn_time
 
 app = Flask(__name__)
 
@@ -48,8 +48,10 @@ def TestReport():
 #TestReport()
 #TestActions()
 
-cn2d = num_cn2digital()
+#cn2d = num_cn2digital()
 #cn2d.Test()
+ect = extract_cn_time()
+ect.Test()
 
 @app.route('/')
 def hello_world():
@@ -64,5 +66,6 @@ def weixin_post():
     return weixin.callback_post()
 
 if __name__ == '__main__':
-    app.run()
+    #app.run()
     #app.run(host="0.0.0.0", port=80)
+    pass
