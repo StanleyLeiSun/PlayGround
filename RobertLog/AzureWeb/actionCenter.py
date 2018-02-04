@@ -22,6 +22,8 @@ class ActionCenter:
     BathKeywords = {u"洗澡"}
     RemoveKeywords = {u"撤销", u"删除"}
 
+    users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw"}
+
     def check_strList(self, str, listStr):
         for s in listStr:
             if str.find(s) >= 0 :
@@ -68,6 +70,9 @@ class ActionCenter:
         else:
             action.Type = ActionType.UnKnown
         
+        if action.FromUser not in self.users_can_write and action.Type not in {ActionType.Reports, ActionType.WeeklyReports}:
+            action.Type = ActionType.NoPermission
+
         return action
     
     def GenResponse(self, action):
@@ -130,6 +135,8 @@ class ActionCenter:
         elif action.Type == ActionType.Remove:
             self.rlSQL.DeleteLastAction()
             response ="已删除一条记录.\n"
+        elif action.Type == ActionType.NoPermission:
+            response = "抱歉您没有权限，可以尝试 '总结' 或 '一周总结' 查看萝卜成长状态。"
         else:
             response = action.GenBrief()
 

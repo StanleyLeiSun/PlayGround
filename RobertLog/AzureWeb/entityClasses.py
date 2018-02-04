@@ -58,6 +58,7 @@ class ActionType:
     WeeklyReports ="WeeklyReports"
     Notes = "Notes"
     Remove = "Remove"
+    NoPermission = "NoPermission"
 
     actionNames = {UnKnown:"未知", Feed:"喂奶", Poop:"拉屎了", AD:"吃了AD", Bath:"洗澡", Reports:"汇报", WeeklyReports:"一周汇总", Notes:"备注", Remove:"撤销"}
     
