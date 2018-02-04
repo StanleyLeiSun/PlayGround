@@ -23,6 +23,7 @@ class ActionCenter:
     RemoveKeywords = {u"撤销", u"删除"}
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw"}
+    actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports, ActionType.Remove,ActionType.NoPermission}
 
     def check_strList(self, str, listStr):
         for s in listStr:
@@ -88,7 +89,7 @@ class ActionCenter:
                 if a.Status == Action.Deleted:
                     continue
 
-                if a.Type not in {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports, ActionType.Remove} :
+                if a.Type not in self.actiontype_skip_log :
                     if a.TimeStamp.day != cur.day:
                         cur = a.TimeStamp
                         response += "{0}日记录:\n".format(cur.strftime("%m-%d")) 
@@ -147,7 +148,7 @@ class ActionCenter:
         self.rlSQL.LogMessage(msg)
         
         action = self.DetectAction(msg)
-        if action.Type not in {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports, ActionType.Remove} :
+        if action.Type not in self.actiontype_skip_log :
             self.rlSQL.AppendAction(action)
         else:
             pass
