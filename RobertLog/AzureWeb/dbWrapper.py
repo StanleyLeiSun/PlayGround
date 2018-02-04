@@ -79,7 +79,7 @@ class RobertLogMSSQL:
     
     def GetLastFallSleep(self):
         """List all the last # actions"""
-        cmd = "select top 1 * from dbo.RawMsg where RawMsg like N'%睡了%' ORDER BY TimeStamp DESC"
+        cmd = "select top 1 * from dbo.RawMsg where RawMsg like N'%睡着了%' ORDER BY TimeStamp DESC"
         actList = self.__ExecQuery(cmd)
         if len(actList) <= 0:
             return None
