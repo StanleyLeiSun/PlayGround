@@ -14,8 +14,8 @@ class ActionCenter:
     ReportsKeywords = {u"报告", u"总结", u"情况"}
     mLKeywords = {u"ml",u"毫升"}
     MinKeywords = {u"分钟", u"一会"}
-    ADKeywords = {u"AD"}
-    PoopKeywords = {u"拉屎"}
+    ADKeywords = {u"AD",u"吃药"}
+    PoopKeywords = {u"拉屎",u"大便", }
     BathKeywords = {u"洗澡"}
 
     def check_strList(self, str, listStr):
@@ -68,7 +68,7 @@ class ActionCenter:
         elif action.Type == ActionType.Reports:
             response = "统计结果: \n"
             cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
-            actions = self.rlSQL.GetActionReports(10)
+            actions = self.rlSQL.GetActionReports(20)
             for a in actions:
                 if a.Type not in {ActionType.UnKnown, ActionType.Reports} :
                     if a.TimeStamp.day != cur.day:
