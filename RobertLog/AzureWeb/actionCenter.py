@@ -12,11 +12,14 @@ class ActionCenter:
     #Action List
     FeedKeywords = {u"吃了",u"喂了", u"喂奶", u"吃奶"}
     ReportsKeywords = {u"报告", u"总结", u"情况"}
+    WeeklyReportsKeywords = {u"一周报告", u"一周总结", u"一周情况"}
+    NotesKeywords = {u"备注", u"笔记"}
     mLKeywords = {u"ml",u"毫升"}
-    MinKeywords = {u"分钟", u"一会"}
+    MinKeywords = {u"分钟"}
     ADKeywords = {u"AD",u"吃药"}
     PoopKeywords = {u"拉屎",u"大便", }
     BathKeywords = {u"洗澡"}
+    RemoveKeywords = {u"撤销", u"删除上一条"}
 
     def check_strList(self, str, listStr):
         for s in listStr:
@@ -44,7 +47,13 @@ class ActionCenter:
                     action.Detail = "母乳:" + nums[0] + u"分钟"
                 else:
                     action.Detail = "奶瓶:" + nums[0] + "mL"
-
+        elif self.check_strList(msg.RawContent, self.WeeklyReportsKeywords):
+            action.Type = ActionType.WeeklyReports
+        elif self.check_strList(msg.RawContent, self.RemoveKeywords):
+            action.Type = ActionType.Remove
+        elif self.check_strList(msg.RawContent, self.NotesKeywords):
+            action.Type = ActionType.Notes
+            action.detail = msg.RawContent
         elif self.check_strList(msg.RawContent, self.ReportsKeywords):
             #reports
             action.Type = ActionType.Reports
@@ -70,13 +79,46 @@ class ActionCenter:
             cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
             actions = self.rlSQL.GetActionReports(20)
             for a in actions:
-                if a.Type not in {ActionType.UnKnown, ActionType.Reports} :
+                if a.Type not in {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports} :
                     if a.TimeStamp.day != cur.day:
                         cur = a.TimeStamp
                         response += "{0}日记录:\n".format(cur.strftime("%m-%d")) 
                     response += a.GenBrief()
                     response += "\n"
-        
+        elif action.Type == ActionType.WeeklyReports:
+            response = "统计结果: \n"
+            cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
+            actions = self.rlSQL.GetActionReports(200)
+            milk = 0
+            breast = 0
+            breastNum = 0
+            poop = 0
+            for a in actions:
+                if a.TimeStamp.day != cur.day and (milk !=0 or breast !=0):                        
+                    response += "{0}日: 奶瓶：{1}mL 母乳：{2}次,共{3}分钟 大便：{4}次\n".format(\
+                    cur.strftime("%m-%d"), milk, breastNum, breast, poop)
+                    milk = 0
+                    breast = 0 
+                    poop = 0
+                    breastNum = 0
+                cur = a.TimeStamp
+                if a.Type == ActionType.Feed:
+                    nums = re.findall(r"\d+",a.Detail)
+                    if len(nums) > 0:
+                        d = int(nums[0])
+                        if a.Detail.find("母乳") >= 0:
+                            breast += d
+                            breastNum += 1
+                        elif a.Detail.find("奶瓶") >= 0:
+                            milk += d
+                elif a.Type == ActionType.Poop:
+                    poop += 1
+            if milk !=0 or breast !=0:                        
+                response += "{0}日: 奶瓶：{1}mL 母乳：{2}次,共{3}分钟 大便：{4}次\n".format(\
+                    cur.strftime("%m-%d"), milk, breastNum, breast, poop)
+                    
+        elif action.Type == ActionType.Remove:
+            pass
         else:
             response = action.GenBrief()
 
@@ -87,7 +129,7 @@ class ActionCenter:
         self.rlSQL.LogMessage(msg)
         
         action = self.DetectAction(msg)
-        if action.Type not in {ActionType.UnKnown, ActionType.Reports} :
+        if action.Type not in {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports} :
             self.rlSQL.AppendAction(action)
         else:
             pass

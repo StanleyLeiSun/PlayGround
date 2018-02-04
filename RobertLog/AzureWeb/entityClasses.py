@@ -35,7 +35,7 @@ class Action:
 
         brief = "[{0}] {1} ".format(self.TimeStamp.strftime( "%H:%M"), ActionType.actionNames[self.Type])
 
-        if self.Type == ActionType.Feed:
+        if self.Type in {ActionType.Feed, ActionType.Notes}:
             brief += self.Detail
         elif self.Type == ActionType.Poop:
             pass
@@ -55,6 +55,9 @@ class ActionType:
     AD = "AD"
     Bath = "Bath"
     Reports = "Report"
+    WeeklyReports ="WeeklyReports"
+    Notes = "Notes"
+    Remove = "Remove"
 
-    actionNames = {UnKnown:"未知", Feed:"喂奶", Poop:"拉屎了", AD:"吃了AD", Bath:"洗澡", Reports:"汇报"}
+    actionNames = {UnKnown:"未知", Feed:"喂奶", Poop:"拉屎了", AD:"吃了AD", Bath:"洗澡", Reports:"汇报", WeeklyReports:"一周汇总", Notes:"备注", Remove:"撤销"}
     

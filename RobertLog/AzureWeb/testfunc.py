@@ -39,11 +39,13 @@ def TestActions():
 def TestReport():
     str_report = str_cmdtemplate_xml.format("今日情况")
     print(actCenter.Receive(str_report))
+    str_report = str_cmdtemplate_xml.format("一周总结")
+    print(actCenter.Receive(str_report))
 
-#TestReport()
+TestReport()
 #TestActions()
 
 #cn2d = num_cn2digital()
 #cn2d.Test()
-ect = extract_cn_time()
-ect.Test()
+#ect = extract_cn_time()
+#ect.Test()
