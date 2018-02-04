@@ -5,13 +5,14 @@ WeiXinInterface
 Define the interface to WeiChat
 
     #developer id wx53b8a28638e040d3
-    #token stansun
+    #token xxxxx
     #encoding key gJ3g38Z7NXVSBxarCStIDWS8RIhrzR131lLyOfi7ulZ
 """
 import hashlib
 import time
 import os
 import xml.etree.ElementTree as ET
+import config
 from actionCenter import ActionCenter
 from flask import render_template
 from flask import request
@@ -34,7 +35,7 @@ class WeixinInterface:
         timestamp = request.args.get("timestamp")
         nonce = request.args.get("nonce")
         echostr = request.args.get("echostr")
-        token = "stansun"
+        token = config.weichat_token
 
         stamp_list = [token, timestamp, nonce]
         stamp_list.sort()

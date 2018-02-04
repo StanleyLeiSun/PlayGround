@@ -203,3 +203,6 @@ parts
 src/*.egg-info
 lib
 lib64
+
+#Project
+secret.txt

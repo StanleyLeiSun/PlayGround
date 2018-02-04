@@ -4,11 +4,12 @@ from dbWrapper import RobertLogMSSQL
 from cn_utility import num_cn2digital, extract_cn_time
 import re
 import datetime
+import config
 
 class ActionCenter:
 
     #SQL
-    rlSQL = RobertLogMSSQL(host="robertlog.database.windows.net",user="rluser",pwd="Xiaoluobo666",db="robertlog")
+    rlSQL = RobertLogMSSQL(host="robertlog.database.windows.net",user="rluser",pwd=config.db_pwd,db="robertlog")
 
     #Action List
     FeedKeywords = {u"吃了",u"喂了", u"喂奶", u"吃奶"}
@@ -22,7 +23,7 @@ class ActionCenter:
     BathKeywords = {u"洗澡"}
     RemoveKeywords = {u"撤销", u"删除"}
 
-    users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw"}
+    users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ"}
     actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports, ActionType.Remove,ActionType.NoPermission}
 
     def check_strList(self, str, listStr):
@@ -43,7 +44,9 @@ class ActionCenter:
 
         if self.check_strList(msg.RawContent, self.NotesKeywords):
             action.Type = ActionType.Notes
-            action.detail = msg.RawContent
+            action.Detail = msg.RawContent
+            for k in self.NotesKeywords:
+                action.Detail = action.Detail.lstrip(k)
         elif self.check_strList(msg.RawContent, self.ADKeywords):
             action.Type = ActionType.AD
         elif self.check_strList(content, self.FeedKeywords):

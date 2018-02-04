@@ -1,6 +1,7 @@
 from dbWrapper import RobertLogMSSQL
 from actionCenter import ActionCenter
 import xml.etree.ElementTree as ET
+import config
 from cn_utility import num_cn2digital, extract_cn_time
 
 
@@ -54,3 +55,5 @@ def TestDelete():
 #cn2d.Test()
 #ect = extract_cn_time()
 #ect.Test()
+
+print(config.db_pwd, config.weichat_token)
