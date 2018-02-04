@@ -10,6 +10,7 @@ class Message:
     def __init__(self, msg = None):
         if not msg:
             self.MsgType = "text"
+            print("no msg content")
             return
 
         xml = ET.fromstring(msg)

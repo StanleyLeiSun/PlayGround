@@ -88,7 +88,7 @@ class RobertLogMSSQL:
         msg.FromUser = actList[0].FromUser.strip()
         msg.ToUser = actList[0].ToUser.strip()
         msg.RawMsg = actList[0].RawMsg.strip()
-        pos = actList[0].CreateTime.index('.')
-        timestr = actList[0].CreateTime[:pos].strip()
+        pos = actList[0].TimeStamp.index('.')
+        timestr = actList[0].TimeStamp[:pos].strip()
         msg.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
         return msg
