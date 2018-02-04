@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from entityClasses import Message, Action, ActionType
 from dbWrapper import RobertLogMSSQL
 from cn_utility import num_cn2digital, extract_cn_time
@@ -19,7 +20,7 @@ class ActionCenter:
     ADKeywords = {u"AD",u"吃药"}
     PoopKeywords = {u"拉屎",u"大便", }
     BathKeywords = {u"洗澡"}
-    RemoveKeywords = {u"撤销", u"删除上一条"}
+    RemoveKeywords = {u"撤销", u"删除"}
 
     def check_strList(self, str, listStr):
         for s in listStr:
@@ -37,7 +38,12 @@ class ActionCenter:
             action.TimeStamp = t[0]
             content = ect.remove_time(content)
 
-        if self.check_strList(content, self.FeedKeywords):
+        if self.check_strList(msg.RawContent, self.NotesKeywords):
+            action.Type = ActionType.Notes
+            action.detail = msg.RawContent
+        elif self.check_strList(msg.RawContent, self.ADKeywords):
+            action.Type = ActionType.AD
+        elif self.check_strList(content, self.FeedKeywords):
             #feed
             action.Type = ActionType.Feed
             action.Status = Action.Active
@@ -51,15 +57,10 @@ class ActionCenter:
             action.Type = ActionType.WeeklyReports
         elif self.check_strList(msg.RawContent, self.RemoveKeywords):
             action.Type = ActionType.Remove
-        elif self.check_strList(msg.RawContent, self.NotesKeywords):
-            action.Type = ActionType.Notes
-            action.detail = msg.RawContent
         elif self.check_strList(msg.RawContent, self.ReportsKeywords):
             #reports
             action.Type = ActionType.Reports
             action.Status = Action.Active
-        elif self.check_strList(msg.RawContent, self.ADKeywords):
-            action.Type = ActionType.AD
         elif self.check_strList(msg.RawContent, self.PoopKeywords):
             action.Type = ActionType.Poop
         elif self.check_strList(msg.RawContent, self.BathKeywords):
@@ -79,7 +80,10 @@ class ActionCenter:
             cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
             actions = self.rlSQL.GetActionReports(20)
             for a in actions:
-                if a.Type not in {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports} :
+                if a.Status == Action.Deleted:
+                    continue
+
+                if a.Type not in {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports, ActionType.Remove} :
                     if a.TimeStamp.day != cur.day:
                         cur = a.TimeStamp
                         response += "{0}日记录:\n".format(cur.strftime("%m-%d")) 
@@ -94,6 +98,9 @@ class ActionCenter:
             breastNum = 0
             poop = 0
             for a in actions:
+                if a.Status == Action.Deleted:
+                    continue
+
                 if a.TimeStamp.day != cur.day and (milk !=0 or breast !=0):                        
                     response += "{0}日: 奶瓶：{1}mL 母乳：{2}次,共{3}分钟 大便：{4}次\n".format(\
                     cur.strftime("%m-%d"), milk, breastNum, breast, poop)
@@ -113,12 +120,16 @@ class ActionCenter:
                             milk += d
                 elif a.Type == ActionType.Poop:
                     poop += 1
+                elif a.Type == ActionType.Notes:
+                    response += "{0}日{1}\n".format(cur.strftime("%m-%d"),a.GenBrief())
+
             if milk !=0 or breast !=0:                        
                 response += "{0}日: 奶瓶：{1}mL 母乳：{2}次,共{3}分钟 大便：{4}次\n".format(\
                     cur.strftime("%m-%d"), milk, breastNum, breast, poop)
                     
         elif action.Type == ActionType.Remove:
-            pass
+            self.rlSQL.DeleteLastAction()
+            response ="已删除一条记录.\n"
         else:
             response = action.GenBrief()
 
@@ -129,7 +140,7 @@ class ActionCenter:
         self.rlSQL.LogMessage(msg)
         
         action = self.DetectAction(msg)
-        if action.Type not in {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports} :
+        if action.Type not in {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports, ActionType.Remove} :
             self.rlSQL.AppendAction(action)
         else:
             pass

@@ -42,8 +42,13 @@ def TestReport():
     str_report = str_cmdtemplate_xml.format("一周总结")
     print(actCenter.Receive(str_report))
 
-TestReport()
+def TestDelete():
+    str_report = str_cmdtemplate_xml.format("撤销")
+    print(actCenter.Receive(str_report))
+
+#TestReport()
 #TestActions()
+#TestDelete()
 
 #cn2d = num_cn2digital()
 #cn2d.Test()
