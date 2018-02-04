@@ -88,7 +88,7 @@ class ActionCenter:
                 if sleep_t is None or len(sleep_t) <= 0:
                     sleep_t = sleep.TimeStamp
                 action.Detail = "从{0}到{1}，睡了{2:.2f}小时".format(sleep_t.strftime( "%H:%M"), \
-                    action.TimeStamp.strftime( "%H:%M"), int((action.TimeStamp - sleep_t).total_seconds()/3600))
+                    action.TimeStamp.strftime( "%H:%M"), (action.TimeStamp - sleep_t).total_seconds()/3600)
         else:
             action.Type = ActionType.UnKnown
         
