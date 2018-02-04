@@ -76,3 +76,19 @@ class RobertLogMSSQL:
         """delete item TODO support delete a specific item"""
         cmdstr = "update dbo.Actions set ActionStatus = 'Deleted' where ActionID=(select max(ActionID) from dbo.Actions)"
         self.__ExecNonQuery(cmdstr)
+    
+    def GetLastFallSleep(self):
+        """List all the last # actions"""
+        cmd = "select top 1 * from dbo.RawMsg where RawMsg like N'%睡了%' ORDER BY TimeStamp DESC"
+        actList = self.__ExecQuery(cmd)
+        if len(actList) <= 0:
+            return None
+        
+        msg = Message()
+        msg.FromUser = actList[0].FromUser.strip()
+        msg.ToUser = actList[0].ToUser.strip()
+        msg.RawMsg = actList[0].RawMsg.strip()
+        pos = actList[0].CreateTime.index('.')
+        timestr = actList[0].CreateTime[:pos].strip()
+        msg.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
+        return msg

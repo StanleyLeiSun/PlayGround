@@ -9,7 +9,7 @@ import config
 class ActionCenter:
 
     #SQL
-    rlSQL = RobertLogMSSQL(host="robertlog.database.windows.net",user="rluser",pwd=config.db_pwd,db="robertlog")
+    rlSQL = RobertLogMSSQL(host="robertlog.database.windows.net",user=config.db_user,pwd=config.db_pwd,db="robertlog")
 
     #Action List
     FeedKeywords = {u"吃了",u"喂了", u"喂奶", u"吃奶"}
@@ -22,9 +22,12 @@ class ActionCenter:
     PoopKeywords = {u"拉屎",u"大便", }
     BathKeywords = {u"洗澡"}
     RemoveKeywords = {u"撤销", u"删除"}
+    FallSleepKeywords = {u"睡着了"}
+    WakeUpKeywords = {u"醒了"}
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ"}
-    actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports, ActionType.Remove,ActionType.NoPermission}
+    actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports,\
+     ActionType.Remove, ActionType.NoPermission, ActionType.FallSleep}
 
     def check_strList(self, str, listStr):
         for s in listStr:
@@ -71,6 +74,22 @@ class ActionCenter:
             action.Type = ActionType.Poop
         elif self.check_strList(msg.RawContent, self.BathKeywords):
             action.Type = ActionType.Bath
+        elif self.check_strList(msg.RawContent, self.FallSleepKeywords):
+            action.type = ActionType.FallSleep
+        elif self.check_strList(msg.RawContent, self.WakeUpKeywords):
+            action.type = ActionType.WakeUp
+            sleep = self.rlSQL.GetLastFallSleep()
+            if not sleep:
+                action.Type = ActionType.UnKnown
+            else:
+                #check previous time
+                pre_content = num2d.replace_cn_digital(sleep.RawContent)
+                sleep_t = ect.extract_time(pre_content)
+                if sleep_t is None or len(sleep_t) <= 0:
+                    sleep_t = sleep.TimeStamp
+                action.Detail = "从{0}到{1}，睡了{2}".format(sleep_t.strftime( "%H:%M"), \
+                    action.TimeStamp.strftime( "%H:%M"), (action.TimeStamp - sleep_t).total_seconds()/60)
+
         else:
             action.Type = ActionType.UnKnown
         

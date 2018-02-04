@@ -7,7 +7,11 @@ import datetime
 class Message:
     """Structurlized Message between WeiChat and backend"""
 
-    def __init__(self, msg):
+    def __init__(self, msg = None):
+        if not msg:
+            self.MsgType = "text"
+            return
+
         xml = ET.fromstring(msg)
         self.RawContent=xml.find("Content").text
         self.MsgType=xml.find("MsgType").text
@@ -35,7 +39,7 @@ class Action:
 
         brief = "[{0}] {1} ".format(self.TimeStamp.strftime( "%H:%M"), ActionType.actionNames[self.Type])
 
-        if self.Type in {ActionType.Feed, ActionType.Notes}:
+        if self.Type in {ActionType.Feed, ActionType.Notes, ActionType.WakeUp}:
             brief += self.Detail
         elif self.Type == ActionType.Poop:
             pass
@@ -59,6 +63,9 @@ class ActionType:
     Notes = "Notes"
     Remove = "Remove"
     NoPermission = "NoPermission"
+    FallSleep = "Sleep"
+    WakeUp = "WakeUp"
 
-    actionNames = {UnKnown:"未知", Feed:"喂奶", Poop:"拉屎了", AD:"吃了AD", Bath:"洗澡", Reports:"汇报", WeeklyReports:"一周汇总", Notes:"备注", Remove:"撤销"}
+    actionNames = {UnKnown:"未知", Feed:"喂奶", Poop:"拉屎了", AD:"吃了AD", Bath:"洗澡", \
+    Reports:"汇报", WeeklyReports:"一周汇总", Notes:"备注", Remove:"撤销", FallSleep:"睡着了", WakeUp:"睡了"}
     
