@@ -75,9 +75,9 @@ class ActionCenter:
         elif self.check_strList(msg.RawContent, self.BathKeywords):
             action.Type = ActionType.Bath
         elif self.check_strList(msg.RawContent, self.FallSleepKeywords):
-            action.type = ActionType.FallSleep
+            action.Type = ActionType.FallSleep
         elif self.check_strList(msg.RawContent, self.WakeUpKeywords):
-            action.type = ActionType.WakeUp
+            action.Type = ActionType.WakeUp
             sleep = self.rlSQL.GetLastFallSleep()
             if not sleep:
                 action.Type = ActionType.UnKnown
@@ -87,9 +87,8 @@ class ActionCenter:
                 sleep_t = ect.extract_time(pre_content)
                 if sleep_t is None or len(sleep_t) <= 0:
                     sleep_t = sleep.TimeStamp
-                action.Detail = "从{0}到{1}，睡了{2}".format(sleep_t.strftime( "%H:%M"), \
-                    action.TimeStamp.strftime( "%H:%M"), (action.TimeStamp - sleep_t).total_seconds()/60)
-
+                action.Detail = "从{0}到{1}，睡了{2}分钟".format(sleep_t.strftime( "%H:%M"), \
+                    action.TimeStamp.strftime( "%H:%M"), int((action.TimeStamp - sleep_t).total_seconds()/60)
         else:
             action.Type = ActionType.UnKnown
         
