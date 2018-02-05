@@ -39,6 +39,7 @@ def get_setenece_onehot(setence):
             continue
         word = '#' + word + '#'
         word_sparse_index = [get_chartrimgram_index(word[i:i + 3]) for i in range(len(word) - 2)]
+        print(word_sparse_index)
         for index in word_sparse_index:
             if index > 0 and index < TRIGRAM_SIZE:
                 if index in tri_dic:
@@ -56,6 +57,7 @@ def build_data(file):
         tokens = line.split('\t')
         if len(tokens) >= 2:
             query = tokens[0]
+            print(query)
             doc = tokens[1]
             query_onehot = get_setenece_onehot(query)
 
@@ -74,13 +76,20 @@ def build_data(file):
                 print(ith)
     query_csr = csr_matrix((query_data, (query_rows, query_columns)))
     doc_csr = csr_matrix((doc_data, (doc_rows, doc_columns)))
+    print("query data")
+    print(query_data)
+    #print(query_rows)
+    #print(query_columns)
+    #print(doc_data)
     return query_csr, doc_csr
 
 if __name__ == '__main__':
     q_csr, d_csr = build_data(sys.argv[1])
-    pickle.dump(q_csr, open(sys.argv[1] + '.query.pickle', 'wb', True), protocol=4)
-    pickle.dump(d_csr, open(sys.argv[1] + '.doc.pickle', 'wb', True), protocol=4)
-    # print(q_csr.count_nonzero())
+    #pickle.dump(q_csr, open(sys.argv[1] + '.query.pickle', 'wb', True), protocol=4)
+    #pickle.dump(d_csr, open(sys.argv[1] + '.doc.pickle', 'wb', True), protocol=4)
+    print("q_csr")
+    print(q_csr.count_nonzero())
+    print(q_csr.shape)
     # print(q_coo.shape)
     # print(q_coo.row)
     # print(q_coo.col)
