@@ -108,7 +108,7 @@ class ActionCenter:
         elif action.Type == ActionType.Reports:
             response = "统计结果: \n"
             cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
-            actions = self.rlSQL.GetActionReports(20)
+            actions = self.rlSQL.GetActionReports(30)
             for a in actions:
                 if a.Status == Action.Deleted:
                     continue
@@ -122,7 +122,7 @@ class ActionCenter:
         elif action.Type == ActionType.WeeklyReports:
             response = "统计结果: \n"
             cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
-            actions = self.rlSQL.GetActionReports(200)
+            actions = self.rlSQL.GetActionReports(300)
             milk = 0
             breast = 0
             breastNum = 0
