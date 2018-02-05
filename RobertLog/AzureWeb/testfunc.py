@@ -53,7 +53,9 @@ def TestDelete():
 
 #cn2d = num_cn2digital()
 #cn2d.Test()
+
 #ect = extract_cn_time()
 #ect.Test()
-
-print(config.db_pwd, config.weichat_token)
+#times = ect.extract_time_v2("从21:10到03:15，睡了6小时")
+#print(times)
+#print(config.db_pwd, config.weichat_token)

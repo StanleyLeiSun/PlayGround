@@ -100,6 +100,29 @@ class extract_cn_time:
                 break
         return  dt_ret
     
+    def extract_time_v2(self, cn_str):
+        dt_ret = []
+        tstr_list = self.cn_time_pattern.findall(cn_str)
+        if len(tstr_list) <= 0: return
+        for match in tstr_list:
+            for tstr in match:
+                if len(tstr) > 0:
+                    hour = 0
+                    minute = 0
+                    numbs = re.findall(r'\d*', tstr)
+                    #print(numbs)
+                    hour = int(numbs[0])
+                    if len(numbs) > 2 and len(numbs[2]) > 0:
+                        minute = int(numbs[2])
+                    elif r"半" in tstr:
+                        minute = 30
+                    
+                    t = datetime.datetime.utcnow()  + datetime.timedelta(hours=+8)
+                    t2 = t.replace(hour = hour, minute = minute, second = 0, microsecond = 0)
+                    dt_ret.append(t2)
+                    break
+        return  dt_ret
+    
     def remove_time(self, cn_str):
         tstr_list = self.cn_time_pattern.findall(cn_str)
         ret = cn_str
