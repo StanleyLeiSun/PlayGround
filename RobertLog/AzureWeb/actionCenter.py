@@ -91,7 +91,7 @@ class ActionCenter:
                     sleep_t = sleep_t[0]
                 delta_minutes = int((action.TimeStamp - sleep_t).total_seconds()/60)
                 action.Detail = "从{0}到{1}，睡了{2}小时{3}分钟".format(sleep_t.strftime( "%H:%M"), \
-                    action.TimeStamp.strftime( "%H:%M"), delta_minutes/60, delta_minutes%60)
+                    action.TimeStamp.strftime( "%H:%M"), int(delta_minutes/60), delta_minutes%60)
         else:
             action.Type = ActionType.UnKnown
         
