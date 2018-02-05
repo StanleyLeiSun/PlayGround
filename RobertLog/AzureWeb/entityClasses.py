@@ -46,6 +46,8 @@ class Action:
             pass
         elif self.Type == ActionType.AD:
             pass
+        elif self.Type == ActionType.UnKnown:
+            brief += "可以尝试 '总结' 或 '一周总结' 查看萝卜成长状态。"
         else:
             pass
         return brief
@@ -67,6 +69,6 @@ class ActionType:
     FallSleep = "Sleep"
     WakeUp = "WakeUp"
 
-    actionNames = {UnKnown:"未知", Feed:"喂奶", Poop:"拉屎了", AD:"吃了AD", Bath:"洗澡", \
+    actionNames = {UnKnown:"未知命令", Feed:"喂奶", Poop:"拉屎了", AD:"吃了AD", Bath:"洗澡", \
     Reports:"汇报", WeeklyReports:"一周汇总", Notes:"备注", Remove:"撤销", FallSleep:"睡着了", WakeUp:"睡了"}
     
