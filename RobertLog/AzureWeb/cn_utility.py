@@ -116,13 +116,24 @@ class extract_cn_time:
                         minute = int(numbs[2])
                     elif r"半" in tstr:
                         minute = 30
-                    
+
                     t = datetime.datetime.utcnow()  + datetime.timedelta(hours=+8)
                     t2 = t.replace(hour = hour, minute = minute, second = 0, microsecond = 0)
                     dt_ret.append(t2)
                     break
         return  dt_ret
     
+    def extract_time_delta(self, cn_str):
+        tlist = self.extract_time_v2(cn_str)
+        if len(tlist) != 2:
+            return
+        print(tlist)
+        if tlist[0] > tlist[1]:
+            tlist[0] = tlist[0] + datetime.timedelta(days = -1)
+        
+        print(tlist)
+        return int((tlist[1] - tlist[0]).total_seconds()/60)
+
     def remove_time(self, cn_str):
         tstr_list = self.cn_time_pattern.findall(cn_str)
         ret = cn_str
