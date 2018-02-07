@@ -106,9 +106,10 @@ class ActionCenter:
         if action.Type == ActionType.Feed:
             response = "收到,萝卜在{1}吃了{0}".format(action.Detail, action.TimeStamp.strftime( "%H:%M"))
         elif action.Type == ActionType.Reports:
-            response = "统计结果: \n"
+            response = "统计结果:"
             cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
             actions = self.rlSQL.GetActionReports(30)
+            actions.sort(key=lambda a:a.TimeStamp)
             for a in actions:
                 if a.Status == Action.Deleted:
                     continue
@@ -116,8 +117,8 @@ class ActionCenter:
                 if a.Type not in self.actiontype_skip_log :
                     if a.TimeStamp.day != cur.day:
                         cur = a.TimeStamp
-                        response = "{0}日记录:\n\n".format(cur.strftime("%m-%d")) + response
-                    response = a.GenBrief() + "\n" + response
+                        response += "\n{0}日记录:\n".format(cur.strftime("%m-%d"))
+                    response += (a.GenBrief() + "\n")
         elif action.Type == ActionType.WeeklyReports:
             response = "统计结果: \n"
             cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
