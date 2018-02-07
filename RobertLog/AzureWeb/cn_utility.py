@@ -126,12 +126,12 @@ class extract_cn_time:
     def extract_time_delta(self, cn_str):
         tlist = self.extract_time_v2(cn_str)
         if len(tlist) != 2:
-            return
-        print(tlist)
+            return 0
+        #print(tlist)
         if tlist[0] > tlist[1]:
             tlist[0] = tlist[0] + datetime.timedelta(days = -1)
         
-        print(tlist)
+        #print(tlist)
         return int((tlist[1] - tlist[0]).total_seconds()/60)
 
     def remove_time(self, cn_str):

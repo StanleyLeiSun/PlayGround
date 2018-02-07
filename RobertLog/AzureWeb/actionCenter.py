@@ -127,17 +127,19 @@ class ActionCenter:
             breast = 0
             breastNum = 0
             poop = 0
+            sleep = 0
             for a in actions:
                 if a.Status == Action.Deleted:
                     continue
 
                 if a.TimeStamp.day != cur.day and (milk !=0 or breast !=0):                        
-                    response += "{0}日: 奶瓶：{1}mL 母乳：{2}次,共{3}分钟 大便：{4}次\n".format(\
-                    cur.strftime("%m-%d"), milk, breastNum, breast, poop)
+                    response += "{0}日:睡觉: {5}小时{6}分钟 大便：{4}次\n\t\t奶瓶：{1}mL 母乳：{2}次,共{3}分钟 \n".format(\
+                    cur.strftime("%m-%d"), milk, breastNum, breast, poop, int(sleep/60), sleep%60)
                     milk = 0
                     breast = 0 
                     poop = 0
                     breastNum = 0
+                    sleep = 0
                 cur = a.TimeStamp
                 if a.Type == ActionType.Feed:
                     nums = re.findall(r"\d+",a.Detail)
@@ -150,6 +152,9 @@ class ActionCenter:
                             milk += d
                 elif a.Type == ActionType.Poop:
                     poop += 1
+                elif a.Type == ActionType.WakeUp:
+                    ect = extract_cn_time()
+                    sleep += ect.extract_time_delta(a.Detail)
                 elif a.Type == ActionType.Notes:
                     #response += "{0}日{1}\n".format(cur.strftime("%m-%d"),a.GenBrief())
                     pass
