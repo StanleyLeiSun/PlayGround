@@ -74,7 +74,7 @@ class RobertLogMSSQL:
 
     def DeleteLastAction(self, itemID = 0, lastNum = 1):
         """delete item TODO support delete a specific item"""
-        cmdstr = "update dbo.Actions set ActionStatus = 'Deleted' where ActionID=(select max(ActionID) from dbo.Actions)"
+        cmdstr = "update dbo.Actions set ActionStatus = 'Deleted' where ActionID=(select max(ActionID) from dbo.Actions where ActionStatus = 'Active')"
         self.__ExecNonQuery(cmdstr)
     
     def GetLastFallSleep(self):

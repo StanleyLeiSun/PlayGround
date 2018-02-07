@@ -69,6 +69,6 @@ class ActionType:
     FallSleep = "Sleep"
     WakeUp = "WakeUp"
 
-    actionNames = {UnKnown:"未知命令", Feed:"喂奶", Poop:"拉屎了", AD:"吃了AD", Bath:"洗澡", \
-    Reports:"汇报", WeeklyReports:"一周汇总", Notes:"备注", Remove:"撤销", FallSleep:"睡着了", WakeUp:"睡了"}
+    actionNames = {UnKnown:"未知命令", Feed:"喂奶", Poop:"大便", AD:"吃了AD", Bath:"洗澡", \
+    Reports:"汇报", WeeklyReports:"一周汇总", Notes:"备注", Remove:"撤销", FallSleep:"睡着了", WakeUp:"睡觉"}
     

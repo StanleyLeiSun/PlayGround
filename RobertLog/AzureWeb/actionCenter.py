@@ -133,7 +133,7 @@ class ActionCenter:
                     continue
 
                 if a.TimeStamp.day != cur.day and (milk !=0 or breast !=0):                        
-                    response += "{0}日:睡觉: {5}小时{6}分钟 大便：{4}次\n\t\t奶瓶：{1}mL 母乳：{2}次,共{3}分钟 \n".format(\
+                    response += "{0}日: 奶瓶:{1}mL 母乳:{2}次共{3}分钟 睡觉:{5}小时{6}分钟 大便:{4}次\n".format(\
                     cur.strftime("%m-%d"), milk, breastNum, breast, poop, int(sleep/60), sleep%60)
                     milk = 0
                     breast = 0 
@@ -160,8 +160,8 @@ class ActionCenter:
                     pass
 
             if milk !=0 or breast !=0:                        
-                response += "{0}日: 奶瓶：{1}mL 母乳：{2}次,共{3}分钟 大便：{4}次\n".format(\
-                    cur.strftime("%m-%d"), milk, breastNum, breast, poop)
+                response += "{0}日: 奶瓶:{1}mL 母乳:{2}次共{3}分钟 睡觉:{5}小时{6}分钟 大便:{4}次\n".format(\
+                    cur.strftime("%m-%d"), milk, breastNum, breast, poop, int(sleep/60), sleep%60)
                     
         elif action.Type == ActionType.Remove:
             self.rlSQL.DeleteLastAction()
