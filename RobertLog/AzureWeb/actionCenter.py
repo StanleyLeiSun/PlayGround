@@ -116,9 +116,8 @@ class ActionCenter:
                 if a.Type not in self.actiontype_skip_log :
                     if a.TimeStamp.day != cur.day:
                         cur = a.TimeStamp
-                        response += "{0}日记录:\n".format(cur.strftime("%m-%d")) 
-                    response += a.GenBrief()
-                    response += "\n"
+                        response = "{0}日记录:\n\n".format(cur.strftime("%m-%d")) + response
+                    response = a.GenBrief() + "\n" + response
         elif action.Type == ActionType.WeeklyReports:
             response = "统计结果: \n"
             cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
@@ -151,7 +150,8 @@ class ActionCenter:
                 elif a.Type == ActionType.Poop:
                     poop += 1
                 elif a.Type == ActionType.Notes:
-                    response += "{0}日{1}\n".format(cur.strftime("%m-%d"),a.GenBrief())
+                    #response += "{0}日{1}\n".format(cur.strftime("%m-%d"),a.GenBrief())
+                    pass
 
             if milk !=0 or breast !=0:                        
                 response += "{0}日: 奶瓶：{1}mL 母乳：{2}次,共{3}分钟 大便：{4}次\n".format(\

@@ -54,7 +54,7 @@ def TestDelete():
 #cn2d = num_cn2digital()
 #cn2d.Test()
 
-ect = extract_cn_time()
+#ect = extract_cn_time()
 #ect.Test()
 #times = ect.extract_time_v2("从21:10到03:15，睡了6小时")
 #print(times)
