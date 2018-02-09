@@ -115,8 +115,10 @@ class ActionCenter:
     
     ImageFileTemplate = config.ImageRoot + r"{0}_{1}.jpg"
     def process_img_post(self, msg):
-        img_name = self.ImageFileTemplate.format(msg.TimeStamp.strftime("%Y_%m_%d_%H_%M"), msg.MediaId)
-        urllib.request.urlretrieve(msg.PicUrl, img_name)
+        timag_name = "D:\\tmp\\{0}_{1}.jpg".format(msg.TimeStamp.strftime("%Y_%m_%d_%H_%M"), msg.MediaId[:6])
+        img_name = self.ImageFileTemplate.format(msg.TimeStamp.strftime("%Y_%m_%d_%H_%M"), msg.MediaId[:6])
+        urllib.request.urlretrieve(msg.PicUrl, timag_name)
+        cn_utility.reshapimg(timag_name, img_name)
         return "收到照片"
 
     def GenResponse(self, action):

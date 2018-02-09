@@ -3,6 +3,7 @@ import re
 import string
 import datetime
 import os
+from PIL import Image
 
 class num_cn2digital:
 
@@ -195,3 +196,11 @@ def listimgfiles(path, num):
             ret.append(m)
             #print(m)
     return ret
+
+def reshapimg(from_img, to_img):
+    img = Image.open(from_img)
+    w, h = img.size
+    new_width  = 320
+    new_height = new_width * h / w 
+    img = img.resize((new_width, new_height), Image.ANTIALIAS)
+    img.save(to_img) 
