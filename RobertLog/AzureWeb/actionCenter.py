@@ -5,6 +5,8 @@ from cn_utility import num_cn2digital, extract_cn_time
 import re
 import datetime
 import config
+import urllib
+import config
 
 class ActionCenter:
 
@@ -14,7 +16,7 @@ class ActionCenter:
     #Action List
     FeedKeywords = {u"吃了",u"喂了", u"喂奶", u"吃奶"}
     ReportsKeywords = {u"报告", u"总结", u"情况"}
-    WeeklyReportsKeywords = {u"一周报告", u"一周总结", u"一周情况"}
+    WeeklyReportsKeywords = {u"一周报告", u"一周总结", u"一周情况", u"本周总结"}
     NotesKeywords = {u"备注", u"笔记"}
     mLKeywords = {u"ml",u"毫升"}
     MinKeywords = {u"分钟"}
@@ -22,8 +24,8 @@ class ActionCenter:
     PoopKeywords = {u"拉屎",u"大便", }
     BathKeywords = {u"洗澡"}
     RemoveKeywords = {u"撤销", u"删除"}
-    FallSleepKeywords = {u"睡着了"}
-    WakeUpKeywords = {u"醒了"}
+    FallSleepKeywords = {u"睡着", u"睡觉"}
+    WakeUpKeywords = {u"醒了", u"睡醒"}
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ"}
     actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports,\
@@ -100,6 +102,13 @@ class ActionCenter:
 
         return action
     
+    
+    ImageFileTemplate = config.ImageRoot + r"{0}_{1}.jpg"
+    def process_img_post(self, msg):
+        img_name = self.ImageFileTemplate.format(msg.TimeStamp.strftime("%Y_%m_%d_%H_%M"), msg.MediaId)
+        urllib.request.urlretrieve(msg.PicUrl, img_name)
+        return img_name
+
     def GenResponse(self, action):
         response = "抱歉没听懂."
         
@@ -176,6 +185,9 @@ class ActionCenter:
     def Receive(self, raw_str):
         msg = Message(raw_str)
         self.rlSQL.LogMessage(msg)
+
+        if msg.MsgType == "image":
+            return self.process_img_post(msg)
         
         action = self.DetectAction(msg)
         if action.Type not in self.actiontype_skip_log :

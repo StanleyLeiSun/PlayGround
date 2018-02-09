@@ -14,11 +14,20 @@ class Message:
             return
 
         xml = ET.fromstring(msg)
-        self.RawContent=xml.find("Content").text
         self.MsgType=xml.find("MsgType").text
         self.FromUser=xml.find("FromUserName").text
         self.ToUser=xml.find("ToUserName").text
         self.TimeStamp = datetime.datetime.utcnow() + datetime.timedelta(hours=+8)
+
+        if self.MsgType == "text":
+            self.RawContent = xml.find("Content").text
+        elif self.MsgType == "image":
+            self.PicUrl = xml.find("PicUrl").text
+            self.MediaId = xml.find("MediaId").text
+            self.RawContent = "image:" + self.MediaId
+        else:
+            pass
+        
 
 class Action:
     """Interprete a message to an action"""
