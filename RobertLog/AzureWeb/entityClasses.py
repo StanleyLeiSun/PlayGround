@@ -77,7 +77,9 @@ class ActionType:
     NoPermission = "NoPermission"
     FallSleep = "Sleep"
     WakeUp = "WakeUp"
+    ListImage = "ListImg"
 
     actionNames = {UnKnown:"未知命令", Feed:"喂奶", Poop:"大便", AD:"吃了AD", Bath:"洗澡", \
-    Reports:"汇报", WeeklyReports:"一周汇总", Notes:"备注", Remove:"撤销", FallSleep:"睡着了", WakeUp:"睡觉"}
+    Reports:"汇报", WeeklyReports:"一周汇总", Notes:"备注", Remove:"撤销", FallSleep:"睡着了",\
+    WakeUp:"睡觉", ListImage:"看照片"}
     

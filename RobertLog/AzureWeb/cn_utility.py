@@ -2,6 +2,7 @@
 import re
 import string
 import datetime
+import os
 
 class num_cn2digital:
 
@@ -180,3 +181,17 @@ class extract_cn_time:
         print( t, self.extract_time(t1))
         print(t, "removed", self.remove_time(t1))
         
+
+def listimgfiles(path, num):
+    path = path.replace("\\", "/")
+    mlist = os.listdir(path)
+ 
+    ret = []
+    mlist.sort(reverse=True)
+    for m in mlist[:num]:
+        mpath = os.path.join(path, m)
+        if os.path.isfile(mpath):
+            pt = os.path.abspath(mpath)
+            ret.append(m)
+            #print(m)
+    return ret

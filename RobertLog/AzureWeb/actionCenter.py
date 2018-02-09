@@ -7,6 +7,7 @@ import datetime
 import config
 import urllib
 import config
+import cn_utility
 
 class ActionCenter:
 
@@ -26,10 +27,11 @@ class ActionCenter:
     RemoveKeywords = {u"撤销", u"删除"}
     FallSleepKeywords = {u"睡着", u"睡觉"}
     WakeUpKeywords = {u"醒了", u"睡醒"}
+    ListImageKeywords = {u"看照片"}
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ"}
     actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports,\
-     ActionType.Remove, ActionType.NoPermission, ActionType.FallSleep}
+     ActionType.Remove, ActionType.NoPermission, ActionType.FallSleep, ActionType.ListImage}
 
     def check_strList(self, str, listStr):
         for s in listStr:
@@ -94,10 +96,17 @@ class ActionCenter:
                 delta_minutes = int((action.TimeStamp - sleep_t).total_seconds()/60)
                 action.Detail = "从{0}到{1}，睡了{2}小时{3}分钟".format(sleep_t.strftime( "%H:%M"), \
                     action.TimeStamp.strftime( "%H:%M"), int(delta_minutes/60), delta_minutes%60)
+        elif self.check_strList(msg.RawContent, self.ListImageKeywords):
+            action.Type = ActionType.ListImage
+            files = cn_utility.listimgfiles(config.ImageRoot, 10)
+            action.ImageList = []
+            for f in files:
+                action.ImageList.append("http://stansunlog.eastasia.cloudapp.azure.com/robert_image?name="+f)
         else:
             action.Type = ActionType.UnKnown
         
-        if action.FromUser not in self.users_can_write and action.Type not in {ActionType.Reports, ActionType.WeeklyReports}:
+        if action.FromUser not in self.users_can_write and action.Type not in \
+            {ActionType.Reports, ActionType.WeeklyReports, ActionType.ListImage}:
             action.Type = ActionType.NoPermission
 
         return action
@@ -175,6 +184,8 @@ class ActionCenter:
         elif action.Type == ActionType.Remove:
             self.rlSQL.DeleteLastAction()
             response ="已删除一条记录.\n"
+        elif action.Type == ActionType.ListImage:
+            return action.ImageList
         elif action.Type == ActionType.NoPermission:
             response = "抱歉您没有权限，可以尝试 '总结' 或 '一周总结' 查看萝卜成长状态。"
         else:

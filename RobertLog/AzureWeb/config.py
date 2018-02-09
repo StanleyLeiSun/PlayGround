@@ -4,4 +4,4 @@ xml = ET.parse('secret.txt')
 db_pwd = xml.find("DBPWD").text
 weichat_token = xml.find("WeiChatToken").text
 db_user = xml.find("DBUSER").text
-ImageRoot = "d:\\image\\"
+ImageRoot = "c:\\image\\"

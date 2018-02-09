@@ -3,6 +3,8 @@ from actionCenter import ActionCenter
 import xml.etree.ElementTree as ET
 import config
 from cn_utility import num_cn2digital, extract_cn_time
+import cn_utility
+from flask import render_template, Flask
 
 
 actCenter = ActionCenter()
@@ -47,9 +49,21 @@ def TestDelete():
     str_report = str_cmdtemplate_xml.format("撤销")
     print(actCenter.Receive(str_report))
 
+
+#app = Flask(__name__)
+def TestImageList():
+    str_report = str_cmdtemplate_xml.format("看照片")
+    imgs = actCenter.Receive(str_report)
+    print(render_template("img_list.ret",\
+                toUser = "fromuser", fromUser = "touser",\
+                createTime = "1234", itemCount = "6", \
+                pictures = imgs))
+
+
 #TestReport()
 #TestActions()
 #TestDelete()
+#TestImageList()
 
 #cn2d = num_cn2digital()
 #cn2d.Test()
@@ -62,3 +76,5 @@ def TestDelete():
 #print(delta)
 
 #print(config.db_pwd, config.weichat_token)
+
+#cn_utility.listimgfiles("C:\\temp\\", 10)

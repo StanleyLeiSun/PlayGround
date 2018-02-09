@@ -1,0 +1,12 @@
+<xml>
+<ToUserName>< ![CDATA[{{toUser}}] ]></ToUserName>
+<FromUserName>< ![CDATA[{{fromUser}}] ]></FromUserName>
+<CreateTime>{{createTime}}</CreateTime>
+<MsgType>< ![CDATA[news] ]></MsgType>
+<ArticleCount>{{itemCount}}</ArticleCount><Articles>
+<Articles>
+{% for p in pictures %}
+<item><Title>< ![CDATA[title1] ]></Title> <Description>< ![CDATA[description1] ]></Description><PicUrl>< ![CDATA[{{p}}] ]></PicUrl><Url>< ![CDATA[url] ]></Url></item>
+{% endfor %}
+</Articles>
+</xml>

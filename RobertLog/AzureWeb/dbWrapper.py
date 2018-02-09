@@ -44,7 +44,7 @@ class RobertLogMSSQL:
     def LogMessage(self, msg):
         """log a message into DB for backup"""
         cmd = "INSERT INTO [dbo].[RawMsg] ([TimeStamp], [RawMsg], [FromUser], [ToUser], [MsgType]) VALUES "+\
-           "('%s',N'%s','%s','%s')" % (msg.TimeStamp, msg.RawContent, msg.FromUser, msg.ToUser, msg.MsgType)
+           "('%s',N'%s','%s','%s', '%s')" % (msg.TimeStamp, msg.RawContent, msg.FromUser, msg.ToUser, msg.MsgType)
         self.__ExecNonQuery(cmd)
 
     def AppendAction(self, act):
