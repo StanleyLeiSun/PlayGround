@@ -98,10 +98,10 @@ class ActionCenter:
                     action.TimeStamp.strftime( "%H:%M"), int(delta_minutes/60), delta_minutes%60)
         elif self.check_strList(msg.RawContent, self.ListImageKeywords):
             action.Type = ActionType.ListImage
-            files = cn_utility.listimgfiles(config.ImageRoot, 10)
+            files = cn_utility.listimgfiles(config.ImageRoot, 7)
             action.ImageList = []
             for f in files:
-                action.ImageList.append((f[5:15], \
+                action.ImageList.append((f[5:16], \
                 "http://stansunlog.eastasia.cloudapp.azure.com/robert_image?name="+f))
         else:
             action.Type = ActionType.UnKnown
