@@ -3,10 +3,10 @@
 <FromUserName>< ![CDATA[{{fromUser}}] ]></FromUserName>
 <CreateTime>{{createTime}}</CreateTime>
 <MsgType>< ![CDATA[news] ]></MsgType>
-<ArticleCount>{{itemCount}}</ArticleCount><Articles>
+<ArticleCount>{{itemCount}}</ArticleCount>
 <Articles>
 {% for p in pictures %}
-<item><Title>< ![CDATA[title1] ]></Title> <Description>< ![CDATA[description1] ]></Description><PicUrl>< ![CDATA[{{p}}] ]></PicUrl><Url>< ![CDATA[url] ]></Url></item>
+<item><Title>< ![CDATA[{{p[0]}}] ]></Title> <Description>< ![CDATA[description1] ]></Description><PicUrl>< ![CDATA[{{p[1]}}] ]></PicUrl><Url>< ![CDATA[url] ]></Url></item>
 {% endfor %}
 </Articles>
 </xml>

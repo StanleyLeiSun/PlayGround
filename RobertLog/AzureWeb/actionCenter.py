@@ -101,7 +101,8 @@ class ActionCenter:
             files = cn_utility.listimgfiles(config.ImageRoot, 10)
             action.ImageList = []
             for f in files:
-                action.ImageList.append("http://stansunlog.eastasia.cloudapp.azure.com/robert_image?name="+f)
+                action.ImageList.append((f[5:15], \
+                "http://stansunlog.eastasia.cloudapp.azure.com/robert_image?name="+f))
         else:
             action.Type = ActionType.UnKnown
         
@@ -116,7 +117,7 @@ class ActionCenter:
     def process_img_post(self, msg):
         img_name = self.ImageFileTemplate.format(msg.TimeStamp.strftime("%Y_%m_%d_%H_%M"), msg.MediaId)
         urllib.request.urlretrieve(msg.PicUrl, img_name)
-        return img_name
+        return "收到照片"
 
     def GenResponse(self, action):
         response = "抱歉没听懂."
