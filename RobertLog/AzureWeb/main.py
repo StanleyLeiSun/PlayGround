@@ -24,7 +24,7 @@ def weixin_post():
 def get_image():
     name = flask.request.args.get('name')
     file_name = config.ImageRoot + name
-    return flask.send_file(file_name, mimetype='image/gif')
+    return flask.send_file(file_name, mimetype='image/jpeg')
 
 if __name__ == '__main__':
     #app.run()
