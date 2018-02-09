@@ -64,5 +64,5 @@ class WeixinInterface:
         elif type(ret) == list:
             return render_template("img_list.ret",\
                 toUser = fromuser, fromUser = touser,\
-                createTime = int(time.time()),\
+                createTime = int(time.time()), itemCount = len(ret),\
                 pictures = ret)
