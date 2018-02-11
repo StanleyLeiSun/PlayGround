@@ -9,7 +9,7 @@ from flask import render_template, Flask
 
 actCenter = ActionCenter()
 
-ms = RobertLogMSSQL(host="robertlog.database.windows.net",user="rluser",pwd="Xiaoluobo666",db="robertlog")
+ms = RobertLogMSSQL(host=config.db_server,user=config.db_user,pwd=config.db_pwd,db="robertlog")
 
 str_feedcmd_xml =  "<xml><ToUserName><![CDATA[fromUser]]></ToUserName>" +\
         "<FromUserName><![CDATA[toUser]]></FromUserName>" +\

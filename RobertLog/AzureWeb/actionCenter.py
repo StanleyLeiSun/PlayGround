@@ -12,7 +12,7 @@ import cn_utility
 class ActionCenter:
 
     #SQL
-    rlSQL = RobertLogMSSQL(host="robertlog.database.windows.net",user=config.db_user,pwd=config.db_pwd,db="robertlog")
+    rlSQL = RobertLogMSSQL(host=config.db_server,user=config.db_user,pwd=config.db_pwd,db="robertlog")
 
     #Action List
     FeedKeywords = {u"吃了",u"喂了", u"喂奶", u"吃奶"}
