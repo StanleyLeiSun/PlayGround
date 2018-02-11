@@ -21,7 +21,7 @@ class ActionCenter:
     NotesKeywords = {u"备注", u"笔记"}
     mLKeywords = {u"ml",u"毫升"}
     MinKeywords = {u"分钟"}
-    ADKeywords = {u"AD",u"吃药"}
+    ADKeywords = {u"AD",u"吃药", u"ad",u"喂药"}
     PoopKeywords = {u"拉屎",u"大便", }
     BathKeywords = {u"洗澡"}
     RemoveKeywords = {u"撤销", u"删除"}
