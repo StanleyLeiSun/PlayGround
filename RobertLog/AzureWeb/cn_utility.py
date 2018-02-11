@@ -201,6 +201,6 @@ def reshapimg(from_img, to_img):
     img = Image.open(from_img)
     w, h = img.size
     new_width  = 320
-    new_height = new_width * h / w 
+    new_height = int(new_width * h / w)
     img = img.resize((new_width, new_height), Image.ANTIALIAS)
     img.save(to_img) 
