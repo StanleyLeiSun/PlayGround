@@ -149,6 +149,7 @@ class ActionCenter:
             breastNum = 0
             poop = 0
             sleep = 0
+            daysShown = 0
             for a in actions:
                 if a.Status == Action.Deleted:
                     continue
@@ -161,6 +162,8 @@ class ActionCenter:
                     poop = 0
                     breastNum = 0
                     sleep = 0
+                    daysShown += 1
+                    if daysShown >= 8 : break
                 cur = a.TimeStamp
                 if a.Type == ActionType.Feed:
                     nums = re.findall(r"\d+",a.Detail)
@@ -180,7 +183,7 @@ class ActionCenter:
                     #response += "{0}日{1}\n".format(cur.strftime("%m-%d"),a.GenBrief())
                     pass
 
-            if milk !=0 or breast !=0:                        
+            if (milk !=0 or breast !=0) and daysShown < 7:                 
                 response += "{0}日：奶瓶{1}mL，母乳{2}次共{3}分钟，睡觉{5}小时{6}分钟，大便{4}次\n".format(\
                     cur.strftime("%m-%d"), milk, breastNum, breast, poop, int(sleep/60), sleep%60)
                     
