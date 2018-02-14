@@ -29,7 +29,8 @@ def chart_for_last_days(num_days):
         sleep.append(d.sleep)
         poop.append(d.poop*100)
     
-    myfont = matplotlib.font_manager.FontProperties(fname='C:/Windows/Fonts/msyh.ttc')
+    #myfont = matplotlib.font_manager.FontProperties(fname='C:/Windows/Fonts/msyh.ttc')
+    myfont = matplotlib.font_manager.FontProperties(fname='./wheelhouse/msyh.ttc')
     plt.plot(x,milk,label="喂奶ml",color="dodgerblue",linewidth=2)
     plt.plot(x,sleep,label="睡觉min",color="darkviolet",linewidth=2)
     plt.plot(x,poop,label=u"拉屎",color="blue",marker="o", linestyle="None")

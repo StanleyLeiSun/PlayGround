@@ -28,7 +28,7 @@ class ActionCenter:
     FallSleepKeywords = {u"睡着", u"睡觉"}
     WakeUpKeywords = {u"醒了", u"睡醒"}
     ListImageKeywords = {u"看照片"}
-    ListSleepTimeKeywords = {u"几点睡"}
+    ListSleepTimeKeywords = {u"几点睡",u"睡多久", u"睡了多久"}
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ"}
     actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports,\
@@ -56,7 +56,7 @@ class ActionCenter:
             for k in self.NotesKeywords:
                 action.Detail = action.Detail.lstrip(k)
         elif self.check_strList(msg.RawContent, self.ListSleepTimeKeywords):
-            action.type = ActionType.SleepTime
+            action.Type = ActionType.SleepTime
             self.get_latest_sleep(action, num2d, ect)
         elif self.check_strList(msg.RawContent, self.ADKeywords):
             action.Type = ActionType.AD
