@@ -5,6 +5,7 @@ import config
 from cn_utility import num_cn2digital, extract_cn_time
 import cn_utility
 from flask import render_template, Flask
+import reporting
 
 
 actCenter = ActionCenter()
@@ -78,3 +79,5 @@ def TestImageList():
 #print(config.db_pwd, config.weichat_token)
 
 #cn_utility.listimgfiles("C:\\temp\\", 10)
+
+#reporting.chart_for_last_days(13)

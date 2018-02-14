@@ -28,10 +28,11 @@ class ActionCenter:
     FallSleepKeywords = {u"睡着", u"睡觉"}
     WakeUpKeywords = {u"醒了", u"睡醒"}
     ListImageKeywords = {u"看照片"}
+    ListSleepTimeKeywords = {u"几点睡"}
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ"}
     actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports,\
-     ActionType.Remove, ActionType.NoPermission, ActionType.FallSleep, ActionType.ListImage}
+     ActionType.Remove, ActionType.NoPermission, ActionType.FallSleep, ActionType.ListImage, ActionType.SleepTime}
 
     def check_strList(self, str, listStr):
         for s in listStr:
@@ -54,6 +55,9 @@ class ActionCenter:
             action.Detail = msg.RawContent
             for k in self.NotesKeywords:
                 action.Detail = action.Detail.lstrip(k)
+        elif self.check_strList(msg.RawContent, self.ListSleepTimeKeywords):
+            action.type = ActionType.SleepTime
+            self.get_latest_sleep(action, num2d, ect)
         elif self.check_strList(msg.RawContent, self.ADKeywords):
             action.Type = ActionType.AD
         elif self.check_strList(content, self.FeedKeywords):
@@ -82,20 +86,7 @@ class ActionCenter:
             action.Type = ActionType.FallSleep
         elif self.check_strList(msg.RawContent, self.WakeUpKeywords):
             action.Type = ActionType.WakeUp
-            sleep = self.rlSQL.GetLastFallSleep()
-            if not sleep:
-                action.Type = ActionType.UnKnown
-            else:
-                #check previous time
-                pre_content = num2d.replace_cn_digital(sleep.RawContent)
-                sleep_t = ect.extract_time(pre_content)
-                if sleep_t is None or len(sleep_t) <= 0:
-                    sleep_t = sleep.TimeStamp
-                else:
-                    sleep_t = sleep_t[0]
-                delta_minutes = int((action.TimeStamp - sleep_t).total_seconds()/60)
-                action.Detail = "从{0}到{1}，睡了{2}小时{3}分钟".format(sleep_t.strftime( "%H:%M"), \
-                    action.TimeStamp.strftime( "%H:%M"), int(delta_minutes/60), delta_minutes%60)
+            self.get_latest_sleep(action, num2d, ect)
         elif self.check_strList(msg.RawContent, self.ListImageKeywords):
             action.Type = ActionType.ListImage
             files = cn_utility.listimgfiles(config.ImageRoot, 7)
@@ -111,6 +102,22 @@ class ActionCenter:
             action.Type = ActionType.NoPermission
 
         return action
+
+    def get_latest_sleep(self, action, num2d, ect):
+        sleep = self.rlSQL.GetLastFallSleep()
+        if not sleep:
+            action.Type = ActionType.UnKnown
+        else:
+            #check previous time
+            pre_content = num2d.replace_cn_digital(sleep.RawContent)
+            sleep_t = ect.extract_time(pre_content)
+            if sleep_t is None or len(sleep_t) <= 0:
+                sleep_t = sleep.TimeStamp
+            else:
+                sleep_t = sleep_t[0]
+            delta_minutes = int((action.TimeStamp - sleep_t).total_seconds()/60)
+            action.Detail = "从{0}到{1}，睡了{2}小时{3}分钟".format(sleep_t.strftime( "%H:%M"), \
+                action.TimeStamp.strftime( "%H:%M"), int(delta_minutes/60), delta_minutes%60)
     
     
     ImageFileTemplate = config.ImageRoot + r"{0}_{1}.jpg"

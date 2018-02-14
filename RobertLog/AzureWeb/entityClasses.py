@@ -78,8 +78,19 @@ class ActionType:
     FallSleep = "Sleep"
     WakeUp = "WakeUp"
     ListImage = "ListImg"
+    SleepTime = "SleepTime"
 
     actionNames = {UnKnown:"未知命令", Feed:"喂奶", Poop:"大便", AD:"吃了AD", Bath:"洗澡", \
     Reports:"汇报", WeeklyReports:"一周汇总", Notes:"备注", Remove:"撤销", FallSleep:"睡着了",\
-    WakeUp:"睡觉", ListImage:"看照片"}
+    WakeUp:"睡觉", ListImage:"看照片", SleepTime:"睡着时间"}
+
+class DailyReport:
+    def __init__(self, milk_ml, milk_min, milk_num, poop, sleep, date):
+        self.milk_ml = milk_ml
+        self.milk_min = milk_min
+        self.poop = poop
+        self.sleep = sleep
+        self.milk_num = milk_num
+        self.date = date
+
     
