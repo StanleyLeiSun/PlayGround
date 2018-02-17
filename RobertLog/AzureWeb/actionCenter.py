@@ -36,8 +36,8 @@ class ActionCenter:
     "ocgSc0X3el46D3JbN5Brwr0SVrII", \
     "ocgSc0fIrUDX5iDolCX_D0KBYiGs"} #stan, hanhan, huaiyan, zhangxin, lishu
 
-    user_mapping = {"ocgSc0eChTDEABMBHJ_urv4lMeCE" : "stan", \
-    "ocgSc0fzGH2Os2cmFYQ58zdDPCWw" : "Hanhan", \
+    user_mapping = {"ocgSc0eChTDEABMBHJ_urv4lMeCE" : "Hanan", \
+    "ocgSc0fzGH2Os2cmFYQ58zdDPCWw" : "Stan", \
     "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ" : "Huaiyan", \
     "ocgSc0X3el46D3JbN5Brwr0SVrII" : "ZhangXin", \
     "ocgSc0fIrUDX5iDolCX_D0KBYiGs" : "LiShu"}
@@ -217,7 +217,7 @@ class ActionCenter:
             msg_list = self.rlSQL.GetLastNumMsg()
             response = "List:\n"
             for m in msg_list:
-                response +="T:{0}, U:{1}, M:{2} \n".format("", self.user_mapping.get(m.FromUser, default=m.FromUser), m.RawContent)
+                response +="T:{0}, U:{1}, M:{2} \n".format("", self.user_mapping.get(m.FromUser, m.FromUser), m.RawContent)
         elif action.Type == ActionType.NoPermission:
             response = "抱歉您没有权限，可以尝试 '总结' 或 '一周总结' 查看萝卜成长状态。"
         else:

@@ -95,7 +95,7 @@ class RobertLogMSSQL:
 
     def GetLastNumMsg(self, num = 20):
         """List all the last # actions"""
-        cmd = "select top %s * from dbo.RawMsg ORDER BY TimeStamp DESC" % num
+        cmd = "select top %s * from dbo.RawMsg where RawMsg NOT like N'调试' ORDER BY TimeStamp DESC" % num
         actList = self.__ExecQuery(cmd)
         if len(actList) <= 0:
             return None
@@ -108,5 +108,5 @@ class RobertLogMSSQL:
             msg.RawContent = m.RawMsg.strip()
             #msg.TimeStamp = datetime.datetime.strptime(, '%Y-%m-%d %H:%M:%S')
             retList.append(msg)
-            print(m)
+            #print(m)
         return retList
