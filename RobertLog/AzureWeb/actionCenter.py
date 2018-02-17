@@ -30,7 +30,10 @@ class ActionCenter:
     ListImageKeywords = {u"看照片"}
     ListSleepTimeKeywords = {u"几点睡",u"睡多久", u"睡了多久"}
 
-    users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ"}
+    users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", \
+    "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ", \
+    "ocgSc0X3el46D3JbN5Brwr0SVrII", \
+    "ocgSc0fIrUDX5iDolCX_D0KBYiGs"} #stan, hanhan, huaiyan, zhangxin, lishu
     actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports,\
      ActionType.Remove, ActionType.NoPermission, ActionType.FallSleep, ActionType.ListImage, ActionType.SleepTime}
 
