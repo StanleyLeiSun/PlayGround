@@ -20,7 +20,7 @@ str_feedcmd_xml =  "<xml><ToUserName><![CDATA[fromUser]]></ToUserName>" +\
         "</xml>"
 
 str_cmdtemplate_xml =  "<xml><ToUserName><![CDATA[fromUser]]></ToUserName>" +\
-        "<FromUserName><![CDATA[toUser]]></FromUserName>" +\
+        "<FromUserName><![CDATA[ocgSc0eChTDEABMBHJ_urv4lMeCE]]></FromUserName>" +\
         "<CreateTime>123445</CreateTime>" +\
         "<MsgType><![CDATA[text]]></MsgType>"+\
         "<Content><![CDATA[{0}]]></Content>"+\
@@ -41,9 +41,11 @@ def TestActions():
     print(actCenter.Receive(str_feedcmd_xml))
 
 def TestReport():
-    str_report = str_cmdtemplate_xml.format("今日情况")
-    print(actCenter.Receive(str_report))
-    str_report = str_cmdtemplate_xml.format("一周总结")
+    #str_report = str_cmdtemplate_xml.format("今日情况")
+    #print(actCenter.Receive(str_report))
+    #str_report = str_cmdtemplate_xml.format("一周总结")
+    #print(actCenter.Receive(str_report))
+    str_report = str_cmdtemplate_xml.format("调试消息")
     print(actCenter.Receive(str_report))
 
 def TestDelete():

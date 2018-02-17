@@ -29,13 +29,22 @@ class ActionCenter:
     WakeUpKeywords = {u"醒了", u"睡醒"}
     ListImageKeywords = {u"看照片"}
     ListSleepTimeKeywords = {u"几点睡",u"睡多久", u"睡了多久"}
+    DebugMsgKeywords = {u"调试消息"}
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", \
     "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ", \
     "ocgSc0X3el46D3JbN5Brwr0SVrII", \
     "ocgSc0fIrUDX5iDolCX_D0KBYiGs"} #stan, hanhan, huaiyan, zhangxin, lishu
+
+    user_mapping = {"ocgSc0eChTDEABMBHJ_urv4lMeCE" : "stan", \
+    "ocgSc0fzGH2Os2cmFYQ58zdDPCWw" : "Hanhan", \
+    "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ" : "Huaiyan", \
+    "ocgSc0X3el46D3JbN5Brwr0SVrII" : "ZhangXin", \
+    "ocgSc0fIrUDX5iDolCX_D0KBYiGs" : "LiShu"}
+    
     actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports,\
-     ActionType.Remove, ActionType.NoPermission, ActionType.FallSleep, ActionType.ListImage, ActionType.SleepTime}
+     ActionType.Remove, ActionType.NoPermission, ActionType.FallSleep, ActionType.ListImage, \
+     ActionType.SleepTime, ActionType.DebugMsg}
 
     def check_strList(self, str, listStr):
         for s in listStr:
@@ -90,6 +99,8 @@ class ActionCenter:
         elif self.check_strList(msg.RawContent, self.WakeUpKeywords):
             action.Type = ActionType.WakeUp
             self.get_latest_sleep(action, num2d, ect)
+        elif self.check_strList(msg.RawContent, self.DebugMsgKeywords):
+            action.Type = ActionType.DebugMsg
         elif self.check_strList(msg.RawContent, self.ListImageKeywords):
             action.Type = ActionType.ListImage
             files = cn_utility.listimgfiles(config.ImageRoot, 7)
@@ -202,6 +213,11 @@ class ActionCenter:
             response ="已删除一条记录.\n"
         elif action.Type == ActionType.ListImage:
             return action.ImageList
+        elif action.Type == ActionType.DebugMsg:
+            msg_list = self.rlSQL.GetLastNumMsg()
+            response = "List:\n"
+            for m in msg_list:
+                response +="T:{0}, U:{1}, M:{2} \n".format("", self.user_mapping.get(m.FromUser, default=m.FromUser), m.RawContent)
         elif action.Type == ActionType.NoPermission:
             response = "抱歉您没有权限，可以尝试 '总结' 或 '一周总结' 查看萝卜成长状态。"
         else:

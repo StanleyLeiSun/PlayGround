@@ -92,3 +92,21 @@ class RobertLogMSSQL:
         timestr = actList[0].TimeStamp[:pos].strip()
         msg.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
         return msg
+
+    def GetLastNumMsg(self, num = 20):
+        """List all the last # actions"""
+        cmd = "select top %s * from dbo.RawMsg ORDER BY TimeStamp DESC" % num
+        actList = self.__ExecQuery(cmd)
+        if len(actList) <= 0:
+            return None
+        
+        retList = []
+        for m in actList:
+            msg = Message()
+            msg.FromUser = m.FromUser.strip()
+            msg.ToUser = m.ToUser.strip()
+            msg.RawContent = m.RawMsg.strip()
+            #msg.TimeStamp = datetime.datetime.strptime(, '%Y-%m-%d %H:%M:%S')
+            retList.append(msg)
+            print(m)
+        return retList
