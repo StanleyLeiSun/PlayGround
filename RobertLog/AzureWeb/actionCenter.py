@@ -214,10 +214,10 @@ class ActionCenter:
         elif action.Type == ActionType.ListImage:
             return action.ImageList
         elif action.Type == ActionType.DebugMsg:
-            msg_list = self.rlSQL.GetLastNumMsg()
+            msg_list = self.rlSQL.GetLastNumMsg(30)
             response = "List:\n"
             for m in msg_list:
-                response +="T:{0}, U:{1}, M:{2} \n".format("", self.user_mapping.get(m.FromUser, m.FromUser), m.RawContent)
+                response +="[{0}] {1}:{2} \n".format(m.TimeStamp.strftime( "%H:%M"), self.user_mapping.get(m.FromUser, m.FromUser), m.RawContent)
         elif action.Type == ActionType.NoPermission:
             response = "抱歉您没有权限，可以尝试 '总结' 或 '一周总结' 查看萝卜成长状态。"
         else:
