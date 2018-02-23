@@ -41,8 +41,8 @@ def TestActions():
     print(actCenter.Receive(str_feedcmd_xml))
 
 def TestReport():
-    #str_report = str_cmdtemplate_xml.format("今日情况")
-    #print(actCenter.Receive(str_report))
+    str_report = str_cmdtemplate_xml.format("今日情况")
+    print(actCenter.Receive(str_report))
     #str_report = str_cmdtemplate_xml.format("一周总结")
     #print(actCenter.Receive(str_report))
     str_report = str_cmdtemplate_xml.format("调试消息")

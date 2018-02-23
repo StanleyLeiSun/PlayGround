@@ -159,7 +159,8 @@ class ActionCenter:
                 if a.Type not in self.actiontype_skip_log :
                     if a.TimeStamp.day != cur.day:
                         cur = a.TimeStamp
-                        response += "\n{0}日记录:\n".format(cur.strftime("%m-%d"))
+                        response += "\n{0}日(第{1}天)记录:\n".format(cur.strftime("%m-%d"), \
+                        config.get_days_to_birth())
                     response += (a.GenBrief() + "\n")
         elif action.Type == ActionType.WeeklyReports:
             response = "统计结果: \n"
