@@ -12,5 +12,8 @@ birthday = datetime.date(2017, 11, 8)
 
 
 def get_days_to_birth():
-    n = datetime.datetime.utcnow()  + datetime.timedelta(hours=+8)
-    return (n.date() - birthday).days + 1
+    dt = datetime.datetime.utcnow()  + datetime.timedelta(hours=+8)
+    return get_days_to_birth(dt)
+
+def get_days_to_birth(dt):
+    return (dt.date() - birthday).days + 1
