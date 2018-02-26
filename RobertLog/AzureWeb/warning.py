@@ -11,5 +11,6 @@ def GetWarnings(rlSQL):
 def NeedAD(rlSQL):
     ad_action = rlSQL.GetLastAD()
     n = cn_utility.GetNowForUTC8()
-    hour_delta = (n - ad_action.TimeStamp).seconds / 60
-    return hour_delta > 12
+    hour_delta = (n - ad_action.TimeStamp).seconds / 3600
+    print(ad_action.TimeStamp, n, hour_delta)
+    return hour_delta > 20

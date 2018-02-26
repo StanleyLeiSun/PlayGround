@@ -95,7 +95,7 @@ class RobertLogMSSQL:
 
     def GetLastAD(self):
         """List the last AD actions"""
-        cmd = "SELECT TOP 1 * FROM [dbo].[Actions] Where ActionType = 'AD'"
+        cmd = "SELECT TOP 1 * FROM [dbo].[Actions] Where ActionType = 'AD' ORDER BY CreateTime DESC"
         actList = self.__ExecQuery(cmd)
         a = actList[0]
         act = Action()
