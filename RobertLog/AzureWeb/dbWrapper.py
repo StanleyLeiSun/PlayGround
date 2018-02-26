@@ -93,6 +93,22 @@ class RobertLogMSSQL:
         msg.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
         return msg
 
+    def GetLastAD(self):
+        """List the last AD actions"""
+        cmd = "SELECT TOP 1 * FROM [dbo].[Actions] Where ActionType = 'AD'"
+        actList = self.__ExecQuery(cmd)
+        a = actList[0]
+        act = Action()
+        act.FromUser = a.FromUser.strip()
+        act.Status = a.ActionStatus.strip()
+        act.Type = a.ActionType.strip()
+        act.Detail = a.ActionDetail.strip()
+        pos = a.CreateTime.index('.')
+        timestr = a.CreateTime[:pos].strip()
+        act.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
+
+        return act
+
     def GetLastNumMsg(self, num = 20):
         """List all the last # actions"""
         cmd = "select top %s * from dbo.RawMsg" % num 

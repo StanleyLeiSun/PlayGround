@@ -6,6 +6,7 @@ from cn_utility import num_cn2digital, extract_cn_time
 import cn_utility
 from flask import render_template, Flask
 import reporting
+import warning
 
 
 actCenter = ActionCenter()
@@ -83,3 +84,7 @@ def TestImageList():
 #cn_utility.listimgfiles("C:\\temp\\", 10)
 
 #reporting.chart_for_last_days(13)
+
+#print(warning.GetWarnings(ms))
+
+#chcp 936

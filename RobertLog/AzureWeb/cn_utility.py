@@ -204,3 +204,6 @@ def reshapimg(from_img, to_img):
     new_height = int(new_width * h / w)
     img = img.resize((new_width, new_height), Image.ANTIALIAS)
     img.save(to_img) 
+
+def GetNowForUTC8():
+    return datetime.datetime.utcnow()  + datetime.timedelta(hours=+8)

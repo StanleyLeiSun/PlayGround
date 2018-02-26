@@ -8,6 +8,7 @@ import config
 import urllib
 import config
 import cn_utility
+import warning
 
 class ActionCenter:
 
@@ -224,6 +225,7 @@ class ActionCenter:
         else:
             response = action.GenBrief()
 
+        response += warning.GetWarnings(self.rlSQL)
         return response 
 
     def Receive(self, raw_str):
