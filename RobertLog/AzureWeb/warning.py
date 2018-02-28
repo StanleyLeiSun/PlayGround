@@ -13,4 +13,4 @@ def NeedAD(rlSQL):
     n = cn_utility.GetNowForUTC8()
     hour_delta = (n - ad_action.TimeStamp).seconds / 3600
     print(ad_action.TimeStamp, n, hour_delta)
-    return hour_delta > 20
+    return hour_delta > 23
