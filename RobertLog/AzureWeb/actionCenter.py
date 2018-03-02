@@ -31,6 +31,7 @@ class ActionCenter:
     ListImageKeywords = {u"看照片"}
     ListSleepTimeKeywords = {u"几点睡",u"睡多久", u"睡了多久"}
     DebugMsgKeywords = {u"调试消息"}
+    EatCaKeywords = {u"补钙", u"钙片"}
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", \
     "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ", \
@@ -73,6 +74,8 @@ class ActionCenter:
             self.get_latest_sleep(action, num2d, ect)
         elif self.check_strList(msg.RawContent, self.ADKeywords):
             action.Type = ActionType.AD
+        elif self.check_strList(msg.RawContent, self.EatCaKeywords):
+            action.Type = ActionType.EatCa
         elif self.check_strList(content, self.FeedKeywords):
             #feed
             action.Type = ActionType.Feed
@@ -202,6 +205,7 @@ class ActionCenter:
                 elif a.Type == ActionType.WakeUp:
                     ect = extract_cn_time()
                     sleep += ect.extract_time_delta(a.Detail)
+                    print(cur, sleep, a.Detail)
                 elif a.Type == ActionType.Notes:
                     #response += "{0}日{1}\n".format(cur.strftime("%m-%d"),a.GenBrief())
                     pass

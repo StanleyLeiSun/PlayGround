@@ -79,10 +79,11 @@ class ActionType:
     ListImage = "ListImg"
     SleepTime = "SleepTime"
     DebugMsg = "DebugMsg"
+    EatCa = "EatCa"
 
     actionNames = {UnKnown:"未知命令", Feed:"喂奶", Poop:"大便", AD:"吃了AD", Bath:"洗澡", \
     Reports:"汇报", WeeklyReports:"一周汇总", Notes:"备注", Remove:"撤销", FallSleep:"睡着了",\
-    WakeUp:"睡觉", ListImage:"看照片", SleepTime:"睡着时间", DebugMsg:"DebugMsg"}
+    WakeUp:"睡觉", ListImage:"看照片", SleepTime:"睡着时间", DebugMsg:"DebugMsg", EatCa:"补钙"}
 
 class DailyReport:
     def __init__(self, milk_ml, milk_min, milk_num, poop, sleep, date):
