@@ -36,13 +36,15 @@ class ActionCenter:
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", \
     "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ", \
     "ocgSc0X3el46D3JbN5Brwr0SVrII", \
-    "ocgSc0fIrUDX5iDolCX_D0KBYiGs"} #stan, hanhan, huaiyan, zhangxin, lishu
+    "ocgSc0fIrUDX5iDolCX_D0KBYiGs", \
+    "ocgSc0a7I2-DcquxOaN5G43BOSbQ"} #stan, hanhan, huaiyan, zhangxin, lishu, luchun
 
     user_mapping = {"ocgSc0eChTDEABMBHJ_urv4lMeCE" : "Hanan", \
     "ocgSc0fzGH2Os2cmFYQ58zdDPCWw" : "Stan", \
     "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ" : "Huaiyan", \
     "ocgSc0X3el46D3JbN5Brwr0SVrII" : "ZhangXin", \
-    "ocgSc0fIrUDX5iDolCX_D0KBYiGs" : "LiShu"}
+    "ocgSc0fIrUDX5iDolCX_D0KBYiGs" : "LiShu", \
+    "ocgSc0a7I2-DcquxOaN5G43BOSbQ" : "LuChun"}
     
     actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports,\
      ActionType.Remove, ActionType.NoPermission, ActionType.FallSleep, ActionType.ListImage, \
@@ -205,7 +207,7 @@ class ActionCenter:
                 elif a.Type == ActionType.WakeUp:
                     ect = extract_cn_time()
                     sleep += ect.extract_time_delta(a.Detail)
-                    print(cur, sleep, a.Detail)
+                    #print(cur, sleep, a.Detail)
                 elif a.Type == ActionType.Notes:
                     #response += "{0}日{1}\n".format(cur.strftime("%m-%d"),a.GenBrief())
                     pass
