@@ -3,6 +3,7 @@ import entityClasses
 import cn_utility
 
 def GetWarnings(rlSQL):
+    print ("Warning:")
     return WarningForADorCa(rlSQL)
 
 def WarningForADorCa(rlSQL):
@@ -10,8 +11,8 @@ def WarningForADorCa(rlSQL):
     ca_action = rlSQL.GetLastCa()
     n = cn_utility.GetNowForUTC8()
 
-    ad_hour_delta = (n - ad_action.TimeStamp).seconds / 3600
-    ca_hour_delta = (n - ca_action.TimeStamp).seconds / 3600
+    ad_hour_delta = (n - ad_action.TimeStamp).total_seconds() / 3600
+    ca_hour_delta = (n - ca_action.TimeStamp).total_seconds() / 3600
 
     if (ad_hour_delta <= 2) or (ca_hour_delta <= 2):
         return ""
@@ -25,7 +26,7 @@ def WarningForADorCa(rlSQL):
 def NeedAD(rlSQL):
     ad_action = rlSQL.GetLastAD()
     n = cn_utility.GetNowForUTC8()
-    hour_delta = (n - ad_action.TimeStamp).seconds / 3600
+    hour_delta = (n - ad_action.TimeStamp).total_seconds() / 3600
     #print(ad_action.TimeStamp, n, hour_delta)
     #print (hour_delta)
     return hour_delta > 23
@@ -33,6 +34,6 @@ def NeedAD(rlSQL):
 def NeedCa(rlSQL):
     ad_action = rlSQL.GetLastCa()
     n = cn_utility.GetNowForUTC8()
-    hour_delta = (n - ad_action.TimeStamp).seconds / 3600
+    hour_delta = (n - ad_action.TimeStamp).total_seconds() / 3600
     #print(ad_action.TimeStamp, n, hour_delta)
     return hour_delta > 23
