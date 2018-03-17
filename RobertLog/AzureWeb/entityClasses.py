@@ -3,6 +3,7 @@ Key structures
 """
 import xml.etree.ElementTree as ET
 import datetime
+import cn_utility
 
 class Message:
     """Structurlized Message between WeiChat and backend"""
@@ -56,6 +57,10 @@ class Action:
             pass
         elif self.Type == ActionType.UnKnown:
             brief += "可以尝试 '总结' 或 '一周总结' 查看萝卜成长状态。"
+        elif self.Type == ActionType.FallSleep:
+            tnow = cn_utility.GetNowForUTC8()
+            delta_minutes = int((tnow - self.TimeStamp).total_seconds()/60)
+            brief += "睡了{2}小时{3}分钟".format(int(delta_minutes/60), delta_minutes%60)
         else:
             pass
         return brief

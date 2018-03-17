@@ -47,7 +47,7 @@ class ActionCenter:
     "ocgSc0a7I2-DcquxOaN5G43BOSbQ" : "LuChun"}
     
     actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports,\
-     ActionType.Remove, ActionType.NoPermission, ActionType.FallSleep, ActionType.ListImage, \
+     ActionType.Remove, ActionType.NoPermission, ActionType.ListImage, \
      ActionType.SleepTime, ActionType.DebugMsg}
 
     def check_strList(self, str, listStr):
@@ -158,9 +158,16 @@ class ActionCenter:
             cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
             actions = self.rlSQL.GetActionReports(30)
             actions.sort(key=lambda a:a.TimeStamp)
+            sleepstatus = None            
             for a in actions:
                 if a.Status == Action.Deleted:
                     continue
+
+                if a.Type == ActionType.FallSleep:
+                    sleepstatus = a
+                    continue
+                elif a.Type == ActionType.WakeUp:
+                    sleepstatus = a
 
                 if a.Type not in self.actiontype_skip_log :
                     if a.TimeStamp.day != cur.day:
@@ -168,6 +175,11 @@ class ActionCenter:
                         response += "\n{0}日(第{1}天)记录:\n".format(cur.strftime("%m-%d"), \
                         config.get_days_to_birth(cur))
                     response += (a.GenBrief() + "\n")
+
+                if sleepstatus.Type == ActionType.FallSleep:
+                    #is sleeping
+                    response += (sleepstatus.GenBrief() + "\n")
+
         elif action.Type == ActionType.WeeklyReports:
             response = "统计结果: \n"
             cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
