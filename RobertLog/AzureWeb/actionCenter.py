@@ -176,9 +176,9 @@ class ActionCenter:
                         config.get_days_to_birth(cur))
                     response += (a.GenBrief() + "\n")
 
-                if sleepstatus.Type == ActionType.FallSleep:
-                    #is sleeping
-                    response += (sleepstatus.GenBrief() + "\n")
+            if sleepstatus.Type == ActionType.FallSleep:
+                #is sleeping
+                response += (sleepstatus.GenBrief() + "\n")
 
         elif action.Type == ActionType.WeeklyReports:
             response = "统计结果: \n"
