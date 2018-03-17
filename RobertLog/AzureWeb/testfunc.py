@@ -64,7 +64,7 @@ def TestImageList():
                 pictures = imgs))
 
 
-TestReport()
+#TestReport()
 #TestActions()
 #TestDelete()
 #TestImageList()

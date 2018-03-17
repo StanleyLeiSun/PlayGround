@@ -158,7 +158,7 @@ class ActionCenter:
             cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
             actions = self.rlSQL.GetActionReports(30)
             actions.sort(key=lambda a:a.TimeStamp)
-            sleepstatus = None            
+            lastmilk = sleepstatus = None
             for a in actions:
                 if a.Status == Action.Deleted:
                     continue
@@ -168,6 +168,8 @@ class ActionCenter:
                     continue
                 elif a.Type == ActionType.WakeUp:
                     sleepstatus = a
+                elif a.Type == ActionType.Feed:
+                    lastmilk = a
 
                 if a.Type not in self.actiontype_skip_log :
                     if a.TimeStamp.day != cur.day:
@@ -176,9 +178,18 @@ class ActionCenter:
                         config.get_days_to_birth(cur))
                     response += (a.GenBrief() + "\n")
 
+            tnow = cn_utility.GetNowForUTC8()
             if sleepstatus.Type == ActionType.FallSleep:
                 #is sleeping
                 response += (sleepstatus.GenBrief() + "\n")
+            else : 
+                delta_minutes = int((tnow - sleepstatus.TimeStamp).total_seconds()/60)
+                if delta_minutes > 150:
+                    response += "\n醒了{0}小时{1}分钟了，该睡了".format(int(delta_minutes/60), delta_minutes%60) 
+            
+            delta_minutes = int((tnow - lastmilk.TimeStamp).total_seconds()/60)
+            if delta_minutes > 150:
+                response += "\n上次喂奶是{0}小时{1}分钟前:{2}".format(int(delta_minutes/60), delta_minutes%60, lastmilk.GenBrief())
 
         elif action.Type == ActionType.WeeklyReports:
             response = "统计结果: \n"
