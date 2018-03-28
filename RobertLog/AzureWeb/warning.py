@@ -3,7 +3,6 @@ import entityClasses
 import cn_utility
 
 def GetWarnings(rlSQL):
-    print ("Warning:")
     return WarningForADorCa(rlSQL)
 
 def WarningForADorCa(rlSQL):
@@ -18,7 +17,7 @@ def WarningForADorCa(rlSQL):
         return ""
     elif ad_hour_delta > 23:
         return "\n该考虑吃AD了。"
-    elif ca_hour_delta > 23:
+    elif ca_hour_delta > 46:
         return "\n该考虑吃钙片了。"
     
     return ""

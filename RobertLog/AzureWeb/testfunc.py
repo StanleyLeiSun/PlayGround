@@ -83,7 +83,7 @@ def TestImageList():
 
 #cn_utility.listimgfiles("C:\\temp\\", 10)
 
-#reporting.chart_for_last_days(13)
+#reporting.chart_for_last_days(40)
 
 #print(warning.GetWarnings(ms))
 
