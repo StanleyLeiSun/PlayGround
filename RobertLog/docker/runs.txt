@@ -1,0 +1,9 @@
+apt-get update  
+apt-get install python3
+apt-get install python-pip
+apt-get install python3-pip
+
+cd home
+git clone https://github.com/StanleyLeiSun/PlayGround.git
+git checkout PythonLearning
+pip install -r requirements.txt
