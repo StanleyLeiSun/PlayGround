@@ -3,6 +3,11 @@ apt-get install python3
 apt-get install python-pip
 apt-get install python3-pip
 
+apt-get install unixodbc-dev
+apt-get install python-tk
+
+apt-get install uwsgi uwsgi-plugin-python
+
 cd home
 git clone https://github.com/StanleyLeiSun/PlayGround.git
 git checkout PythonLearning
@@ -23,3 +28,13 @@ sudo ln -s /var/www/demoapp/demoapp_uwsgi.ini /etc/uwsgi/vassals
 
 sudo chown -R www-data:www-data /var/www/demoapp/
 sudo chown -R www-data:www-data /var/log/uwsgi/
+
+#help
+
+netstat -lpnt
+1
+killall  -9 uwsgi
+2
+killall -s HUP /var/www/uwsgi 
+3
+killall -s HUP /usr/local/bin/uwsgi
