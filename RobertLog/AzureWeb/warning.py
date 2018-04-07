@@ -1,3 +1,4 @@
+#coding: utf-8
 import dbWrapper
 import entityClasses
 import cn_utility

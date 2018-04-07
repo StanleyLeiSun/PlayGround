@@ -1,3 +1,4 @@
+#coding: utf-8
 from dbWrapper import RobertLogMSSQL
 from actionCenter import ActionCenter
 import xml.etree.ElementTree as ET

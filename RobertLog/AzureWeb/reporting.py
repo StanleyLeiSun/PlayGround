@@ -1,3 +1,4 @@
+#coding: utf-8
 from entityClasses import Message, Action, ActionType, DailyReport
 from dbWrapper import RobertLogMSSQL
 from cn_utility import num_cn2digital, extract_cn_time
