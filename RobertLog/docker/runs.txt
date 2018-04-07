@@ -3,14 +3,20 @@ apt-get install python3
 apt-get install python-pip
 apt-get install python3-pip
 
+#for odbc
 apt-get install unixodbc-dev
+
+#for Pillow
 apt-get install python-tk
 
 apt-get install uwsgi uwsgi-plugin-python
 
+#apt-get install python3 python-pip python3-pip unixodbc-dev python-tk uwsgi uwsgi-plugin-python 
+
 cd home
 git clone https://github.com/StanleyLeiSun/PlayGround.git
 git checkout PythonLearning
+cd PlayGround/RobertLog/AzureWeb
 pip install -r requirements.txt
 
 #nginx config
@@ -21,7 +27,7 @@ sudo /etc/init.d/nginx restart
 sudo mkdir -p /var/log/uwsgi
 sudo chown -R ubuntu:ubuntu /var/log/uwsgi
 
-uwsgi --ini /var/www/demoapp/demoapp_uwsgi.ini
+uwsgi --ini /home/PlayGround/RobertLog/docker/radish_uwsgi.ini
 
 sudo mkdir /etc/uwsgi && sudo mkdir /etc/uwsgi/vassals
 sudo ln -s /var/www/demoapp/demoapp_uwsgi.ini /etc/uwsgi/vassals

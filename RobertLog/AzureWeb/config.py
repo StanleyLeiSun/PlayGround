@@ -7,7 +7,7 @@ xml = ''
 if os.path.exists('secret.txt'):
     xml = ET.parse('secret.txt')
 else:
-    xml = ET.parse(r'\conf\secret.txt')
+    xml = ET.parse(r'/conf/secret.txt')
 
 db_pwd = xml.find("DBPWD").text
 weichat_token = xml.find("WeiChatToken").text
