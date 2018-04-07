@@ -7,3 +7,19 @@ cd home
 git clone https://github.com/StanleyLeiSun/PlayGround.git
 git checkout PythonLearning
 pip install -r requirements.txt
+
+#nginx config
+sudo ln -s /var/www/demoapp/demoapp_nginx.conf /etc/nginx/conf.d/
+sudo /etc/init.d/nginx restart
+
+#uwsgi config
+sudo mkdir -p /var/log/uwsgi
+sudo chown -R ubuntu:ubuntu /var/log/uwsgi
+
+uwsgi --ini /var/www/demoapp/demoapp_uwsgi.ini
+
+sudo mkdir /etc/uwsgi && sudo mkdir /etc/uwsgi/vassals
+sudo ln -s /var/www/demoapp/demoapp_uwsgi.ini /etc/uwsgi/vassals
+
+sudo chown -R www-data:www-data /var/www/demoapp/
+sudo chown -R www-data:www-data /var/log/uwsgi/
