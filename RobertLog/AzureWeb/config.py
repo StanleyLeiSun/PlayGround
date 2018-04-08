@@ -1,7 +1,14 @@
 import xml.etree.ElementTree as ET
 import datetime
+import os
 
-xml = ET.parse('secret.txt')
+xml = ''
+
+if os.path.exists('secret.txt'):
+    xml = ET.parse('secret.txt')
+else:
+    xml = ET.parse(r'/conf/secret.txt')
+
 db_pwd = xml.find("DBPWD").text
 weichat_token = xml.find("WeiChatToken").text
 db_server = xml.find("DBServer").text

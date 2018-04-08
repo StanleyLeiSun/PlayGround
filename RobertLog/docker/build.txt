@@ -1,0 +1,10 @@
+docker search nginx
+docker pull
+docker run -p 80:80 --name mynginx -v $PWD/www:/www -v $PWD/conf/nginx.conf:/etc/nginx/nginx.conf -v $PWD/logs:/wwwlogs  -d ngin
+docker exec -it mynginx2 /bin/sh
+
+
+docker export ceb29bd6e94f > my_radish_web.tar
+cat my_container.tar |docker import - image_name:tag
+
+docker commit ceb29bd6e94f radishweb

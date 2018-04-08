@@ -26,7 +26,7 @@ class ActionCenter:
     PoopKeywords = {u"拉屎",u"大便", }
     BathKeywords = {u"洗澡"}
     RemoveKeywords = {u"撤销", u"删除"}
-    FallSleepKeywords = {u"睡着", u"睡觉"}
+    FallSleepKeywords = {u"睡着"}#, u"睡觉"}
     WakeUpKeywords = {u"醒了", u"睡醒"}
     ListImageKeywords = {u"看照片"}
     ListSleepTimeKeywords = {u"几点睡",u"睡多久", u"睡了多久"}
