@@ -17,11 +17,12 @@ RUN apt-get -yqq update && apt-get install -yqq python3 \
     vim
 
 #RUN mkdir -p /var/log/supervisor
+RUN rm /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && ln -s /usr/bin/pip3 /usr/bin/pip
 
 WORKDIR /home
 RUN git clone -b PythonLearning https://github.com/StanleyLeiSun/PlayGround.git && pip install -r PlayGround/RobertLog/AzureWeb/requirements.txt
 
-RUN rm /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
+
 
 #VOLUME ["/var/log/apche2"]
 
