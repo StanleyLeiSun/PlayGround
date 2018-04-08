@@ -13,12 +13,13 @@ RUN apt-get -yqq update && apt-get install -yqq python3 \
     unixodbc-dev \
     python-tk \
     uwsgi \
-    uwsgi-plugin-python 
+    uwsgi-plugin-python \
+    git-all
 
 RUN mkdir -p /var/log/supervisor
 
 WORKDIR /home
-RUN git clone https://github.com/StanleyLeiSun/PlayGround.git && git checkout PythonLearning
+RUN git clone -b PythonLearning https://github.com/StanleyLeiSun/PlayGround.git
 
 WORKDIR /home/PlayGround/RobertLog/AzureWeb
 RUN pip install -r requirements.txt
