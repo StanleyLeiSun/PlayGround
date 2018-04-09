@@ -1,23 +1,5 @@
-apt-get update  
-apt-get install python3
-apt-get install python-pip
-apt-get install python3-pip
 
-#for odbc
-apt-get install unixodbc-dev
-
-#for Pillow
-apt-get install python-tk
-
-apt-get install uwsgi uwsgi-plugin-python
-
-#apt-get install python3 python-pip python3-pip unixodbc-dev python-tk uwsgi uwsgi-plugin-python 
-
-cd home
-git clone https://github.com/StanleyLeiSun/PlayGround.git
-git checkout PythonLearning
-cd PlayGround/RobertLog/AzureWeb
-pip install -r requirements.txt
+docker run -it -p :80:80 -v /conf:/conf radish:ubuntu /bin/bash
 
 #nginx config
 sudo ln -s /var/www/demoapp/demoapp_nginx.conf /etc/nginx/conf.d/

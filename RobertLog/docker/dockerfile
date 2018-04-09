@@ -10,14 +10,14 @@ MAINTAINER Stanley.Lei.Sun@gmail.com
 RUN apt-get -yqq update && apt-get install -yqq python3 \
     python3-pip \
     unixodbc-dev \
-    python-tk \
+    python3-tk \
     uwsgi \
     uwsgi-plugin-python \
     git-all \
     vim
 
 #RUN mkdir -p /var/log/supervisor
-RUN rm /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && ln -s /usr/bin/pip3 /usr/bin/pip
+RUN rm /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && ln -s /usr/bin/pip3 /usr/bin/pip && pip install --upgrade pip
 
 WORKDIR /home
 RUN git clone -b PythonLearning https://github.com/StanleyLeiSun/PlayGround.git && pip install -r PlayGround/RobertLog/AzureWeb/requirements.txt
