@@ -118,9 +118,8 @@ class ActionCenter:
             action.Type = ActionType.UnKnown
             try: 
                 int(msg.RawContent)
-                msgs = self.rlSQL.GetMsgFromUser(msg.FromUser)
-                print(msgs[0].RawContent)
-                if self.check_strList(msgs[0].RawContent, self.RemoveKeywords):
+                msgs = self.rlSQL.GetMsgFromUser(msg.FromUser, 2)
+                if self.check_strList(msgs[1].RawContent, self.RemoveKeywords):
                     action.Type = ActionType.RemoveSpecific
             except ValueError:
                 pass
@@ -255,7 +254,7 @@ class ActionCenter:
             for a in actions:
                 if a.Status == Action.Deleted:
                     continue
-                response += "{0},输入:{1}, {2}\n".format(\
+                response += "序号：{0} 内容:{1}，{2}\n".format(\
                     a.ActionID, self.user_mapping.get(a.FromUser, a.FromUser), a.GenBrief())
         elif action.Type == ActionType.RemoveSpecific:
             self.rlSQL.DeleteAction(int(action.message.RawContent))
