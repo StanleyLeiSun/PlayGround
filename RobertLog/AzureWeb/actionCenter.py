@@ -116,6 +116,14 @@ class ActionCenter:
                 "http://stansunlog.eastasia.cloudapp.azure.com/robert_image?name="+f))
         else:
             action.Type = ActionType.UnKnown
+            try: 
+                int(msg.RawContent)
+                actions = self.rlSQL.GetActionFromUser(msg.FromUser)
+                if actions[0].Type == ActionType.Remove:
+                    action.Type = ActionType.RemoveSpecific
+            except ValueError:
+                pass
+                
         
         if action.FromUser not in self.users_can_write and action.Type not in \
             {ActionType.Reports, ActionType.WeeklyReports, ActionType.ListImage}:
@@ -240,7 +248,15 @@ class ActionCenter:
                     cur.strftime("%m-%d"), milk, breastNum, breast, poop, int(sleep/60), sleep%60)
                     
         elif action.Type == ActionType.Remove:
-            self.rlSQL.DeleteLastAction()
+            response = "请输入要删除的项目序号\n"
+            actions = self.rlSQL.GetActionReports(30)
+            for a in actions:
+                if a.Status == Action.Deleted:
+                    continue
+                response += "{0},输入:{1}, {2}\n".format(\
+                    a.ActionID, a.FromUser, a.GenBrief())
+        elif action.Type == ActionType.RemoveSpecific:
+            self.rlSQL.DeleteAction(int(action.message.RawContent))
             response ="已删除一条记录.\n"
         elif action.Type == ActionType.ListImage:
             return action.ImageList

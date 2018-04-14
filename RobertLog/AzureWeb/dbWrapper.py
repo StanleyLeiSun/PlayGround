@@ -60,21 +60,30 @@ class RobertLogMSSQL:
         actList = self.__ExecQuery(cmd)
         retList = []
         for a in actList:
-            act = Action()
-            act.FromUser = a.FromUser.strip()
-            act.Status = a.ActionStatus.strip()
-            act.Type = a.ActionType.strip()
-            act.Detail = a.ActionDetail.strip()
-            pos = a.CreateTime.index('.')
-            timestr = a.CreateTime[:pos].strip()
-            act.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
+            act = self.LoadActionFromDB(a)
             retList.append(act)
 
         return retList
 
-    def DeleteLastAction(self, itemID = 0, lastNum = 1):
-        """delete item TODO support delete a specific item"""
+    def GetActionFromUser(self, fromUser, num = 1):
+        """List all the last # actions"""
+        cmd = "SELECT TOP {0} * FROM [dbo].[Actions] WHERE FromUser = {1} ORDER BY CreateTime DESC".format(num, fromUser)
+        actList = self.__ExecQuery(cmd)
+        retList = []
+        for a in actList:
+            act = self.LoadActionFromDB(a)
+            retList.append(act)
+        
+        return retList
+
+    def DeleteLastAction(self):
+        """delete the last active item"""
         cmdstr = "update dbo.Actions set ActionStatus = 'Deleted' where ActionID=(select max(ActionID) from dbo.Actions where ActionStatus = 'Active')"
+        self.__ExecNonQuery(cmdstr)
+
+    def DeleteAction(self, itemID):
+        """delete item with specific ID"""
+        cmdstr = "update dbo.Actions set ActionStatus = 'Deleted' where ActionID=(%s)" % itemID
         self.__ExecNonQuery(cmdstr)
     
     def GetLastFallSleep(self):
@@ -108,6 +117,11 @@ class RobertLogMSSQL:
             return None
 
         a = actList[0]
+        act = self.LoadActionFromDB(a)
+
+        return act
+
+    def LoadActionFromDB(self, a):
         act = Action()
         act.FromUser = a.FromUser.strip()
         act.Status = a.ActionStatus.strip()
@@ -116,7 +130,7 @@ class RobertLogMSSQL:
         pos = a.CreateTime.index('.')
         timestr = a.CreateTime[:pos].strip()
         act.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
-
+        act.ActionID = int(a.ActionID.strip())
         return act
 
     def GetLastNumMsg(self, num = 20):

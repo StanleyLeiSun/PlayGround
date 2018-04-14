@@ -67,7 +67,7 @@ def TestImageList():
 
 #TestReport()
 #TestActions()
-#TestDelete()
+TestDelete()
 #TestImageList()
 
 #cn2d = num_cn2digital()
