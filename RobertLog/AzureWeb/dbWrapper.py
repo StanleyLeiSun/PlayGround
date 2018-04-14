@@ -130,7 +130,7 @@ class RobertLogMSSQL:
         pos = a.CreateTime.index('.')
         timestr = a.CreateTime[:pos].strip()
         act.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
-        act.ActionID = int(a.ActionID.strip())
+        act.ActionID = a.ActionID
         return act
 
     def GetLastNumMsg(self, num = 20):

@@ -39,12 +39,12 @@ class ActionCenter:
     "ocgSc0fIrUDX5iDolCX_D0KBYiGs", \
     "ocgSc0a7I2-DcquxOaN5G43BOSbQ"} #stan, hanhan, huaiyan, zhangxin, lishu, luchun
 
-    user_mapping = {"ocgSc0eChTDEABMBHJ_urv4lMeCE" : "Hanan", \
-    "ocgSc0fzGH2Os2cmFYQ58zdDPCWw" : "Stan", \
-    "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ" : "Huaiyan", \
-    "ocgSc0X3el46D3JbN5Brwr0SVrII" : "ZhangXin", \
-    "ocgSc0fIrUDX5iDolCX_D0KBYiGs" : "LiShu", \
-    "ocgSc0a7I2-DcquxOaN5G43BOSbQ" : "LuChun"}
+    user_mapping = {"ocgSc0eChTDEABMBHJ_urv4lMeCE" : "李菡", \
+    "ocgSc0fzGH2Os2cmFYQ58zdDPCWw" : "孙磊", \
+    "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ" : "奶奶", \
+    "ocgSc0X3el46D3JbN5Brwr0SVrII" : "姥姥", \
+    "ocgSc0fIrUDX5iDolCX_D0KBYiGs" : "老爷", \
+    "ocgSc0a7I2-DcquxOaN5G43BOSbQ" : "爷爷"}
     
     actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports,\
      ActionType.Remove, ActionType.NoPermission, ActionType.ListImage, \
@@ -249,12 +249,13 @@ class ActionCenter:
                     
         elif action.Type == ActionType.Remove:
             response = "请输入要删除的项目序号\n"
-            actions = self.rlSQL.GetActionReports(30)
+            actions = self.rlSQL.GetActionReports(6)
+            actions.sort(key=lambda a:a.TimeStamp)
             for a in actions:
                 if a.Status == Action.Deleted:
                     continue
                 response += "{0},输入:{1}, {2}\n".format(\
-                    a.ActionID, a.FromUser, a.GenBrief())
+                    a.ActionID, self.user_mapping.get(a.FromUser, a.FromUser), a.GenBrief())
         elif action.Type == ActionType.RemoveSpecific:
             self.rlSQL.DeleteAction(int(action.message.RawContent))
             response ="已删除一条记录.\n"
