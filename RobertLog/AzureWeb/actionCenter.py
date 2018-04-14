@@ -48,7 +48,7 @@ class ActionCenter:
     
     actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports,\
      ActionType.Remove, ActionType.NoPermission, ActionType.ListImage, \
-     ActionType.SleepTime, ActionType.DebugMsg}
+     ActionType.SleepTime, ActionType.DebugMsg, ActionType.RemoveSpecific}
 
     def check_strList(self, str, listStr):
         for s in listStr:
