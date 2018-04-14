@@ -118,8 +118,9 @@ class ActionCenter:
             action.Type = ActionType.UnKnown
             try: 
                 int(msg.RawContent)
-                actions = self.rlSQL.GetActionFromUser(msg.FromUser)
-                if actions[0].Type == ActionType.Remove:
+                msgs = self.rlSQL.GetMsgFromUser(msg.FromUser)
+                print(msgs[0].RawContent)
+                if self.check_strList(msgs[0].RawContent, self.RemoveKeywords):
                     action.Type = ActionType.RemoveSpecific
             except ValueError:
                 pass

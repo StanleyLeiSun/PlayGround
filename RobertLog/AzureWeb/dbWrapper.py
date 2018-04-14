@@ -67,7 +67,7 @@ class RobertLogMSSQL:
 
     def GetActionFromUser(self, fromUser, num = 1):
         """List all the last # actions"""
-        cmd = "SELECT TOP {0} * FROM [dbo].[Actions] WHERE FromUser = {1} ORDER BY CreateTime DESC".format(num, fromUser)
+        cmd = "SELECT TOP {0} * FROM [dbo].[Actions] WHERE FromUser = N'{1}' ORDER BY CreateTime DESC".format(num, fromUser)
         actList = self.__ExecQuery(cmd)
         retList = []
         for a in actList:
@@ -92,16 +92,19 @@ class RobertLogMSSQL:
         actList = self.__ExecQuery(cmd)
         if len(actList) <= 0:
             return None
-        
-        msg = Message()
-        msg.FromUser = actList[0].FromUser.strip()
-        msg.ToUser = actList[0].ToUser.strip()
-        msg.RawContent = actList[0].RawMsg.strip()
-        pos = actList[0].TimeStamp.index('.')
-        timestr = actList[0].TimeStamp[:pos].strip()
-        msg.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
-        return msg
 
+        return self.LoadMsgFromDB(actList[0])
+
+    def GetMsgFromUser(self, fromUser, num = 1):
+        """List all the last # message"""
+        cmd = "select top {0} * from dbo.RawMsg where FromUser = N'{1}' ORDER BY TimeStamp DESC".format(num, fromUser)
+        msgList = self.__ExecQuery(cmd)
+        retList = []
+        for m in msgList:
+            retList.append(self.LoadMsgFromDB(m))
+        
+        return retList
+        
     def GetLastAD(self):
         return self.GetLastAction('AD')
 
@@ -133,6 +136,16 @@ class RobertLogMSSQL:
         act.ActionID = a.ActionID
         return act
 
+    def LoadMsgFromDB(self, m):
+        msg = Message()
+        msg.FromUser = m.FromUser.strip()
+        msg.ToUser = m.ToUser.strip()
+        msg.RawContent = m.RawMsg.strip()
+        pos = m.TimeStamp.index('.')
+        timestr = m.TimeStamp[:pos].strip()
+        msg.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
+        return msg
+
     def GetLastNumMsg(self, num = 20):
         """List all the last # actions"""
         cmd = "select top %s * from dbo.RawMsg" % num 
@@ -143,13 +156,6 @@ class RobertLogMSSQL:
         
         retList = []
         for m in actList:
-            msg = Message()
-            msg.FromUser = m.FromUser.strip()
-            msg.ToUser = m.ToUser.strip()
-            msg.RawContent = m.RawMsg.strip()
-            pos = m.TimeStamp.index('.')
-            timestr = m.TimeStamp[:pos].strip()
-            msg.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
-            retList.append(msg)
+            retList.append(self.LoadMsgFromDB(m))
             #print(msg)
         return retList
