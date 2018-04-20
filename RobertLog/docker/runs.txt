@@ -1,0 +1,28 @@
+
+docker run -it -p :80:80 -v /conf:/conf radish:ubuntu /bin/bash
+
+#nginx config
+sudo ln -s /var/www/demoapp/demoapp_nginx.conf /etc/nginx/conf.d/
+sudo /etc/init.d/nginx restart
+
+#uwsgi config
+sudo mkdir -p /var/log/uwsgi
+sudo chown -R ubuntu:ubuntu /var/log/uwsgi
+
+uwsgi --ini /home/PlayGround/RobertLog/docker/radish_uwsgi.ini
+
+sudo mkdir /etc/uwsgi && sudo mkdir /etc/uwsgi/vassals
+sudo ln -s /var/www/demoapp/demoapp_uwsgi.ini /etc/uwsgi/vassals
+
+sudo chown -R www-data:www-data /var/www/demoapp/
+sudo chown -R www-data:www-data /var/log/uwsgi/
+
+#help
+
+netstat -lpnt
+1
+killall  -9 uwsgi
+2
+killall -s HUP /var/www/uwsgi 
+3
+killall -s HUP /usr/local/bin/uwsgi

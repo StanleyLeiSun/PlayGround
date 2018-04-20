@@ -2,6 +2,8 @@
 import re
 import string
 import datetime
+import os
+from PIL import Image
 
 class num_cn2digital:
 
@@ -100,6 +102,40 @@ class extract_cn_time:
                 break
         return  dt_ret
     
+    def extract_time_v2(self, cn_str):
+        dt_ret = []
+        tstr_list = self.cn_time_pattern.findall(cn_str)
+        if len(tstr_list) <= 0: return
+        for match in tstr_list:
+            for tstr in match:
+                if len(tstr) > 0:
+                    hour = 0
+                    minute = 0
+                    numbs = re.findall(r'\d*', tstr)
+                    #print(numbs)
+                    hour = int(numbs[0])
+                    if len(numbs) > 2 and len(numbs[2]) > 0:
+                        minute = int(numbs[2])
+                    elif r"半" in tstr:
+                        minute = 30
+
+                    t = datetime.datetime.utcnow()  + datetime.timedelta(hours=+8)
+                    t2 = t.replace(hour = hour, minute = minute, second = 0, microsecond = 0)
+                    dt_ret.append(t2)
+                    break
+        return  dt_ret
+    
+    def extract_time_delta(self, cn_str):
+        tlist = self.extract_time_v2(cn_str)
+        if len(tlist) != 2:
+            return 0
+        #print(tlist)
+        if tlist[0] > tlist[1]:
+            tlist[0] = tlist[0] + datetime.timedelta(days = -1)
+        
+        #print(tlist)
+        return int((tlist[1] - tlist[0]).total_seconds()/60)
+
     def remove_time(self, cn_str):
         tstr_list = self.cn_time_pattern.findall(cn_str)
         ret = cn_str
@@ -146,3 +182,28 @@ class extract_cn_time:
         print( t, self.extract_time(t1))
         print(t, "removed", self.remove_time(t1))
         
+
+def listimgfiles(path, num):
+    path = path.replace("\\", "/")
+    mlist = os.listdir(path)
+ 
+    ret = []
+    mlist.sort(reverse=True)
+    for m in mlist[:num]:
+        mpath = os.path.join(path, m)
+        if os.path.isfile(mpath):
+            pt = os.path.abspath(mpath)
+            ret.append(m)
+            #print(m)
+    return ret
+
+def reshapimg(from_img, to_img):
+    img = Image.open(from_img)
+    w, h = img.size
+    new_width  = 320
+    new_height = int(new_width * h / w)
+    img = img.resize((new_width, new_height), Image.ANTIALIAS)
+    img.save(to_img) 
+
+def GetNowForUTC8():
+    return datetime.datetime.utcnow()  + datetime.timedelta(hours=+8)

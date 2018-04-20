@@ -1,0 +1,39 @@
+# Version 0.1
+
+# basic
+FROM ubuntu:latest
+
+# owner
+MAINTAINER Stanley.Lei.Sun@gmail.com
+
+# Operation
+RUN apt-get -yqq update && apt-get install -yqq python3 \
+    python3-pip \
+    unixodbc-dev \
+    python3-tk \
+    uwsgi \
+    uwsgi-plugin-python \
+    git-all \
+    vim
+
+#RUN mkdir -p /var/log/supervisor
+RUN rm /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && ln -s /usr/bin/pip3 /usr/bin/pip && pip install --upgrade pip
+
+WORKDIR /home
+RUN git clone -b PythonLearning https://github.com/StanleyLeiSun/PlayGround.git && pip install -r PlayGround/RobertLog/AzureWeb/requirements.txt
+
+
+
+#VOLUME ["/var/log/apche2"]
+
+#ADD html.tar /var/www
+#COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+#WORKDIR /var/www/html
+
+ENV HOSTNAME stansunradish
+
+EXPOSE 80
+
+# start up cmd
+CMD ["/usr/bin/supervisord"]

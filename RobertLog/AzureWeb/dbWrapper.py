@@ -43,8 +43,8 @@ class RobertLogMSSQL:
 
     def LogMessage(self, msg):
         """log a message into DB for backup"""
-        cmd = "INSERT INTO [dbo].[RawMsg] ([TimeStamp], [RawMsg], [FromUser], [ToUser]) VALUES "+\
-           "('%s',N'%s','%s','%s')" % (msg.TimeStamp, msg.RawContent, msg.FromUser, msg.ToUser)
+        cmd = "INSERT INTO [dbo].[RawMsg] ([TimeStamp], [RawMsg], [FromUser], [ToUser], [MsgType]) VALUES "+\
+           "('%s',N'%s','%s','%s', '%s')" % (msg.TimeStamp, msg.RawContent, msg.FromUser, msg.ToUser, msg.MsgType)
         self.__ExecNonQuery(cmd)
 
     def AppendAction(self, act):
@@ -60,35 +60,102 @@ class RobertLogMSSQL:
         actList = self.__ExecQuery(cmd)
         retList = []
         for a in actList:
-            act = Action()
-            act.FromUser = a.FromUser.strip()
-            act.Status = a.ActionStatus.strip()
-            act.Type = a.ActionType.strip()
-            act.Detail = a.ActionDetail.strip()
-            pos = a.CreateTime.index('.')
-            timestr = a.CreateTime[:pos].strip()
-            act.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
+            act = self.LoadActionFromDB(a)
             retList.append(act)
 
         return retList
 
-    def DeleteLastAction(self, itemID = 0, lastNum = 1):
-        """delete item TODO support delete a specific item"""
-        cmdstr = "update dbo.Actions set ActionStatus = 'Deleted' where ActionID=(select max(ActionID) from dbo.Actions)"
+    def GetActionFromUser(self, fromUser, num = 1):
+        """List all the last # actions"""
+        cmd = "SELECT TOP {0} * FROM [dbo].[Actions] WHERE FromUser = N'{1}' ORDER BY CreateTime DESC".format(num, fromUser)
+        actList = self.__ExecQuery(cmd)
+        retList = []
+        for a in actList:
+            act = self.LoadActionFromDB(a)
+            retList.append(act)
+        
+        return retList
+
+    def DeleteLastAction(self):
+        """delete the last active item"""
+        cmdstr = "update dbo.Actions set ActionStatus = 'Deleted' where ActionID=(select max(ActionID) from dbo.Actions where ActionStatus = 'Active')"
+        self.__ExecNonQuery(cmdstr)
+
+    def DeleteAction(self, itemID):
+        """delete item with specific ID"""
+        cmdstr = "update dbo.Actions set ActionStatus = 'Deleted' where ActionID=(%s)" % itemID
         self.__ExecNonQuery(cmdstr)
     
     def GetLastFallSleep(self):
         """List all the last # actions"""
-        cmd = "select top 1 * from dbo.RawMsg where RawMsg like N'%睡着了%' ORDER BY TimeStamp DESC"
+        cmd = "select top 1 * from dbo.RawMsg where RawMsg like N'%睡着%' ORDER BY TimeStamp DESC"
+        actList = self.__ExecQuery(cmd)
+        if len(actList) <= 0:
+            return None
+
+        return self.LoadMsgFromDB(actList[0])
+
+    def GetMsgFromUser(self, fromUser, num = 1):
+        """List all the last # message"""
+        cmd = "select top {0} * from dbo.RawMsg where FromUser = N'{1}' ORDER BY TimeStamp DESC".format(num, fromUser)
+        msgList = self.__ExecQuery(cmd)
+        retList = []
+        for m in msgList:
+            retList.append(self.LoadMsgFromDB(m))
+        
+        return retList
+        
+    def GetLastAD(self):
+        return self.GetLastAction('AD')
+
+    def GetLastCa(self):
+        return self.GetLastAction('EatCa')
+
+    def GetLastAction(self, act_name):
+        """List the last AD actions"""
+        cmd = "SELECT TOP 1 * FROM [dbo].[Actions] Where ActionType = '%s' ORDER BY CreateTime DESC" % act_name
+        actList = self.__ExecQuery(cmd)
+
+        if len(actList) <= 0:
+            return None
+
+        a = actList[0]
+        act = self.LoadActionFromDB(a)
+
+        return act
+
+    def LoadActionFromDB(self, a):
+        act = Action()
+        act.FromUser = a.FromUser.strip()
+        act.Status = a.ActionStatus.strip()
+        act.Type = a.ActionType.strip()
+        act.Detail = a.ActionDetail.strip()
+        pos = a.CreateTime.index('.')
+        timestr = a.CreateTime[:pos].strip()
+        act.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
+        act.ActionID = a.ActionID
+        return act
+
+    def LoadMsgFromDB(self, m):
+        msg = Message()
+        msg.FromUser = m.FromUser.strip()
+        msg.ToUser = m.ToUser.strip()
+        msg.RawContent = m.RawMsg.strip()
+        pos = m.TimeStamp.index('.')
+        timestr = m.TimeStamp[:pos].strip()
+        msg.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
+        return msg
+
+    def GetLastNumMsg(self, num = 20):
+        """List all the last # actions"""
+        cmd = "select top %s * from dbo.RawMsg" % num 
+        cmd += " where RawMsg NOT like N'%调试%' ORDER BY TimeStamp DESC"
         actList = self.__ExecQuery(cmd)
         if len(actList) <= 0:
             return None
         
-        msg = Message()
-        msg.FromUser = actList[0].FromUser.strip()
-        msg.ToUser = actList[0].ToUser.strip()
-        msg.RawContent = actList[0].RawMsg.strip()
-        pos = actList[0].TimeStamp.index('.')
-        timestr = actList[0].TimeStamp[:pos].strip()
-        msg.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
-        return msg
+        retList = []
+        for m in actList:
+            retList.append(self.LoadMsgFromDB(m))
+            #print(msg)
+        return retList

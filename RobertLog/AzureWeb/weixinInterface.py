@@ -56,7 +56,13 @@ class WeixinInterface:
 
         ret = self.actCenter.Receive(str_xml)
 
-        return render_template("main_ret.ret",\
-            toUser = fromuser, fromUser = touser,\
-            createTime = int(time.time()),\
-            content = ret)
+        if type(ret) == str :  
+            return render_template("main_ret.ret",\
+                toUser = fromuser, fromUser = touser,\
+                createTime = int(time.time()),\
+                content = ret)
+        elif type(ret) == list:
+            return render_template("img_list.ret",\
+                toUser = fromuser, fromUser = touser,\
+                createTime = int(time.time()), itemCount = len(ret),\
+                pictures = ret)
