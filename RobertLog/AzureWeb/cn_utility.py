@@ -72,7 +72,7 @@ class extract_cn_time:
     cn_date_pattern = re.compile(r'((\d{4}|\d{2})(-|/|.)\d{1,2}\3\d{1,2})|(\d{4}年\d{1,2}月'+\
     r'\d{1,2}日)|(\d{1,2}月\d{1,2}日)|(\d{1,2}日)')
 
-    def extract_time(self, cn_str):
+    def extract_time(self, cn_str, input_time = None ):
         dt_ret = []
         tstr_list = self.cn_time_pattern.findall(cn_str)
         #print(tstr_list)
@@ -89,7 +89,10 @@ class extract_cn_time:
                 elif r"半" in tstr:
                     minute = 30
                 
-                t = datetime.datetime.utcnow()  + datetime.timedelta(hours=+8)
+                t = GetNowForUTC8()
+                if input_time is not None:
+                    t = input_time
+
                 if t.hour > 12 and hour < 12: 
                     hour += 12 
                 
@@ -102,7 +105,7 @@ class extract_cn_time:
                 break
         return  dt_ret
     
-    def extract_time_v2(self, cn_str):
+    def extract_time_v2(self, cn_str, input_time = None ):
         dt_ret = []
         tstr_list = self.cn_time_pattern.findall(cn_str)
         if len(tstr_list) <= 0: return
@@ -119,7 +122,10 @@ class extract_cn_time:
                     elif r"半" in tstr:
                         minute = 30
 
-                    t = datetime.datetime.utcnow()  + datetime.timedelta(hours=+8)
+                    t = GetNowForUTC8()
+                    if input_time is not None:
+                        t = input_time
+
                     t2 = t.replace(hour = hour, minute = minute, second = 0, microsecond = 0)
                     dt_ret.append(t2)
                     break

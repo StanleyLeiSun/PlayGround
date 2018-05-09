@@ -138,7 +138,7 @@ class ActionCenter:
         else:
             #check previous time
             pre_content = num2d.replace_cn_digital(sleep.RawContent)
-            sleep_t = ect.extract_time(pre_content)
+            sleep_t = ect.extract_time(pre_content，sleep.TimeStamp)
             if sleep_t is None or len(sleep_t) <= 0:
                 sleep_t = sleep.TimeStamp
             else:
