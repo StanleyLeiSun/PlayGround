@@ -32,6 +32,7 @@ class ActionCenter:
     ListSleepTimeKeywords = {u"几点睡",u"睡多久", u"睡了多久"}
     DebugMsgKeywords = {u"调试消息"}
     EatCaKeywords = {u"补钙", u"钙片"}
+    ComFoodKeywords = {u"辅食"}
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", \
     "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ", \
@@ -78,6 +79,11 @@ class ActionCenter:
             action.Type = ActionType.AD
         elif self.check_strList(msg.RawContent, self.EatCaKeywords):
             action.Type = ActionType.EatCa
+        elif self.check_strList(msg.RawContent, self.ComFoodKeywords):
+            action.Type = ActionType.ComFood
+            start = msg.RawContent.index(self.ComFoodKeywords[0])
+            detail = msg.RawContent[start+2:].strip()
+            action.detail = detail
         elif self.check_strList(content, self.FeedKeywords):
             #feed
             action.Type = ActionType.Feed
