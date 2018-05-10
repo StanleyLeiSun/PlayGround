@@ -32,7 +32,7 @@ class ActionCenter:
     ListSleepTimeKeywords = {u"几点睡",u"睡多久", u"睡了多久"}
     DebugMsgKeywords = {u"调试消息"}
     EatCaKeywords = {u"补钙", u"钙片"}
-    ComFoodKeywords = {u"辅食"}
+    ComFoodKeywords = [u"辅食"]
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", \
     "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ", \
@@ -144,7 +144,7 @@ class ActionCenter:
         else:
             #check previous time
             pre_content = num2d.replace_cn_digital(sleep.RawContent)
-            sleep_t = ect.extract_time(pre_content，sleep.TimeStamp)
+            sleep_t = ect.extract_time(pre_content, sleep.TimeStamp)
             if sleep_t is None or len(sleep_t) <= 0:
                 sleep_t = sleep.TimeStamp
             else:
