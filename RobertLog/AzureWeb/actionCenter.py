@@ -81,8 +81,8 @@ class ActionCenter:
             action.Type = ActionType.EatCa
         elif self.check_strList(msg.RawContent, self.ComFoodKeywords):
             action.Type = ActionType.ComFood
-            start = msg.RawContent.index(self.ComFoodKeywords[0])
-            detail = msg.RawContent[start+2:].strip()
+            start = content.index(self.ComFoodKeywords[0])
+            detail = content[start+2:].strip()
             action.detail = detail
         elif self.check_strList(content, self.FeedKeywords):
             #feed
