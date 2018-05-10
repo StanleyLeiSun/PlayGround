@@ -83,7 +83,7 @@ class ActionCenter:
             action.Type = ActionType.ComFood
             start = content.index(self.ComFoodKeywords[0])
             detail = content[start+2:].strip()
-            action.detail = detail
+            action.Detail = detail
         elif self.check_strList(content, self.FeedKeywords):
             #feed
             action.Type = ActionType.Feed
