@@ -89,15 +89,15 @@ class extract_cn_time:
                 elif r"半" in tstr:
                     minute = 30
                 
-                t = GetNowForUTC8()
+                now = GetNowForUTC8()
                 if input_time is not None:
-                    t = input_time
+                    now = input_time
 
-                if t.hour > 12 and hour < 12: 
+                if now.hour > 12 and hour < 12: 
                     hour += 12 
                 
-                t2 = t.replace(hour = hour, minute = minute, second = 0, microsecond = 0)
-                if t2 > t : 
+                t2 = now.replace(hour = hour, minute = minute, second = 0, microsecond = 0)
+                if t2.hour > now.hour : #if the input is ahead Now, though users' clock may different so user hour to check
                     t2 = t2 + datetime.timedelta(hours = -12)
                 
                 #print(t)
