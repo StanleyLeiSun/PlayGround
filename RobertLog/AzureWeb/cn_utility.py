@@ -97,7 +97,7 @@ class extract_cn_time:
                     hour += 12 
                 
                 t2 = now.replace(hour = hour, minute = minute, second = 0, microsecond = 0)
-                if t2.hour > now.hour : #if the input is ahead Now, though users' clock may different so user hour to check
+                if t2 > (now+datetime.timedelta(minute = 30)) : #if the input is ahead Now, though users' clock may different so add 30 minutes' delta
                     t2 = t2 + datetime.timedelta(hours = -12)
                 
                 #print(t)
