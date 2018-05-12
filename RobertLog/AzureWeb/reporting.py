@@ -9,6 +9,7 @@ import urllib
 import config
 import cn_utility
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import matplotlib
 
 plt.rcParams["font.sans-serif"] = ["Microsoft YaHei"]
@@ -24,14 +25,17 @@ def chart_for_last_days(num_days):
     x = []
     index = 1
     for d in data:
-        x.append(d.date.strftime("%m.%d"))
+        #x.append(d.date.strftime("%m/%d/%Y"))
+        x.append(d.date)
         index += 1
         milk.append(d.milk_min*4 + d.milk_ml)
         sleep.append(d.sleep)
         poop.append(d.poop*100)
+        #print (d.date, d.date.strftime("%m.%d"))
     
     #myfont = matplotlib.font_manager.FontProperties(fname='C:/Windows/Fonts/msyh.ttc')
     myfont = matplotlib.font_manager.FontProperties(fname='./wheelhouse/msyh.ttc')
+
     plt.plot(x,milk,label="喂奶ml",color="dodgerblue",linewidth=2)
     plt.plot(x,sleep,label="睡觉min",color="darkviolet",linewidth=2)
     plt.plot(x,poop,label=u"拉屎",color="blue",marker="o", linestyle="None")
@@ -40,6 +44,9 @@ def chart_for_last_days(num_days):
     plt.ylim(0,1000)
     plt.grid(True)
     plt.legend(prop=myfont,loc='lower right') # bty = "n", 
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
+    plt.gca().xaxis.set_major_locator(mdates.DayLocator())
+    plt.gcf().autofmt_xdate()
     plt.show()
 
 def get_dailyreport(num_days):

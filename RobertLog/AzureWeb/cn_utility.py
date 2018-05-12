@@ -97,7 +97,7 @@ class extract_cn_time:
                     hour += 12 
                 
                 t2 = now.replace(hour = hour, minute = minute, second = 0, microsecond = 0)
-                if t2 > (now+datetime.timedelta(minute = 30)) : #if the input is ahead Now, though users' clock may different so add 30 minutes' delta
+                if t2 > (now+datetime.timedelta(minutes = 30)) : #if the input is ahead Now, though users' clock may different so add 30 minutes' delta
                     t2 = t2 + datetime.timedelta(hours = -12)
                 
                 #print(t)
@@ -127,6 +127,7 @@ class extract_cn_time:
                         t = input_time
 
                     t2 = t.replace(hour = hour, minute = minute, second = 0, microsecond = 0)
+                    
                     dt_ret.append(t2)
                     break
         return  dt_ret
@@ -138,8 +139,7 @@ class extract_cn_time:
         #print(tlist)
         if tlist[0] > tlist[1]:
             tlist[0] = tlist[0] + datetime.timedelta(days = -1)
-        
-        #print(tlist)
+
         return int((tlist[1] - tlist[0]).total_seconds()/60)
 
     def remove_time(self, cn_str):

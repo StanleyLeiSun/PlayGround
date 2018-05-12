@@ -4,6 +4,7 @@ from weixinInterface import WeixinInterface
 import testfunc
 import config
 import flask
+import reporting
 
 app = Flask(__name__)
 weixin = WeixinInterface()
@@ -27,6 +28,6 @@ def get_image():
     return flask.send_file(file_name, mimetype='image/jpeg')
 
 if __name__ == '__main__':
-    #app.run()
+    #reporting.chart_for_last_days(90)
     app.run(host="0.0.0.0", port=80)
     pass
