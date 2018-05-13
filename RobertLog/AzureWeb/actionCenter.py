@@ -107,10 +107,22 @@ class ActionCenter:
         elif self.check_strList(msg.RawContent, self.BathKeywords):
             action.Type = ActionType.Bath
         elif self.check_strList(msg.RawContent, self.FallSleepKeywords):
-            action.Type = ActionType.FallSleep
+            lastAct = self.rlSQL.GetSleepStatus()
+            if lastAct.Type == ActionType.WakeUp:
+                action.Type = ActionType.FallSleep
+            else:
+                action.Type = ActionType.ErrStatus
+                action.Detail = "重复的睡觉，上一次是："
+                action.Detail += lastAct.TimeStamp
         elif self.check_strList(msg.RawContent, self.WakeUpKeywords):
-            action.Type = ActionType.WakeUp
-            self.get_latest_sleep(action, num2d, ect)
+            lastAct = self.rlSQL.GetSleepStatus()
+            if lastAct.Type == ActionType.FallSleep:
+                action.Type = ActionType.WakeUp
+                self.get_latest_sleep(action, num2d, ect)
+            else:
+                action.Type = ActionType.ErrStatus
+                action.Detail = "重复的睡醒，上一次是："
+                action.Detail += lastAct.TimeStamp
         elif self.check_strList(msg.RawContent, self.DebugMsgKeywords):
             action.Type = ActionType.DebugMsg
         elif self.check_strList(msg.RawContent, self.ListImageKeywords):

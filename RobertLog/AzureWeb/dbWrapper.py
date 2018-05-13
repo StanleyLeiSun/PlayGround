@@ -123,6 +123,20 @@ class RobertLogMSSQL:
         act = self.LoadActionFromDB(a)
 
         return act
+    
+    def GetSleepStatus(self):
+        """List the last AD actions"""
+        cmd = "SELECT TOP 1 * FROM [dbo].[Actions] Where ActionType = 'Sleep' OR ActionType = 'WakeUp' ORDER BY CreateTime DESC"
+
+        actList = self.__ExecQuery(cmd)
+
+        if len(actList) <= 0:
+            return None
+
+        a = actList[0]
+        act = self.LoadActionFromDB(a)
+
+        return act
 
     def LoadActionFromDB(self, a):
         act = Action()
