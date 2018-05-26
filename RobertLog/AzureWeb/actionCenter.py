@@ -113,7 +113,7 @@ class ActionCenter:
             else:
                 action.Type = ActionType.ErrStatus
                 action.Detail = "重复的睡觉，上一次是："
-                action.Detail += lastAct.TimeStamp
+                action.Detail += lastAct.TimeStamp.strftime( "%H:%M")
         elif self.check_strList(msg.RawContent, self.WakeUpKeywords):
             lastAct = self.rlSQL.GetSleepStatus()
             if lastAct.Type == ActionType.FallSleep:
@@ -122,7 +122,7 @@ class ActionCenter:
             else:
                 action.Type = ActionType.ErrStatus
                 action.Detail = "重复的睡醒，上一次是："
-                action.Detail += lastAct.TimeStamp
+                action.Detail += lastAct.TimeStamp.strftime( "%H:%M")
         elif self.check_strList(msg.RawContent, self.DebugMsgKeywords):
             action.Type = ActionType.DebugMsg
         elif self.check_strList(msg.RawContent, self.ListImageKeywords):
