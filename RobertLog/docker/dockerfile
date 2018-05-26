@@ -36,5 +36,7 @@ ENV HOSTNAME stansunradish
 EXPOSE 80
 
 # start up cmd
+WORKDIR /home/PlayGround
+CMD git pull && uwsgi --ini /home/PlayGround/RobertLog/docker/radish_uwsgi.ini
 #CMD ["/usr/bin/supervisord"]
-CMD ["uwsgi --ini /home/PlayGround/RobertLog/docker/radish_uwsgi.ini"]
+#CMD ["uwsgi --ini /home/PlayGround/RobertLog/docker/radish_uwsgi.ini"]
