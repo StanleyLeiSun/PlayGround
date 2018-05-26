@@ -1,6 +1,28 @@
 
-docker run -it -p :80:80 -v /conf:/conf radish:ubuntu /bin/bash
+#For web service
 
+#run docker
+docker run -it -p :80:80 -v /conf:/conf stansun/radish /bin/bash
+
+#then start uwsgi
+uwsgi --ini /home/PlayGround/RobertLog/docker/radish_uwsgi.ini
+
+#Sync code...
+docker attach
+
+docker exec -it 775c7c9ee1e1 /bin/bash 
+Ctrl + P + Q
+docker exec xxxx top
+
+
+#for database
+docker run --name radishdb -e MYSQL_ROOT_PASSWORD=Only1Dog -e MYSQL_DATABASE=radishlog -d -p 3306:3306 mysql
+
+sudo apt-get install mysql-client-core-5.7
+mysql -h127.0.0.1 -P3306 -uroot -pOnly1Dog
+
+
+#Not used
 #nginx config
 sudo ln -s /var/www/demoapp/demoapp_nginx.conf /etc/nginx/conf.d/
 sudo /etc/init.d/nginx restart
@@ -9,7 +31,7 @@ sudo /etc/init.d/nginx restart
 sudo mkdir -p /var/log/uwsgi
 sudo chown -R ubuntu:ubuntu /var/log/uwsgi
 
-uwsgi --ini /home/PlayGround/RobertLog/docker/radish_uwsgi.ini
+
 
 sudo mkdir /etc/uwsgi && sudo mkdir /etc/uwsgi/vassals
 sudo ln -s /var/www/demoapp/demoapp_uwsgi.ini /etc/uwsgi/vassals
@@ -26,3 +48,6 @@ killall  -9 uwsgi
 killall -s HUP /var/www/uwsgi 
 3
 killall -s HUP /usr/local/bin/uwsgi
+
+
+docker rm $(docker ps -a -q)

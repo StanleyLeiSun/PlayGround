@@ -36,4 +36,5 @@ ENV HOSTNAME stansunradish
 EXPOSE 80
 
 # start up cmd
-CMD ["/usr/bin/supervisord"]
+#CMD ["/usr/bin/supervisord"]
+CMD ["uwsgi --ini /home/PlayGround/RobertLog/docker/radish_uwsgi.ini"]
