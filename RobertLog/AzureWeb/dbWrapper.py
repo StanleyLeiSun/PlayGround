@@ -173,3 +173,15 @@ class RobertLogMSSQL:
             retList.append(self.LoadMsgFromDB(m))
             #print(msg)
         return retList
+
+    def DumpResultToStream(self, sqlcmd, streamWriter):
+        cur = self.__GetConnect()
+        cur.execute(sqlcmd)
+
+        streamWriter.writerow([d[0] for d in cur.description])
+        streamWriter.writerows(cur.fetchall())
+        self.conn.close()
+
+    def DumpTableToStream(self, table, streamWriter):
+        cmd  = "SELECT * FROM [dbo].[{0}]".format(table)
+        self.DumpResultToStream(cmd, streamWriter)
