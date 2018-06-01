@@ -13,5 +13,5 @@ GO
 
 UPDATE dbo.Actions set ActionStatus = N'Deleted'
 where ActionID = 2259
-
-INSERT INTO dbo.Actions VALUES ("2018-05-21 7:15:00.0", 'WakeUp', 'ocgSc0cpvPB5V7KPdcBSdu0VQvXQ', '从14:11到17:00，睡了2小时49分钟', 'Active' ) 
+ 
+INSERT INTO dbo.Actions VALUES ('2018-05-27 4:40:00.0', 'WakeUp', 'ocgSc0cpvPB5V7KPdcBSdu0VQvXQ', '从9:40到4:40，睡了7小时0分钟', 'Active' ) 

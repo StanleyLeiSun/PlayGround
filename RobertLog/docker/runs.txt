@@ -16,7 +16,7 @@ docker exec xxxx top
 
 
 #for database
-docker run --name radishdb -e MYSQL_ROOT_PASSWORD=Only1Dog -e MYSQL_DATABASE=radishlog -d -p 3306:3306 mysql
+docker run --name radishdb -e MYSQL_ROOT_PASSWORD=<pwd> -e MYSQL_DATABASE=radishlog -d -p 3306:3306 mysql
 
 sudo apt-get install mysql-client-core-5.7
 mysql -h127.0.0.1 -P3306 -uroot -pOnly1Dog

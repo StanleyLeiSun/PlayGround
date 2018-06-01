@@ -5,3 +5,4 @@ pyodbc==4.0.22
 Pillow==5.0.0
 uwsgi
 matplotlib
+pymysql
