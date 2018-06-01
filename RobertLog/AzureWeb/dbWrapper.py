@@ -185,3 +185,14 @@ class RobertLogMSSQL:
     def DumpTableToStream(self, table, streamWriter):
         cmd  = "SELECT * FROM [dbo].[{0}]".format(table)
         self.DumpResultToStream(cmd, streamWriter)
+
+    def ImportListToDB(self, table, headers, csv_data):
+        cmdTemplate = 'INSERT INTO {0} ( {1} ) VALUES ( "'.format(table, headers) 
+        cur = self.__GetConnect()
+        for row in csv_data:
+            values = "\",\"".join(row)
+            print(values)
+            cur.execute( cmd + values + '")')
+
+        self.conn.commit()
+        self.conn.close()
