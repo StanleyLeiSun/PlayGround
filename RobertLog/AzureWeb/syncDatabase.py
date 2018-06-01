@@ -5,7 +5,7 @@ import config
 from sys import argv
 
 def importDatabase():
-    rlSQL = RobertLogMSSQL(host="stansunvm.eastasia.cloudapp.azure.com",user="root",pwd="Only1Dog",db="radishlog", driver="mysql")
+    rlSQL = RobertLogMSSQL(host=config.db_server,user=config.db_user,pwd=config.db_pwd,db="robertlog")
     with open("rawmsg.csv", 'r', encoding='utf-8') as cvsin:
         fRawMsg = csv.reader(cvsin, delimiter='\t', quotechar='"')
         rlSQL.ImportListToDB("RawMsg",
