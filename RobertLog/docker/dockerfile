@@ -14,9 +14,13 @@ RUN apt-get -yqq update && apt-get install -yqq python3 \
     uwsgi \
     uwsgi-plugin-python \
     git-all \
-    vim
+    vim \
+    sudo 
 
 #RUN mkdir -p /var/log/supervisor
+#install SQL Server ODBC
+#RUN wget https://gallery.technet.microsoft.com/ODBC-Driver-13-for-Ubuntu-b87369f0/file/154097/2/installodbc.sh && sh installodbc.sh
+
 RUN ln -s /usr/bin/python3 /usr/bin/python && ln -s /usr/bin/pip3 /usr/bin/pip && pip install --upgrade pip
 
 WORKDIR /home
