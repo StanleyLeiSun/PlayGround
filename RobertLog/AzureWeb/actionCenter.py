@@ -33,6 +33,7 @@ class ActionCenter:
     DebugMsgKeywords = {u"调试消息"}
     EatCaKeywords = {u"补钙", u"钙片"}
     ComFoodKeywords = [u"辅食"]
+    ComFoodListKeywords = {u"辅食食谱"}
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", \
     "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ", \
@@ -49,7 +50,8 @@ class ActionCenter:
     
     actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports,\
      ActionType.Remove, ActionType.NoPermission, ActionType.ListImage, \
-     ActionType.SleepTime, ActionType.DebugMsg, ActionType.RemoveSpecific}
+     ActionType.SleepTime, ActionType.DebugMsg, ActionType.RemoveSpecific, \
+     ActionType.ErrStatus, ActionType.ComFoodList}
 
     def check_strList(self, str, listStr):
         for s in listStr:
@@ -79,6 +81,8 @@ class ActionCenter:
             action.Type = ActionType.AD
         elif self.check_strList(msg.RawContent, self.EatCaKeywords):
             action.Type = ActionType.EatCa
+        elif self.check_strList(msg.RawContent, self.ComFoodListKeywords):
+            action.Type = ActionType.ComFoodList
         elif self.check_strList(msg.RawContent, self.ComFoodKeywords):
             action.Type = ActionType.ComFood
             start = content.index(self.ComFoodKeywords[0])
@@ -286,6 +290,11 @@ class ActionCenter:
                 response +="[{0}] {1}:{2} \n".format(m.TimeStamp.strftime( "%H:%M"), self.user_mapping.get(m.FromUser, m.FromUser), m.RawContent)
         elif action.Type == ActionType.NoPermission:
             response = "抱歉您没有权限，可以尝试 '总结' 或 '一周总结' 查看萝卜成长状态。"
+        elif action.Type == ActionType.ComFoodList:
+            foodList = self.rlSQL.GetActionList( ActionType.ComFood, 20)
+            foodList.sort(key=lambda a:a.TimeStamp)
+            for f in foodList:
+                response += "[{0}] {1}:{2} \n".format(f.TimeStamp.strftime("%m-%d"), self.user_mapping.get(f.FromUser, f.FromUser), f.GenBrief())
         else:
             response = action.GenBrief()
 

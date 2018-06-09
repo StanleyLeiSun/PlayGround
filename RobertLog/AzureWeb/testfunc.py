@@ -54,6 +54,9 @@ def TestDelete():
     str_report = str_cmdtemplate_xml.format("撤销")
     print(actCenter.Receive(str_report))
 
+def TestFoodList():
+    str_report = str_cmdtemplate_xml.format("辅食食谱")
+    print(actCenter.Receive(str_report))
 
 #app = Flask(__name__)
 def TestImageList():
@@ -69,6 +72,8 @@ def TestImageList():
 #TestActions()
 #TestDelete()
 #TestImageList()
+
+TestFoodList()
 
 #cn2d = num_cn2digital()
 #cn2d.Test()
