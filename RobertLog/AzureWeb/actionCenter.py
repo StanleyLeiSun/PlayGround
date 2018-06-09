@@ -33,7 +33,7 @@ class ActionCenter:
     DebugMsgKeywords = {u"调试消息"}
     EatCaKeywords = {u"补钙", u"钙片"}
     ComFoodKeywords = [u"辅食"]
-    ComFoodListKeywords = {u"辅食食谱"}
+    ComFoodListKeywords = {u"食谱"}
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", \
     "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ", \
@@ -291,10 +291,15 @@ class ActionCenter:
         elif action.Type == ActionType.NoPermission:
             response = "抱歉您没有权限，可以尝试 '总结' 或 '一周总结' 查看萝卜成长状态。"
         elif action.Type == ActionType.ComFoodList:
-            foodList = self.rlSQL.GetActionList( ActionType.ComFood, 20)
+            foodList = self.rlSQL.GetActionList( ActionType.ComFood, 80)
             foodList.sort(key=lambda a:a.TimeStamp)
+            cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
             for f in foodList:
-                response += "[{0}] {1}:{2} \n".format(f.TimeStamp.strftime("%m-%d"), self.user_mapping.get(f.FromUser, f.FromUser), f.GenBrief())
+                if f.TimeStamp.day != cur.day: #a new day 
+                    response += "\n[{0}] {1} ".format(f.TimeStamp.strftime("%m-%d"), f.Detail)
+                    cur = f.TimeStamp
+                else:
+                    response += f.Detail #f.GenBrief()
         else:
             response = action.GenBrief()
 
