@@ -73,7 +73,7 @@ def TestImageList():
 #TestDelete()
 #TestImageList()
 
-TestFoodList()
+#TestFoodList()
 
 #cn2d = num_cn2digital()
 #cn2d.Test()
