@@ -1,4 +1,8 @@
 
+select * from Actions order by CreateTime desc
+
+select * from RawMsg order by TimeStamp desc
+
 
 SELECT top 100 [ActionID]
       ,[CreateTime]
