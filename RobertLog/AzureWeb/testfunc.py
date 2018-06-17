@@ -8,11 +8,13 @@ import cn_utility
 from flask import render_template, Flask
 import reporting
 import warning
+import datetime
+import entityClasses
 
 
-actCenter = ActionCenter()
+#actCenter = ActionCenter()
 
-ms = RobertLogMSSQL(host=config.db_server,user=config.db_user,pwd=config.db_pwd,db="robertlog")
+#ms = RobertLogMSSQL(host=config.db_server,user=config.db_user,pwd=config.db_pwd,db="robertlog")
 
 str_feedcmd_xml =  "<xml><ToUserName><![CDATA[fromUser]]></ToUserName>" +\
         "<FromUserName><![CDATA[toUser]]></FromUserName>" +\
@@ -94,3 +96,8 @@ def TestImageList():
 #print(warning.GetWarnings(ms))
 
 #chcp 936
+def TestFixInput():
+    a = entityClasses.Action()
+    a.LoadFromString("补录 6月5号4点10分 睡觉 从5点10到6:20，睡了1小时十分钟")
+    print(a.__dict__)
+    print(cn_utility.FormatStringToDateTime("6月5日14:21"))

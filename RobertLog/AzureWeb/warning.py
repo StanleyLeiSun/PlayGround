@@ -19,7 +19,7 @@ def WarningForADorCa(rlSQL):
     elif ad_hour_delta > 23:
         return "\n该考虑吃AD了。"
     elif ca_hour_delta > 23:
-        return "\n该考虑吃钙片了。"
+        return "" #\n该考虑吃钙片了。"
     
     return ""
 

@@ -28,43 +28,6 @@ class Message:
             self.RawContent = "image:" + self.MediaId
         else:
             pass
-        
-
-class Action:
-    """Interprete a message to an action"""
-
-    Active = "Active"
-    Deleted = "Deleted"
-
-    def __init__(self, msg = None):
-        if msg :
-            self.message = msg
-            self.FromUser =msg.FromUser
-            self.Status = "Active"
-            self.Type = "UnKnown"
-            self.Detail = msg.RawContent
-            self.TimeStamp = msg.TimeStamp
-
-    def GenBrief(self):
-        """Brief the action as a str"""
-
-        brief = "[{0}] {1} ".format(self.TimeStamp.strftime( "%H:%M"), ActionType.actionNames[self.Type])
-
-        if self.Type in {ActionType.Feed, ActionType.Notes, ActionType.WakeUp, ActionType.SleepTime, ActionType.ComFood, ActionType.ErrStatus}:
-            brief += self.Detail
-        elif self.Type == ActionType.Poop:
-            pass
-        elif self.Type == ActionType.AD:
-            pass
-        elif self.Type == ActionType.UnKnown:
-            brief += "可以尝试 '总结' 或 '一周总结' 查看萝卜成长状态。"
-        elif self.Type == ActionType.FallSleep:
-            tnow = cn_utility.GetNowForUTC8()
-            delta_minutes = int((tnow - self.TimeStamp).total_seconds()/60)
-            brief += "已经睡了{0}小时{1}分钟".format(int(delta_minutes/60), delta_minutes%60)
-        else:
-            pass
-        return brief
 
 
 class ActionType:
@@ -106,3 +69,52 @@ class DailyReport:
         self.date = date
 
     
+
+class Action:
+    """Interprete a message to an action"""
+
+    Active = "Active"
+    Deleted = "Deleted"
+
+    def __init__(self, msg = None):
+        if msg :
+            self.message = msg
+            self.FromUser =msg.FromUser
+            self.Status = "Active"
+            self.Type = "UnKnown"
+            self.Detail = msg.RawContent
+            self.TimeStamp = msg.TimeStamp
+
+    def GenBrief(self):
+        """Brief the action as a str"""
+
+        brief = "[{0}] {1} ".format(self.TimeStamp.strftime( "%H:%M"), ActionType.actionNames[self.Type])
+
+        if self.Type in {ActionType.Feed, ActionType.Notes, ActionType.WakeUp, ActionType.SleepTime, ActionType.ComFood, ActionType.ErrStatus}:
+            brief += self.Detail
+        elif self.Type == ActionType.Poop:
+            pass
+        elif self.Type == ActionType.AD:
+            pass
+        elif self.Type == ActionType.UnKnown:
+            brief += "可以尝试 '总结' 或 '一周总结' 查看萝卜成长状态。"
+        elif self.Type == ActionType.FallSleep:
+            tnow = cn_utility.GetNowForUTC8()
+            delta_minutes = int((tnow - self.TimeStamp).total_seconds()/60)
+            brief += "已经睡了{0}小时{1}分钟".format(int(delta_minutes/60), delta_minutes%60)
+        else:
+            pass
+        return brief
+
+    def LoadFromString(self, rawstr):
+        #msg format should be "补录 timestamp ActionType Content"
+        tokens = rawstr.split(' ', 4 )
+        print(tokens[1])
+        self.TimeStamp = cn_utility.FormatStringToDateTime(tokens[1])
+        for key,values in  ActionType.actionNames.items():
+            if tokens[2] in values:
+                self.Type = key
+                break
+
+        self.Detail = tokens[3]
+        

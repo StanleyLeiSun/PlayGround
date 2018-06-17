@@ -213,3 +213,17 @@ def reshapimg(from_img, to_img):
 
 def GetNowForUTC8():
     return datetime.datetime.utcnow()  + datetime.timedelta(hours=+8)
+
+dtTemplates = ["%m月%d日%H:%M","%m月%d日,%H:%M","%m月%d日%H点%M分","%m月%d日,%H点%M分"]
+
+cn2d = num_cn2digital()
+
+def FormatStringToDateTime(rawstr):
+    ndt = GetNowForUTC8()
+    tsstr = cn2d.replace_cn_digital(rawstr).replace("号","日")
+    for t in dtTemplates:
+        try:
+            dtret = datetime.datetime.strptime(tsstr, t)
+        except ValueError:
+            continue
+        return GetNowForUTC8().replace(month = dtret.month, day = dtret.day, hour = dtret.hour, minute = dtret.minute)

@@ -34,6 +34,8 @@ class ActionCenter:
     EatCaKeywords = {u"补钙", u"钙片"}
     ComFoodKeywords = [u"辅食"]
     ComFoodListKeywords = {u"食谱"}
+    FixInputKeywords = {u"补录"}
+    
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", \
     "ocgSc0cpvPB5V7KPdcBSdu0VQvXQ", \
@@ -129,6 +131,8 @@ class ActionCenter:
                 action.Detail += lastAct.TimeStamp.strftime( "%H:%M")
         elif self.check_strList(msg.RawContent, self.DebugMsgKeywords):
             action.Type = ActionType.DebugMsg
+        elif self.check_strList(msg.RawContent, self.FixInputKeywords):
+            action.LoadFromString(msg.RawContent)
         elif self.check_strList(msg.RawContent, self.ListImageKeywords):
             action.Type = ActionType.ListImage
             files = cn_utility.listimgfiles(config.ImageRoot, 7)

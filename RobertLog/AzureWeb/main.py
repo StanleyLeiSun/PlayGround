@@ -1,7 +1,7 @@
 #coding=utf-8
 from flask import Flask
 from weixinInterface import WeixinInterface
-import testfunc
+#import testfunc
 import config
 import flask
 import reporting
