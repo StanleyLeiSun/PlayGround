@@ -76,6 +76,8 @@ class ActionCenter:
             action.Detail = msg.RawContent
             for k in self.NotesKeywords:
                 action.Detail = action.Detail.lstrip(k)
+        elif self.check_strList(msg.RawContent, self.FixInputKeywords):
+            action.LoadFromString(msg.RawContent)
         elif self.check_strList(msg.RawContent, self.ListSleepTimeKeywords):
             action.Type = ActionType.SleepTime
             self.get_latest_sleep(action, num2d, ect)
@@ -131,8 +133,6 @@ class ActionCenter:
                 action.Detail += lastAct.TimeStamp.strftime( "%H:%M")
         elif self.check_strList(msg.RawContent, self.DebugMsgKeywords):
             action.Type = ActionType.DebugMsg
-        elif self.check_strList(msg.RawContent, self.FixInputKeywords):
-            action.LoadFromString(msg.RawContent)
         elif self.check_strList(msg.RawContent, self.ListImageKeywords):
             action.Type = ActionType.ListImage
             files = cn_utility.listimgfiles(config.ImageRoot, 7)
