@@ -18,6 +18,7 @@ class Message:
         self.MsgType=xml.find("MsgType").text
         self.FromUser=xml.find("FromUserName").text
         self.ToUser=xml.find("ToUserName").text
+        self.MsgId = xml.find("MsgId").text
         self.TimeStamp = datetime.datetime.utcnow() + datetime.timedelta(hours=+8)
 
         if self.MsgType == "text":
