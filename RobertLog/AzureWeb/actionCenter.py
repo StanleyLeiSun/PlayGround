@@ -310,8 +310,15 @@ class ActionCenter:
         response += warning.GetWarnings(self.rlSQL)
         return response 
 
+
+    lastMsgID = "None"
     def Receive(self, raw_str):
         msg = Message(raw_str)
+        if lastMsgID == msg.MsgId : 
+            return #dedup message retry
+        else:
+            lastMsgID = msg.MsgId
+        
         self.rlSQL.LogMessage(msg)
 
         if msg.MsgType == "image":
