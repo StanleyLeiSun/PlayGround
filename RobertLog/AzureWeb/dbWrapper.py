@@ -156,7 +156,7 @@ class RobertLogMSSQL:
     
     def GetSleepStatus(self):
         """List the last AD actions"""
-        cmd = "SELECT TOP 1 * FROM dbo.Actions Where ActionType = 'Sleep' OR ActionType = 'WakeUp' ORDER BY CreateTime DESC"
+        cmd = "SELECT TOP 1 * FROM dbo.Actions Where ActionStatus = 'Active' AND (ActionType = 'Sleep' OR ActionType = 'WakeUp') ORDER BY CreateTime DESC"
 
         actList = self.__ExecQuery(cmd)
 
