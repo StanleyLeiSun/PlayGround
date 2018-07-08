@@ -76,8 +76,6 @@ class ActionCenter:
             action.Detail = msg.RawContent
             for k in self.NotesKeywords:
                 action.Detail = action.Detail.lstrip(k)
-        elif self.check_strList(msg.RawContent, self.FixInputKeywords):
-            action.LoadFromString(msg.RawContent)
         elif self.check_strList(msg.RawContent, self.ListSleepTimeKeywords):
             action.Type = ActionType.SleepTime
             self.get_latest_sleep(action, num2d, ect)
@@ -133,6 +131,8 @@ class ActionCenter:
                 action.Detail += lastAct.TimeStamp.strftime( "%H:%M")
         elif self.check_strList(msg.RawContent, self.DebugMsgKeywords):
             action.Type = ActionType.DebugMsg
+        elif self.check_strList(msg.RawContent, self.FixInputKeywords):
+            action.LoadFromString(msg.RawContent)
         elif self.check_strList(msg.RawContent, self.ListImageKeywords):
             action.Type = ActionType.ListImage
             files = cn_utility.listimgfiles(config.ImageRoot, 7)
@@ -218,11 +218,11 @@ class ActionCenter:
                 response += (sleepstatus.GenBrief() + "\n")
             else : 
                 delta_minutes = int((tnow - sleepstatus.TimeStamp).total_seconds()/60)
-                if delta_minutes > 150:
+                if delta_minutes > 180:
                     response += "\n醒了{0}小时{1}分钟了，该睡了".format(int(delta_minutes/60), delta_minutes%60) 
             
             delta_minutes = int((tnow - lastmilk.TimeStamp).total_seconds()/60)
-            if delta_minutes > 150:
+            if delta_minutes > 240:
                 response += "\n上次喂奶是{0}小时{1}分钟前:{2}".format(int(delta_minutes/60), delta_minutes%60, lastmilk.GenBrief())
 
         elif action.Type == ActionType.WeeklyReports:
