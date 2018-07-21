@@ -13,6 +13,7 @@ heartbeatcount = 0
 
 @app.route('/heartbeat')
 def hello_world():
+    global heartbeatcount
     heartbeatcount += 1
     return 'Hello, the {0} times.'.format(heartbeatcount)
 
