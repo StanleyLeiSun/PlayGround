@@ -313,12 +313,11 @@ class ActionCenter:
 
     lastMsgID = "None"
     def Receive(self, raw_str):
-        global lastMsgID
         msg = Message(raw_str)
-        if lastMsgID == msg.MsgId : 
+        if self.lastMsgID == msg.MsgId : 
             return #dedup message retry
         else:
-            lastMsgID = msg.MsgId
+            self.lastMsgID = msg.MsgId
         
         self.rlSQL.LogMessage(msg)
 
