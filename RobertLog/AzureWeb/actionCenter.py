@@ -313,6 +313,7 @@ class ActionCenter:
 
     lastMsgID = "None"
     def Receive(self, raw_str):
+        global lastMsgID
         msg = Message(raw_str)
         if lastMsgID == msg.MsgId : 
             return #dedup message retry
