@@ -4,10 +4,12 @@ author:luchi
 date:22/11/2016
 """
 import numpy as np
+import pandas as pd
 import cPickle as pkl
 
 
 def load_data(max_len,batch_size,n_words=20000,valid_portion=0.1,sort_by_len=True):
+    
     train_set_x, train_set_y, test_set = load_dataset_file()
 
     #train_set length
@@ -109,6 +111,15 @@ def load_dataset_file():
     train_set_x,train_set_y = train_set
     return train_set_x, train_set_y, test_set
 
+def load_rawdata_file():
+    dataset_path='../data/article.csv'
+    article = pd.read_table(dataset_path,  error_bad_lines=False,)
+    article = article[['title','quality']].drop_duplicates()
+    train_set = np.array(article)
+    test_set = np.array(article)
+
+    train_set_x,train_set_y = train_set
+    return train_set_x, train_set_y, test_set
 
 #return batch dataset
 def batch_iter(data,batch_size):
