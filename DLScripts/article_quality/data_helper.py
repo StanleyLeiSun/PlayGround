@@ -111,21 +111,35 @@ def load_dataset_file():
     train_set_x,train_set_y = train_set
     return train_set_x, train_set_y, test_set
 
+def build_dict(d, sentence):
+    for w in sentence:
+        if w in dict:
+            d[w] +=1
+        else:
+            d[w] = 1
+
+def build_embedding(titles):
+    dic = {}
+    for s in titles:
+        build_dict(dic, s)
+
+
 def load_rawdata_file():
     dataset_path='../data/article.csv'
     article = pd.read_table(dataset_path,  error_bad_lines=False,)
     article = article[['title','quality']].drop_duplicates()
-    train_set = np.array(article)
-    test_set = np.array(article)
+    train_set_x = np.array(article['title'])
+    
+    train_set_y = np.array(article[['quality']])
 
-    train_set_x,train_set_y = train_set
+    test_set = {train_set_x, train_set_y}
     return train_set_x, train_set_y, test_set
 
 #return batch dataset
 def batch_iter(data,batch_size):
 
     #get dataset and label
-    x,y,mask_x=data
+    x,y,mask_x=data 
     x=np.array(x)
     y=np.array(y)
     data_size=len(x)
