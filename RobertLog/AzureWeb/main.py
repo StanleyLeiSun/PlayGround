@@ -9,9 +9,13 @@ import reporting
 app = Flask(__name__)
 weixin = WeixinInterface()
 
-@app.route('/')
+heartbeatcount = 0
+
+@app.route('/heartbeat')
 def hello_world():
-    return 'Hello World'
+    global heartbeatcount
+    heartbeatcount += 1
+    return 'Hello, the {0} times.'.format(heartbeatcount)
 
 @app.route('/weixin', methods=['GET'])
 def weixin_get():
