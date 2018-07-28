@@ -5,7 +5,7 @@ date:22/11/2016
 """
 import numpy as np
 import pandas as pd
-import cPickle as pkl
+import pickle as p
 
 
 def load_data(max_len,batch_size,n_words=20000,valid_portion=0.1,sort_by_len=True):
@@ -113,16 +113,26 @@ def load_dataset_file():
 
 def build_dict(d, sentence):
     for w in sentence:
-        if w in dict:
+        if w in d:
             d[w] +=1
         else:
             d[w] = 1
 
-def build_embedding(titles):
+def build_embedding(titles, vacabulary_size):
     dic = {}
     for s in titles:
         build_dict(dic, s)
+    
+    sortdict = sorted(dic.items(), key = lambda x: x[1], reverse=True) 
 
+    ret = {}
+    for i in range(0, vacabulary_size):
+        ret[sortdict[i][0]] = vacabulary_size - i
+     
+    return ret
+
+def encoding_sentence(sentence, mapping ):
+    return [mapping.get(w,0) for w in sentence ]
 
 def load_rawdata_file():
     dataset_path='../data/article.csv'
@@ -159,3 +169,14 @@ def batch_iter(data,batch_size):
         #     sys.exit(0)
         yield (return_x,return_y,return_mask_x)
 
+
+titles = ["abcdefffh", "hello lsdm"]
+
+map = build_embedding(titles, 6)
+f = open("mappingfile", 'wb') #二进制打开
+p.dump(map, f)
+f.close()
+
+print(map)
+
+print(encoding_sentence("hlala  ff", map))
