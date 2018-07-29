@@ -6,6 +6,7 @@ date:22/11/2016
 import numpy as np
 import pandas as pd
 import pickle as p
+import sklearn.feature_extraction.text as skyfe
 
 
 def load_data(max_len,batch_size,n_words=20000,valid_portion=0.1,sort_by_len=True):
@@ -145,6 +146,28 @@ def load_rawdata_file():
     test_set = {train_set_x, train_set_y}
     return train_set_x, train_set_y, test_set
 
+def build_vectors(sentences, vacabulary_size):
+    vectorizer = skyfe.CountVectorizer()
+    trans = vectorizer.fit_transform(corpus)
+    fname = vectorizer.get_feature_names()
+    print (trans)
+    print (trans.toarray())
+    print(fname)
+
+    #enable tf-idf
+    transformer = skyfe.TfidfTransformer()
+    tfidf = transformer.fit_transform(trans)  
+    print(tfidf.toarray())
+    print(tfidf.get_feature_names())
+
+    #hashed
+    vectorizer2 = skyfe.HashingVectorizer(n_features = 6,norm = None)
+    trans = vectorizer2.fit_transform(corpus)
+    #fname = vectorizer2.get_feature_names()
+    print (trans.toarray())
+    #print (fname)
+
+
 #return batch dataset
 def batch_iter(data,batch_size):
 
@@ -172,11 +195,18 @@ def batch_iter(data,batch_size):
 
 titles = ["abcdefffh", "hello lsdm"]
 
-map = build_embedding(titles, 6)
-f = open("mappingfile", 'wb') #二进制打开
-p.dump(map, f)
-f.close()
+corpus=["I come to China to travel", 
+    "This is a car polupar in China",          
+    "I love tea and Apple ",   
+    "The work is to write some papers in science"] 
 
-print(map)
+build_vectors(corpus, 200)
 
-print(encoding_sentence("hlala  ff", map))
+#map = build_embedding(titles, 6)
+#f = open("mappingfile", 'wb') #二进制打开
+#p.dump(map, f)
+#f.close()
+
+#print(map)
+
+#print(encoding_sentence("hlala  ff", map))
