@@ -5,12 +5,12 @@ date:22/11/2016
 """
 import numpy as np
 import pandas as pd
-import cPickle as pkl
+#import cPickle as pkl
 
 
 def load_data(max_len,batch_size,n_words=20000,valid_portion=0.1,sort_by_len=True):
     
-    train_set_x, train_set_y, test_set = load_dataset_file()
+    train_set_x, train_set_y = load_rawdata_file()
 
     #train_set length
     n_samples= len(train_set_x)
@@ -31,7 +31,7 @@ def load_data(max_len,batch_size,n_words=20000,valid_portion=0.1,sort_by_len=Tru
     def remove_unk(x):
         return [[1 if w >= n_words else w for w in sen] for sen in x]
 
-    test_set_x, test_set_y = test_set
+    test_set_x, test_set_y = train_set_x, train_set_y 
     valid_set_x, valid_set_y = valid_set
     train_set_x, train_set_y = train_set
 
@@ -58,23 +58,23 @@ def load_data(max_len,batch_size,n_words=20000,valid_portion=0.1,sort_by_len=Tru
         train_set_x = [train_set_x[i] for i in sorted_index]
         train_set_y = [train_set_y[i] for i in sorted_index]
 
-    train_set=(train_set_x,train_set_y)
-    valid_set=(valid_set_x,valid_set_y)
-    test_set=(test_set_x,test_set_y)
+        train_set=(train_set_x,train_set_y)
+        valid_set=(valid_set_x,valid_set_y)
+        test_set=(test_set_x,test_set_y)
 
 
-    new_train_set_x=np.zeros([len(train_set[0]),max_len])
-    new_train_set_y=np.zeros(len(train_set[0]))
+        new_train_set_x=np.zeros([len(train_set[0]),max_len])
+        new_train_set_y=np.zeros(len(train_set[0]))
 
-    new_valid_set_x=np.zeros([len(valid_set[0]),max_len])
-    new_valid_set_y=np.zeros(len(valid_set[0]))
+        new_valid_set_x=np.zeros([len(valid_set[0]),max_len])
+        new_valid_set_y=np.zeros(len(valid_set[0]))
 
-    new_test_set_x=np.zeros([len(test_set[0]),max_len])
-    new_test_set_y=np.zeros(len(test_set[0]))
+        new_test_set_x=np.zeros([len(test_set[0]),max_len])
+        new_test_set_y=np.zeros(len(test_set[0]))
 
-    mask_train_x=np.zeros([max_len,len(train_set[0])])
-    mask_test_x=np.zeros([max_len,len(test_set[0])])
-    mask_valid_x=np.zeros([max_len,len(valid_set[0])])
+        mask_train_x=np.zeros([max_len,len(train_set[0])])
+        mask_test_x=np.zeros([max_len,len(test_set[0])])
+        mask_valid_x=np.zeros([max_len,len(valid_set[0])])
 
 
 
@@ -111,29 +111,16 @@ def load_dataset_file():
     train_set_x,train_set_y = train_set
     return train_set_x, train_set_y, test_set
 
-def build_dict(d, sentence):
-    for w in sentence:
-        if w in dict:
-            d[w] +=1
-        else:
-            d[w] = 1
-
-def build_embedding(titles):
-    dic = {}
-    for s in titles:
-        build_dict(dic, s)
-
-
 def load_rawdata_file():
-    dataset_path='../data/article.csv'
+    dataset_path='~/data/tencent-dump.csv'
     article = pd.read_table(dataset_path,  error_bad_lines=False,)
     article = article[['title','quality']].drop_duplicates()
     train_set_x = np.array(article['title'])
     
     train_set_y = np.array(article[['quality']])
 
-    test_set = {train_set_x, train_set_y}
-    return train_set_x, train_set_y, test_set
+    #test_set = {train_set_x, train_set_y}
+    return train_set_x, train_set_y
 
 #return batch dataset
 def batch_iter(data,batch_size):
@@ -157,5 +144,12 @@ def batch_iter(data,batch_size):
         #     print return_mask_x
         #     import sys
         #     sys.exit(0)
-        yield (return_x,return_y,return_mask_x)
+        yield [return_x,return_y,return_mask_x]
 
+
+def test():
+    train_set_x, train_set_y = load_rawdata_file()
+
+
+if __name__ == "__main__":
+    test()
