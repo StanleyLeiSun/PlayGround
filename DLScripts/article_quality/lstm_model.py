@@ -78,9 +78,9 @@ class RNN_Model(object):
             self.accuracy = tf.reduce_mean(tf.cast(correct_prediction,tf.float32),name="accuracy")
 
         #add summary
-        #loss_summary = tf.scalar_summary("loss",self.cost)
+        loss_summary = tf.summary.scalar("loss",self.cost)
         #add summary
-        #accuracy_summary=tf.scalar_summary("accuracy_summary",self.accuracy)
+        accuracy_summary=tf.summary.scalar("accuracy_summary",self.accuracy)
 
         if not is_training:
             return
@@ -95,15 +95,15 @@ class RNN_Model(object):
 
         # Keep track of gradient values and sparsity (optional)
         grad_summaries = []
-        #for g, v in zip(grads, tvars):
-        #    if g is not None:
-                #grad_hist_summary = tf.histogram_summary("{}/grad/hist".format(v.name), g)
-                #sparsity_summary = tf.scalar_summary("{}/grad/sparsity".format(v.name), tf.nn.zero_fraction(g))
-                #grad_summaries.append(grad_hist_summary)
-                #grad_summaries.append(sparsity_summary)
-        #self.grad_summaries_merged = tf.merge_summary(grad_summaries)
+        for g, v in zip(grads, tvars):
+            if g is not None:
+                grad_hist_summary = tf.summary.histogram("{}/grad/hist".format(v.name), g)
+                sparsity_summary = tf.summary.scalar("{}/grad/sparsity".format(v.name), tf.nn.zero_fraction(g))
+                grad_summaries.append(grad_hist_summary)
+                grad_summaries.append(sparsity_summary)
+        self.grad_summaries_merged = tf.summary.merge(grad_summaries)
 
-        #self.summary =tf.merge_summary([loss_summary,accuracy_summary,self.grad_summaries_merged])
+        self.summary =tf.summary.merge([loss_summary,accuracy_summary,self.grad_summaries_merged])
 
 
 

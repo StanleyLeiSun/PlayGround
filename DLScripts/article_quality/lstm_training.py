@@ -72,8 +72,8 @@ def evaluate(model,session,data,global_steps=None,summary_writer=None):
          correct_num+=count
 
     accuracy=float(correct_num)/total_num
-    #dev_summary = tf.scalar_summary('dev_accuracy',accuracy)
-    #dev_summary = session.run(dev_summary)
+    dev_summary = tf.summary.scalar('dev_accuracy',accuracy)
+    dev_summary = session.run(dev_summary)
     if summary_writer:
         summary_writer.add_summary(dev_summary,global_steps)
         summary_writer.flush()
@@ -87,25 +87,21 @@ def run_epoch(model,session,data,global_steps,valid_model,valid_data,train_summa
         feed_dict[model.target]=y
         feed_dict[model.mask_x]=mask_x
         model.assign_new_batch_size(session,len(x))
-        #fetches = [model.cost,model.accuracy,model.train_op,model.summary]
-        fetches = [model.cost,model.accuracy,model.train_op]
+        fetches = [model.cost,model.accuracy,model.train_op,model.summary]
+        #fetches = [model.cost,model.accuracy,model.train_op]
         state = session.run(model._initial_state)
         for i , (c,h) in enumerate(model._initial_state):
             feed_dict[c]=state[i].c
             feed_dict[h]=state[i].h
-        cost,accuracy,_ = session.run(fetches,feed_dict)
-        #train_summary_writer.add_summary(summary,global_steps)
-        #train_summary_writer.flush()
+        cost,accuracy,_, summary = session.run(fetches,feed_dict)
+        train_summary_writer.add_summary(summary,global_steps)
+        train_summary_writer.flush()
         valid_accuracy=evaluate(valid_model,session,valid_data,global_steps,valid_summary_writer)
         if(global_steps%100==0):
             print("the %i step, train cost is: %f and the train accuracy is %f and the valid accuracy is %f"%(global_steps,cost,accuracy,valid_accuracy))
         global_steps+=1
 
     return global_steps
-
-
-
-
 
 def train_step():
 
@@ -132,11 +128,11 @@ def train_step():
         #add summary
         # train_summary_op = tf.merge_summary([model.loss_summary,model.accuracy])
         train_summary_dir = os.path.join(config.out_dir,"summaries","train")
-        #train_summary_writer =  tf.train.SummaryWriter(train_summary_dir,session.graph)
+        train_summary_writer =  tf.summary.FileWriter(train_summary_dir,session.graph)
 
         # dev_summary_op = tf.merge_summary([valid_model.loss_summary,valid_model.accuracy])
         dev_summary_dir = os.path.join(eval_config.out_dir,"summaries","dev")
-        #dev_summary_writer =  tf.train.SummaryWriter(dev_summary_dir,session.graph)
+        dev_summary_writer =  tf.summary.FileWriter(dev_summary_dir,session.graph)
 
         #add checkpoint
         checkpoint_dir = os.path.abspath(os.path.join(config.out_dir, "checkpoints"))
@@ -154,8 +150,8 @@ def train_step():
             print("the %d epoch training..."%(i+1))
             lr_decay = config.lr_decay ** max(i-config.max_decay_epoch,0.0)
             model.assign_new_lr(session,config.lr*lr_decay)
-            #global_steps=run_epoch(model,session,train_data,global_steps,valid_model,valid_data,train_summary_writer,dev_summary_writer)
-            global_steps=run_epoch(model,session,train_data,global_steps,valid_model,valid_data)
+            global_steps=run_epoch(model,session,train_data,global_steps,valid_model,valid_data,train_summary_writer,dev_summary_writer)
+            #global_steps=run_epoch(model,session,train_data,global_steps,valid_model,valid_data)
 
             if i% config.checkpoint_every==0:
                 path = saver.save(session,checkpoint_prefix,global_steps)
