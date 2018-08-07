@@ -1,2 +1,2 @@
 import setuptools
-setuptools.setup(name='article-quality', version='1.0', packages=[''], author='stansun')
+setuptools.setup(name='article-quality', version='1.1', packages=[''], author='stansun')

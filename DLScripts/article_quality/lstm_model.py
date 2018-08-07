@@ -41,7 +41,8 @@ class RNN_Model(object):
         self._initial_state = cell.zero_state(64,dtype=tf.float32)
 
         #embedding layer
-        with tf.device("/cpu:0"),tf.name_scope("embedding_layer"):
+        #with tf.device("/cpu:0"),tf.name_scope("embedding_layer"):
+        with tf.device("/device:GPU:0"),tf.name_scope("embedding_layer"):
             embedding = tf.get_variable("embedding",[vocabulary_size,embed_dim],dtype=tf.float32)
             inputs=tf.nn.embedding_lookup(embedding,self.input_data)
 

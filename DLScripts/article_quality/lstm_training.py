@@ -28,7 +28,8 @@ flags.DEFINE_float('keep_prob',0.5,'dropout rate')
 flags.DEFINE_integer('num_epoch',60,'num epoch')
 flags.DEFINE_integer('max_decay_epoch',30,'num epoch')
 flags.DEFINE_integer('max_grad_norm',5,'max_grad_norm')
-flags.DEFINE_string('out_dir',os.path.abspath(os.path.join(os.path.curdir,"runs")),'output directory')
+#flags.DEFINE_string('out_dir',os.path.abspath(os.path.join(os.path.curdir,"runs")),'output directory')
+flags.DEFINE_string('out_dir',os.path.abspath(os.path.join("/fds/training-data/training-output/","runs")),'output directory')
 flags.DEFINE_integer('check_point_every',10,'checkpoint every num epoch ')
 
 class Config(object):
