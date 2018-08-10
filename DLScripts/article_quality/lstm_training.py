@@ -3,31 +3,28 @@ import numpy as np
 import os
 import time
 import datetime
-from lstm_model import RNN_Model
+from lstm_model import *
 import data_helper
 import lstm_config
 
-flags =tf.app.flags
-FLAGS = flags.FLAGS
-
 class Config(object):
 
-    hidden_neural_size=FLAGS.hidden_neural_size
-    vocabulary_size=FLAGS.vocabulary_size
-    embed_dim=FLAGS.emdedding_dim
-    hidden_layer_num=FLAGS.hidden_layer_num
-    class_num=FLAGS.class_num
-    keep_prob=FLAGS.keep_prob
-    lr = FLAGS.lr
-    lr_decay = FLAGS.lr_decay
-    batch_size=FLAGS.batch_size
-    num_step = FLAGS.max_len
-    max_grad_norm=FLAGS.max_grad_norm
-    num_epoch = FLAGS.num_epoch
-    max_decay_epoch = FLAGS.max_decay_epoch
-    valid_num=FLAGS.valid_num
-    out_dir=FLAGS.out_dir
-    checkpoint_every = FLAGS.check_point_every
+    hidden_neural_size=lstm_config.args.hidden_neural_size
+    vocabulary_size=lstm_config.args.vocabulary_size
+    embed_dim=lstm_config.args.emdedding_dim
+    hidden_layer_num=lstm_config.args.hidden_layer_num
+    class_num=lstm_config.args.class_num
+    keep_prob=lstm_config.args.keep_prob
+    lr = lstm_config.args.lr
+    lr_decay = lstm_config.args.lr_decay
+    batch_size=lstm_config.args.batch_size
+    num_step = lstm_config.args.max_len
+    max_grad_norm=lstm_config.args.max_grad_norm
+    num_epoch = lstm_config.args.num_epoch
+    max_decay_epoch = lstm_config.args.max_decay_epoch
+    valid_num=lstm_config.args.valid_num
+    out_dir=lstm_config.args.out_dir
+    checkpoint_every = lstm_config.args.check_point_every
 
 
 def evaluate(model,session,data,global_steps=None,summary_writer=None):
@@ -35,7 +32,7 @@ def evaluate(model,session,data,global_steps=None,summary_writer=None):
 
     correct_num=0
     total_num=len(data[0])
-    for step, (x,y,mask_x) in enumerate(data_helper.batch_iter(data,batch_size=FLAGS.batch_size)):
+    for step, (x,y,mask_x) in enumerate(data_helper.batch_iter(data,batch_size=lstm_config.args.batch_size)):
 
          fetches = model.correct_num
          feed_dict={}
@@ -59,7 +56,7 @@ def evaluate(model,session,data,global_steps=None,summary_writer=None):
     return accuracy
 
 def run_epoch(model,session,data,global_steps,valid_model,valid_data,train_summary_writer=None,valid_summary_writer=None):
-    for step, (x,y,mask_x) in enumerate(data_helper.batch_iter(data,batch_size=FLAGS.batch_size)):
+    for step, (x,y,mask_x) in enumerate(data_helper.batch_iter(data,batch_size=lstm_config.args.batch_size)):
 
         feed_dict={}
         feed_dict[model.input_data]=x
@@ -89,27 +86,27 @@ def train_step():
     eval_config=Config()
     eval_config.keep_prob=1.0
 
-    train_data,valid_data,test_data = data_helper.load_data(FLAGS.max_len,batch_size=config.batch_size)
+    train_data,valid_data,test_data = data_helper.load_data(lstm_config.args.max_len,batch_size=config.batch_size)
 
     print("begin training")
 
     # gpu_config=tf.ConfigProto()
     # gpu_config.gpu_options.allow_growth=True
     with tf.Graph().as_default(), tf.Session() as session:
-        initializer = tf.random_uniform_initializer(-1*FLAGS.init_scale,1*FLAGS.init_scale)
+        initializer = tf.random_uniform_initializer(-1*lstm_config.args.init_scale,1*lstm_config.args.init_scale)
         with tf.variable_scope("model",reuse=None,initializer=initializer):
-            model = RNN_Model(config=config,is_training=True)
+            model = RNN_Model_Category(config=config,is_training=True)
 
         with tf.variable_scope("model",reuse=True,initializer=initializer):
-            valid_model = RNN_Model(config=eval_config,is_training=False)
-            test_model = RNN_Model(config=eval_config,is_training=False)
+            valid_model = RNN_Model_Category(config=eval_config,is_training=False)
+            test_model = RNN_Model_Category(config=eval_config,is_training=False)
 
         #add summary
-        # train_summary_op = tf.merge_summary([model.loss_summary,model.accuracy])
+        train_summary_op = tf.merge_summary([model.loss_summary,model.accuracy])
         train_summary_dir = os.path.join(config.out_dir,"summaries","train")
         train_summary_writer =  tf.summary.FileWriter(train_summary_dir,session.graph)
 
-        # dev_summary_op = tf.merge_summary([valid_model.loss_summary,valid_model.accuracy])
+        dev_summary_op = tf.merge_summary([valid_model.loss_summary,valid_model.accuracy])
         dev_summary_dir = os.path.join(eval_config.out_dir,"summaries","dev")
         dev_summary_writer =  tf.summary.FileWriter(dev_summary_dir,session.graph)
 
@@ -141,6 +138,8 @@ def train_step():
         print("training takes %d seconds already\n"%(end_time-begin_time))
         test_accuracy=evaluate(test_model,session,test_data)
         print("the test data accuracy is %f"%test_accuracy)
+        train_summary_writer.close()
+        dev_summary_writer.close()
         print("program end!")
 
 

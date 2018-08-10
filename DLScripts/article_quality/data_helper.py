@@ -19,6 +19,7 @@ def load_data(max_len,batch_size,n_words=20000,valid_portion=0.1,sort_by_len=Tru
     
     train_set_x, train_set_y = load_dataset_file()
 
+    #train_set_y = train_set_y.astype(float)
     #train_set length
     n_samples= len(train_set_x)
     #shuffle and generate train and valid dataset

@@ -1,39 +1,49 @@
-import tensorflow as tf
 import os
 
-isLocal = True
+import argparse
+parser = argparse.ArgumentParser("lstm_training")
+parser.add_argument('--iscloud', help="is running on cloud", default=False, action="store_true")
+parser.add_argument('-n', dest = "name", help="package's name", default='', type=str)
 
-flags =tf.app.flags
-
-data_root = '/fds/data/article_quality/'
-training_device = "/device:GPU:0"
-
-flags.DEFINE_integer('batch_size',640,'the batch_size of the training procedure')
-flags.DEFINE_float('lr',0.1,'the learning rate')
-flags.DEFINE_float('lr_decay',0.6,'the learning rate decay')
-flags.DEFINE_integer('vocabulary_size',6000,'vocabulary_size')
-#flags.DEFINE_integer('emdedding_dim',128,'embedding dim')
-#flags.DEFINE_integer('hidden_neural_size',128,'LSTM hidden neural size')
-#flags.DEFINE_integer('hidden_layer_num',1,'LSTM hidden layer num')
-flags.DEFINE_integer('emdedding_dim',24,'embedding dim')
-flags.DEFINE_integer('hidden_neural_size',24,'LSTM hidden neural size')
-flags.DEFINE_integer('hidden_layer_num',3,'LSTM hidden layer num')
-flags.DEFINE_string('dataset_path','data/subj0.pkl','dataset path')
-flags.DEFINE_integer('max_len',40,'max_len of training sentence')
-flags.DEFINE_integer('valid_num',100,'epoch num of validation')
-flags.DEFINE_integer('checkpoint_num',1000,'epoch num of checkpoint')
-flags.DEFINE_float('init_scale',0.1,'init scale')
-flags.DEFINE_integer('class_num',6,'class num')
-flags.DEFINE_float('keep_prob',0.5,'dropout rate')
-flags.DEFINE_integer('num_epoch',60,'num epoch')
-flags.DEFINE_integer('max_decay_epoch',30,'num epoch')
-flags.DEFINE_integer('max_grad_norm',5,'max_grad_norm')
-flags.DEFINE_integer('check_point_every',10,'checkpoint every num epoch ')
+parser.add_argument('--batch_size',     default=640,    help='the batch_size of the training procedure', type=int)
+parser.add_argument('--lr',             default=0.1,    help='the learning rate', type=float)
+parser.add_argument('--lr_decay',       default=0.6,    help='the learning rate decay', type=float)
+parser.add_argument('--vocabulary_size',default=6000,   help='vocabulary_size', type=int)
+parser.add_argument('--emdedding_dim',  default=24,     help='embedding dim', type=int)
+parser.add_argument('--max_len',        default=40,     help='max_len of training sentence', type=int)
+parser.add_argument('--valid_num',      default=100,    help='epoch num of validation', type=int)
+parser.add_argument('--checkpoint_num', default=1000,   help='epoch num of checkpoint', type=int)
+parser.add_argument('--init_scale',     default=0.1,    help='init scale', type=float)
+parser.add_argument('--class_num',      default=6,      help='class num', type=int)
+parser.add_argument('--keep_prob',      default=0.5,    help='dropout rate', type=float)
+parser.add_argument('--num_epoch',      default=60,     help='num epoch', type=int)
+parser.add_argument('--max_decay_epoch',default=30,     help='num epoch', type=int)
+parser.add_argument('--max_grad_norm',  default=5,      help='max_grad_norm', type=int)
+parser.add_argument('--hidden_layer_num',default=3,     help='LSTM hidden layer num', type=int)
+parser.add_argument('--check_point_every',default=10,   help='checkpoint every num epoch ', type=int)
+parser.add_argument('--hidden_neural_size',default=24,  help='LSTM hidden neural size', type=int)
 
 
-if isLocal:
+#parser.add_argument('--emdedding_dim',128,'embedding dim')
+#parser.add_argument('--hidden_neural_size',128,'LSTM hidden neural size')
+#parser.add_argument('--hidden_layer_num',1,'LSTM hidden layer num')
+
+args = parser.parse_args()
+
+data_root = '/home/stansun/data/'
+training_device = "/cpu:0"
+
+if args.iscloud:
+    data_root = '/fds/data/article_quality/'
+    training_device = "/device:GPU:0"
+    args.out_dir = os.path.abspath(os.path.join("/fds/output/","runs", args.name))   
+else:
     data_root = '/home/stansun/data/'
     training_device = "/cpu:0"
-    flags.DEFINE_string('out_dir',os.path.abspath(os.path.join(os.path.curdir,"runs")),'output directory')
-else:
-    flags.DEFINE_string('out_dir',os.path.abspath(os.path.join("/fds/output/","runs")),'output directory')
+    args.out_dir = os.path.abspath(os.path.join(os.path.curdir,"runs", args.name))
+
+
+if __name__ == "__main__":
+    print(args.name)
+    print(os.path.abspath(os.path.join(os.path.curdir,"runs", args.name)))
+    print(args.iscloud)
