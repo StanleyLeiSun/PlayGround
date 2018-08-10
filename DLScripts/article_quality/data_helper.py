@@ -13,10 +13,7 @@ if (sys.version_info[0] < 3):
 else:
     import pickle as p
 
-print(hello_model)
-
-#data_root = '/home/stansun/data/'
-data_root = '/fds/article_quality/'
+import lstm_config
 
 def load_data(max_len,batch_size,n_words=20000,valid_portion=0.1,sort_by_len=True):
     
@@ -111,7 +108,7 @@ def load_data(max_len,batch_size,n_words=20000,valid_portion=0.1,sort_by_len=Tru
     return train_set,valid_set,test_set
 
 def load_dataset_file():
-    dataset_path= data_root + 'tencent_quality.pickle'
+    dataset_path= lstm_config.data_root + 'tencent_quality.pickle'
     f=open(dataset_path,'rb')
     print ('load data from %s'%dataset_path)
     #train_set = np.array(pkl.load(f))

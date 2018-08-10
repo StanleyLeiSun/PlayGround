@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import lstm_config
 
 class RNN_Model(object):
 
@@ -37,12 +38,11 @@ class RNN_Model(object):
 
         cell = tf.nn.rnn_cell.MultiRNNCell([lstm_cell]*hidden_layer_num,state_is_tuple=True)
 
-        #todo::self._initial_state = cell.zero_state(self.batch_size,dtype=tf.float32)
-        self._initial_state = cell.zero_state(64,dtype=tf.float32)
+        #self._initial_state = cell.zero_state(self.batch_size,dtype=tf.float32)
+        self._initial_state = cell.zero_state(640,dtype=tf.float32)
 
         #embedding layer
-        #with tf.device("/cpu:0"),tf.name_scope("embedding_layer"):
-        with tf.device("/device:GPU:0"),tf.name_scope("embedding_layer"):
+        with tf.device(lstm_config.training_device),tf.name_scope("embedding_layer"):
             embedding = tf.get_variable("embedding",[vocabulary_size,embed_dim],dtype=tf.float32)
             inputs=tf.nn.embedding_lookup(embedding,self.input_data)
 

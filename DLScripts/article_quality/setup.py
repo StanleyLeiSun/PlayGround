@@ -1,2 +1,7 @@
+import sys
 import setuptools
-setuptools.setup(name='article-quality', version='1.1', packages=[''], author='stansun')
+
+ver = sys.argv[2]
+sys.argv.remove(ver)
+print(ver)
+setuptools.setup(name='article-quality', version=ver, packages=[''], author='stansun')
