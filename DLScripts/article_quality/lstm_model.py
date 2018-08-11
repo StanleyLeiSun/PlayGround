@@ -172,25 +172,34 @@ class RNN_Model_Regression(object):
 
         out_put=out_put*self.mask_x[:,:,None]
 
+        #print(out_put)
+        #print(self.mask_x)
         with tf.name_scope("mean_pooling_layer"):
             out_put=tf.reduce_sum(out_put,0)/(tf.reduce_sum(self.mask_x,0)[:,None])
 
+        #print(out_put)
         with tf.name_scope("Softmax_layer_and_output"):
             softmax_w = tf.get_variable("softmax_w",[hidden_neural_size,1],dtype=tf.float32)
             softmax_b = tf.get_variable("softmax_b",[1], dtype=tf.float32)
-            self.logits = tf.matmul(out_put,softmax_w)+softmax_b
-
+            #softmax_w = tf.get_variable("softmax_w",[1,hidden_neural_size],dtype=tf.float32)
+            self.logits = tf.matmul(out_put,softmax_w) + softmax_b
+        
+        self.logits = tf.reshape(self.logits,[-1]) 
+        #print(self.logits)
         with tf.name_scope("loss"):
-            self.lost = tf.reduce_mean(self.logits+1e-10 - self.target)
+            self.lost = tf.reduce_mean(tf.square(self.logits+1e-10 - self.target))
             self.cost = self.lost
 
         with tf.name_scope("accuracy"):
             #self.prediction = tf.argmax(self.logits+1e-10, 0.0)
             self.prediction = self.logits
-            correct_prediction = tf.less_equal(tf.abs(self.prediction - self.target),  0.3)
-            self.correct_num=tf.reduce_sum(tf.cast(correct_prediction,tf.float32))
-            self.accuracy = tf.reduce_mean(tf.cast(correct_prediction,tf.float32),name="accuracy")
-
+            self.correct_prediction = tf.less_equal(tf.abs(self.prediction - self.target),  0.06)
+            self.correct_item = tf.cast(self.correct_prediction,tf.float32)
+            self.correct_num=tf.reduce_sum(tf.cast(self.correct_prediction,tf.float32))
+            self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction,tf.float32),name="accuracy")
+        
+        #print(self.target)
+        #print(self.correct_prediction)
         #add summary
         loss_summary = tf.summary.scalar("loss",self.cost)
         #add summary

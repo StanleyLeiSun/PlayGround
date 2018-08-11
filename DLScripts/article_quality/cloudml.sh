@@ -1,12 +1,18 @@
 #!/bin/bash
-package_version=17
-package_full_ver=article-quality-$package_version
-package_name=$package_full_ver.tar.gz
+package_version=regression
+package_name=article-quality
+package_full_name=$package_name-$package_version
+package_file_name=$package_full_name.tar.gz
+model_name=lstm_training
 
-python setup.py sdist $package_version
-#cloudml jobs delete article-quality-local
+#todo: read model_name and package_name from per folder config
+python setup.py sdist $package_name $package_version
 
-fds -m put -b training -o packages/$package_name -d dist/$package_name
+fds -m delete -b training -o packages/$package_file_name 
+cloudml jobs delete $package_full_name
+sleep 6
 
-cloudml jobs submit -n article-quality-$package_version -m lstm_training -a"-n $package_full_ver --iscloud" -g 1 -M 8G -u fds://training/packages/$package_name
+fds -m put -b training -o packages/$package_file_name -d dist/$package_file_name
+
+cloudml jobs submit -n $package_full_name -m $model_name -a"-n $package_full_name --iscloud" -g 1 -M 2G -u fds://training/packages/$package_file_name
 

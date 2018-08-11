@@ -1,7 +1,9 @@
 import sys
 import setuptools
 
-ver = sys.argv[2]
+name = sys.argv[2]
+ver = sys.argv[3]
 sys.argv.remove(ver)
-print(ver)
-setuptools.setup(name='article-quality', version=ver, packages=[''], author='stansun')
+sys.argv.remove(name)
+
+setuptools.setup(name=name, version=ver, packages=[''], author='stansun')

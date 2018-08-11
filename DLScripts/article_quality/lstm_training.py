@@ -32,9 +32,11 @@ def evaluate(model,session,data,global_steps=None,summary_writer=None):
 
     correct_num=0
     total_num=len(data[0])
+    #print("total_num %i"%total_num)
     for step, (x,y,mask_x) in enumerate(data_helper.batch_iter(data,batch_size=lstm_config.args.batch_size)):
 
          fetches = model.correct_num
+         #fetches = model.correct_item, model.target, model.prediction
          feed_dict={}
          feed_dict[model.input_data]=x
          feed_dict[model.target]=y
@@ -46,6 +48,13 @@ def evaluate(model,session,data,global_steps=None,summary_writer=None):
             feed_dict[h]=state[i].h
          count=session.run(fetches,feed_dict)
          correct_num+=count
+         #correct, target, prediction  = session.run(fetches,feed_dict)
+         #print("Correct_num: %i, batch_size: %i"%(len(predict), len(x)))
+         #print("correct,target,prediciton")
+         #print(correct)
+         #print(target)
+         #print(prediction)
+
 
     accuracy=float(correct_num)/total_num
     dev_summary = tf.summary.scalar('dev_accuracy',accuracy)
@@ -95,18 +104,18 @@ def train_step():
     with tf.Graph().as_default(), tf.Session() as session:
         initializer = tf.random_uniform_initializer(-1*lstm_config.args.init_scale,1*lstm_config.args.init_scale)
         with tf.variable_scope("model",reuse=None,initializer=initializer):
-            model = RNN_Model_Category(config=config,is_training=True)
+            model = RNN_Model_Regression(config=config,is_training=True)
 
         with tf.variable_scope("model",reuse=True,initializer=initializer):
-            valid_model = RNN_Model_Category(config=eval_config,is_training=False)
-            test_model = RNN_Model_Category(config=eval_config,is_training=False)
+            valid_model = RNN_Model_Regression(config=eval_config,is_training=False)
+            test_model = RNN_Model_Regression(config=eval_config,is_training=False)
 
         #add summary
-        train_summary_op = tf.merge_summary([model.loss_summary,model.accuracy])
+        #train_summary_op = tf.merge_summary([model.loss_summary,model.accuracy])
         train_summary_dir = os.path.join(config.out_dir,"summaries","train")
         train_summary_writer =  tf.summary.FileWriter(train_summary_dir,session.graph)
 
-        dev_summary_op = tf.merge_summary([valid_model.loss_summary,valid_model.accuracy])
+        #dev_summary_op = tf.merge_summary([valid_model.loss_summary,valid_model.accuracy])
         dev_summary_dir = os.path.join(eval_config.out_dir,"summaries","dev")
         dev_summary_writer =  tf.summary.FileWriter(dev_summary_dir,session.graph)
 
@@ -127,7 +136,6 @@ def train_step():
             lr_decay = config.lr_decay ** max(i-config.max_decay_epoch,0.0)
             model.assign_new_lr(session,config.lr*lr_decay)
             global_steps=run_epoch(model,session,train_data,global_steps,valid_model,valid_data,train_summary_writer,dev_summary_writer)
-            #global_steps=run_epoch(model,session,train_data,global_steps,valid_model,valid_data)
 
             if i% config.checkpoint_every==0:
                 path = saver.save(session,checkpoint_prefix,global_steps)
