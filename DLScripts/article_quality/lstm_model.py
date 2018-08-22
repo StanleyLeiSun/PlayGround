@@ -187,16 +187,17 @@ class RNN_Model_Regression(object):
         self.logits = tf.reshape(self.logits,[-1]) 
         #print(self.logits)
         with tf.name_scope("loss"):
-            self.lost = tf.reduce_mean(tf.square(self.logits+1e-10 - self.target))
+            #self.lost = tf.reduce_mean(tf.square(self.logits+1e-10 - self.target))
+            self.lost = tf.reduce_mean(tf.abs(self.logits+1e-10 - self.target))
             self.cost = self.lost
 
         with tf.name_scope("accuracy"):
             #self.prediction = tf.argmax(self.logits+1e-10, 0.0)
-            self.prediction = self.logits
-            self.correct_prediction = tf.less_equal(tf.abs(self.prediction - self.target),  0.06)
-            self.correct_item = tf.cast(self.correct_prediction,tf.float32)
-            self.correct_num=tf.reduce_sum(tf.cast(self.correct_prediction,tf.float32))
-            self.accuracy = tf.reduce_mean(tf.cast(self.correct_prediction,tf.float32),name="accuracy")
+            prediction = self.logits
+            correct_prediction = tf.less_equal(tf.abs(prediction - self.target),  0.08)
+            self.correct_item = tf.cast(correct_prediction,tf.float32)
+            self.correct_num=tf.reduce_sum(tf.cast(correct_prediction,tf.float32))
+            self.accuracy = tf.reduce_mean(tf.cast(correct_prediction,tf.float32),name="accuracy")
         
         #print(self.target)
         #print(self.correct_prediction)

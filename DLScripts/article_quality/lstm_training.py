@@ -49,7 +49,7 @@ def evaluate(model,session,data,global_steps=None,summary_writer=None):
          count=session.run(fetches,feed_dict)
          correct_num+=count
          #correct, target, prediction  = session.run(fetches,feed_dict)
-         #print("Correct_num: %i, batch_size: %i"%(len(predict), len(x)))
+         #print("Correct_num: %i, batch_size: %i"%(correct_num, len(x)))
          #print("correct,target,prediciton")
          #print(correct)
          #print(target)
@@ -57,6 +57,7 @@ def evaluate(model,session,data,global_steps=None,summary_writer=None):
 
 
     accuracy=float(correct_num)/total_num
+    print("Accuracy: %d"%(accuracy*100))
     dev_summary = tf.summary.scalar('dev_accuracy',accuracy)
     dev_summary = session.run(dev_summary)
     if summary_writer:

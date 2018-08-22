@@ -1,5 +1,5 @@
 #!/bin/bash
-package_version=regression
+package_version=regression2
 package_name=article-quality
 package_full_name=$package_name-$package_version
 package_file_name=$package_full_name.tar.gz
