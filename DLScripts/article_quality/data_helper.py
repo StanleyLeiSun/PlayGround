@@ -163,18 +163,22 @@ def build_dict(d, sentence):
         else:
             d[w] = 1
 
-def build_embedding_map(titles, vacabulary_size):
+def dict_to_embedding(dic, vacabulary_size, base_idx=0):
+    ret_map = {}
+    for i in range(0, vacabulary_size):
+        ret_map[dic[i][0]] = vacabulary_size - i + base_idx
+
+    return ret_map
+
+def build_embedding_map(titles vacabulary_size):
     dic = {}
     for s in titles:
         build_dict(dic, s)
 
     sortdict = sorted(dic.items(), key = lambda x: x[1], reverse=True) 
     print("Total vacabulary: %d, reduce to: %d"%(len(sortdict), vacabulary_size))
-    ret_map = {}
-    for i in range(0, vacabulary_size):
-        ret_map[sortdict[i][0]] = vacabulary_size - i
-     
-    return ret_map
+         
+    return dict_to_embedding(sortdict, vacabulary_size)
 
 def encoding_sentence(sentence, mapping ):
     return [mapping.get(w,0) for w in sentence ]
@@ -185,9 +189,15 @@ def vector_rawdata_file():
     article = article[['title','quality']].drop_duplicates().dropna()
     train_set_x = np.array(article['title'], dtype='unicode_')
     train_set_y = np.array(article[['quality']], dtype='unicode_')
-
+    sources = np.array(article['source'], dtype='unicode_')
+    
     mapping = build_embedding_map(train_set_x, 5000)
-    train_set_x = [ encoding_sentence(s, mapping) for s in train_set_x]
+
+    source_dic = {}
+    build_dict(source_dic, sources)
+    source_mapping = dict_to_embedding(source_dic, len(source_dic), len(mapping))
+    
+    train_set_x = [ [source_mapping(sources[i])] + encoding_sentence(s, mapping) for i,s in enumerate(train_set_x)]
     save_embedded(mapping, train_set_x, train_set_y, 'tencent_quality')
 
     return train_set_x, train_set_y
