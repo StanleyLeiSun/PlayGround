@@ -153,7 +153,7 @@ def batch_iter(data,batch_size):
 
 def save_embedded(mapping, training_x, training_y, version):
     data = {'mapping':mapping, 'x': training_x, 'y': training_y}
-    with open(data_root+version+'.pickle', 'wb') as f:
+    with open(lstm_config.data_root+version+'.pickle', 'wb') as f:
         p.dump(data, f)
 
 def build_dict(d, sentence):
@@ -186,7 +186,7 @@ def encoding_sentence(sentence, mapping ):
 def vector_rawdata_file():
     dataset_path='~/data/tencent-dump.csv'
     article = pd.read_table(dataset_path,  error_bad_lines=False)
-    article = article[['title','quality']].drop_duplicates().dropna()
+    article = article[['title','srouce', 'quality']].drop_duplicates().dropna()
     train_set_x = np.array(article['title'], dtype='unicode_')
     train_set_y = np.array(article[['quality']], dtype='unicode_')
     sources = np.array(article['source'], dtype='unicode_')
