@@ -170,7 +170,7 @@ def dict_to_embedding(dic, vacabulary_size, base_idx=0):
 
     return ret_map
 
-def build_embedding_map(titles vacabulary_size):
+def build_embedding_map(titles, vacabulary_size):
     dic = {}
     for s in titles:
         build_dict(dic, s)
@@ -186,7 +186,7 @@ def encoding_sentence(sentence, mapping ):
 def vector_rawdata_file():
     dataset_path='~/data/tencent-dump.csv'
     article = pd.read_table(dataset_path,  error_bad_lines=False)
-    article = article[['title','srouce', 'quality']].drop_duplicates().dropna()
+    article = article[['title','source', 'quality']].drop_duplicates().dropna()
     train_set_x = np.array(article['title'], dtype='unicode_')
     train_set_y = np.array(article[['quality']], dtype='unicode_')
     sources = np.array(article['source'], dtype='unicode_')
@@ -195,9 +195,9 @@ def vector_rawdata_file():
 
     source_dic = {}
     build_dict(source_dic, sources)
-    source_mapping = dict_to_embedding(source_dic, len(source_dic), len(mapping))
+    source_mapping = dict_to_embedding(sorted(source_dic.items()), len(source_dic) -1 , len(mapping))
     
-    train_set_x = [ [source_mapping(sources[i])] + encoding_sentence(s, mapping) for i,s in enumerate(train_set_x)]
+    train_set_x = [ [source_mapping.get(sources[i],0)] + encoding_sentence(s, mapping) for i,s in enumerate(train_set_x)]
     save_embedded(mapping, train_set_x, train_set_y, 'tencent_quality')
 
     return train_set_x, train_set_y
