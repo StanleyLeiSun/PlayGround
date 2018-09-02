@@ -16,7 +16,7 @@ class ActionCenter:
     rlSQL = RobertLogMSSQL(host=config.db_server,user=config.db_user,pwd=config.db_pwd,db="robertlog")
 
     #Action List
-    FeedKeywords = {u"吃了",u"喂了", u"喂奶", u"吃奶"}
+    FeedKeywords = {u"吃了",u"喂了", u"喂奶", u"吃奶", u"奶粉"}
     ReportsKeywords = {u"报告", u"总结", u"情况"}
     WeeklyReportsKeywords = {u"一周报告", u"一周总结", u"一周情况", u"本周总结"}
     NotesKeywords = {u"备注", u"笔记"}
@@ -35,6 +35,7 @@ class ActionCenter:
     ComFoodKeywords = [u"辅食"]
     ComFoodListKeywords = {u"食谱"}
     FixInputKeywords = {u"补录"}
+    PowderKeywords = {u"奶粉"}
     
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", \
@@ -100,6 +101,9 @@ class ActionCenter:
                     action.Detail = "母乳:" + nums[0] + u"分钟"
                 else:
                     action.Detail = "奶瓶:" + nums[0] + "mL"
+                    if self.check_strList(content, self.PowderKeywords):
+                        action.Detail += " (奶粉)"
+
         elif self.check_strList(msg.RawContent, self.WeeklyReportsKeywords):
             action.Type = ActionType.WeeklyReports
         elif self.check_strList(msg.RawContent, self.RemoveKeywords):
