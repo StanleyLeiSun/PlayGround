@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import sklearn.feature_extraction.text as skyfe
 import sys
+import jieba
 if (sys.version_info[0] < 3):
     import cPickle as p
     reload(sys)  # Reload does the trick!
@@ -173,7 +174,8 @@ def dict_to_embedding(dic, vacabulary_size, base_idx=0):
 def build_embedding_map(titles, vacabulary_size):
     dic = {}
     for s in titles:
-        build_dict(dic, s)
+        tokens = tokenlize_sentence(s)
+        build_dict(dic, tokens)
 
     sortdict = sorted(dic.items(), key = lambda x: x[1], reverse=True) 
     print("Total vacabulary: %d, reduce to: %d"%(len(sortdict), vacabulary_size))
@@ -181,7 +183,8 @@ def build_embedding_map(titles, vacabulary_size):
     return dict_to_embedding(sortdict, vacabulary_size)
 
 def encoding_sentence(sentence, mapping ):
-    return [mapping.get(w,0) for w in sentence ]
+    tokens = tokenlize_sentence(sentence)
+    return [mapping.get(w,0) for w in tokens ]
 
 def vector_rawdata_file():
     dataset_path='~/data/tencent-dump.csv'
@@ -225,6 +228,13 @@ def build_vectors(sentences, vacabulary_size):
 
 #endregion
 
+g_tokenlizer = 'jieba'
+
+def tokenlize_sentence(sentence):
+    if g_tokenlizer == 'normal':
+        return sentence
+    if g_tokenlizer == 'jieba':
+        return list(jieba.cut(s, cut_all=False))
 def test():
     train_set_x, train_set_y = load_rawdata_file()
 
