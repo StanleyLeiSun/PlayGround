@@ -187,6 +187,7 @@ def vector_rawdata_file():
     dataset_path='~/data/tencent-dump.csv'
     article = pd.read_table(dataset_path,  error_bad_lines=False)
     article = article[['title','source', 'quality']].drop_duplicates().dropna()
+    article = article.where(article['quality'] >= 2).where(article['quality'] < 5)
     train_set_x = np.array(article['title'], dtype='unicode_')
     train_set_y = np.array(article[['quality']], dtype='unicode_')
     sources = np.array(article['source'], dtype='unicode_')
@@ -197,6 +198,7 @@ def vector_rawdata_file():
     build_dict(source_dic, sources)
     source_mapping = dict_to_embedding(sorted(source_dic.items()), len(source_dic) -1 , len(mapping))
     
+    print("Total source count:%d"%len(source_dic))
     train_set_x = [ [source_mapping.get(sources[i],0)] + encoding_sentence(s, mapping) for i,s in enumerate(train_set_x)]
     save_embedded(mapping, train_set_x, train_set_y, 'tencent_quality')
 

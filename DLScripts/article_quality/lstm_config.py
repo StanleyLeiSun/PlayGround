@@ -8,7 +8,7 @@ parser.add_argument('-n', dest = "name", help="package's name", default='', type
 parser.add_argument('--batch_size',     default=640,    help='the batch_size of the training procedure', type=int)
 parser.add_argument('--lr',             default=0.1,    help='the learning rate', type=float)
 parser.add_argument('--lr_decay',       default=0.5,    help='the learning rate decay', type=float)
-parser.add_argument('--vocabulary_size',default=6000,   help='vocabulary_size', type=int)
+parser.add_argument('--vocabulary_size',default=20000,   help='vocabulary_size', type=int)
 parser.add_argument('--emdedding_dim',  default=32,     help='embedding dim', type=int)
 parser.add_argument('--max_len',        default=40,     help='max_len of training sentence', type=int)
 parser.add_argument('--valid_num',      default=100,    help='epoch num of validation', type=int)
