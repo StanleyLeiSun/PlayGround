@@ -167,7 +167,7 @@ class ActionCenter:
             action.Type = ActionType.UnKnown
         else:
             #check previous time
-            pre_content = num2d.replace_cn_digital(sleep.RawContent)
+            pre_content = num2d.replace_cn_digital(sleep.Detail)
             sleep_t = ect.extract_time(pre_content, sleep.TimeStamp)
             if sleep_t is None or len(sleep_t) <= 0:
                 sleep_t = sleep.TimeStamp

@@ -103,13 +103,7 @@ class RobertLogMSSQL:
         self.__ExecNonQuery(cmdstr)
     
     def GetLastFallSleep(self):
-        """List all the last # actions"""
-        cmd = "select top 1 * from dbo.RawMsg where RawMsg like N'%睡着%' ORDER BY TimeStamp DESC"
-        actList = self.__ExecQuery(cmd)
-        if len(actList) <= 0:
-            return None
-
-        return self.LoadMsgFromDB(actList[0])
+        return self.GetLastAction('Sleep')
 
     def GetMsgFromUser(self, fromUser, num = 1):
         """List all the last # message"""
