@@ -14,10 +14,11 @@ weixin = WeixinInterface()
 
 heartbeatcount = 0
 
-log_filename = "logging.log"
+log_filename = "robertlogging.log"
 logging.basicConfig(level=logging.DEBUG,
     format='[%(asctime)s] %(levelname)s [%(funcName)s: %(filename)s, %(lineno)d] %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
+    filename = log_filename,
     filemode='a')
 
 @app.route('/heartbeat')
