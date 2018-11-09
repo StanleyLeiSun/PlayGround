@@ -5,11 +5,20 @@ from weixinInterface import WeixinInterface
 import config
 import flask
 import reporting
+import logging
+import logging.config
+import time
 
 app = Flask(__name__)
 weixin = WeixinInterface()
 
 heartbeatcount = 0
+
+log_filename = "logging.log"
+logging.basicConfig(level=logging.DEBUG,
+    format='[%(asctime)s] %(levelname)s [%(funcName)s: %(filename)s, %(lineno)d] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    filemode='a')
 
 @app.route('/heartbeat')
 def hello_world():

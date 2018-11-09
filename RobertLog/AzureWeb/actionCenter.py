@@ -9,6 +9,7 @@ import urllib
 import config
 import cn_utility
 import warning
+import logging
 
 class ActionCenter:
 
@@ -319,9 +320,11 @@ class ActionCenter:
     def Receive(self, raw_str):
         msg = Message(raw_str)
         if self.lastMsgID == msg.MsgId : 
+            logging.error("drop msg id:{0} content:{1}".format(msg.MsgId, msg.RawContent))
             return #dedup message retry
         else:
             self.lastMsgID = msg.MsgId
+            logging.error("going to process msg id:{0} content:{1}".format(msg.MsgId, msg.RawContent))
         
         self.rlSQL.LogMessage(msg)
 

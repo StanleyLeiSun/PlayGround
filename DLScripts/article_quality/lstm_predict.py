@@ -3,7 +3,6 @@ import numpy as np
 import os
 import time
 import datetime
-from lstm_model import RNN_Model
 import data_helper
 
 tf.reset_default_graph()
