@@ -23,13 +23,13 @@ def GetFileList(dir, fileList):
 def enumAndRename(fromDir, toDir):
     fileList = GetFileList(fromDir, [])
     for f in fileList:
-        t = os.path.getatime(f)
+        t = os.path.getmtime(f)
         strDate = TimeStampToTime(t)
         [dirname,filename]=os.path.split(f)
         strNewDir = os.path.join(toDir, strDate)
         if not os.path.exists(strNewDir):
             os.path.os.mkdir(strNewDir)
-        strNewName = os.path.join(toDir, strDate, strDate + filename)
+        strNewName = os.path.join(toDir, strDate, strDate + '-' + filename)
         print(strNewName)
         shutil.copy(f, strNewName)
 
