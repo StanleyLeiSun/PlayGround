@@ -240,6 +240,7 @@ class ActionCenter:
             poop = 0
             sleep = 0
             daysShown = 0
+            comFoodCount = 0
             for a in actions:
                 if a.Status == Action.Deleted:
                     continue
@@ -248,13 +249,14 @@ class ActionCenter:
                     #response += "{0}日：奶瓶{1}mL，母乳{2}次共{3}分钟，睡觉{5}小时{6}分钟，大便{4}次\n".format(\
                     #cur.strftime("%m-%d"), milk, breastNum, breast, poop, int(sleep/60), sleep%60)
                     #no breast milk version
-                    response += "{0}日：奶瓶{1}mL，睡觉{3}小时{4}分钟，大便{2}次\n".format(\
-                        cur.strftime("%m-%d"), milk, poop, int(sleep/60), sleep%60)
+                    response += "{0}日：奶瓶{1}mL，辅食{5}次，睡觉{3}小时{4}分钟，大便{2}次\n".format(\
+                        cur.strftime("%m-%d"), milk, poop, int(sleep/60), sleep%60, comFoodCount)
                     milk = 0
                     breast = 0 
                     poop = 0
                     breastNum = 0
                     sleep = 0
+                    comFoodCount = 0
                     daysShown += 1
                     if daysShown >= 8 : break
                 cur = a.TimeStamp
@@ -273,6 +275,8 @@ class ActionCenter:
                     ect = extract_cn_time()
                     sleep += ect.extract_time_delta(a.Detail)
                     #print(cur, sleep, a.Detail)
+                elif a.Type == ActionType.ComFood:
+                    comFoodCount += 1
                 elif a.Type == ActionType.Notes:
                     #response += "{0}日{1}\n".format(cur.strftime("%m-%d"),a.GenBrief())
                     pass
@@ -281,8 +285,8 @@ class ActionCenter:
                 #response += "{0}日：奶瓶{1}mL，母乳{2}次共{3}分钟，睡觉{5}小时{6}分钟，大便{4}次\n".format(\
                 #    cur.strftime("%m-%d"), milk, breastNum, breast, poop, int(sleep/60), sleep%60)
                 #no breast version
-                response += "{0}日：奶瓶{1}mL，睡觉{3}小时{4}分钟，大便{2}次\n".format(\
-                    cur.strftime("%m-%d"), milk, poop, int(sleep/60), sleep%60)
+                response += "{0}日：奶瓶{1}mL，辅食{5}次,睡觉{3}小时{4}分钟，大便{2}次\n".format(\
+                    cur.strftime("%m-%d"), milk, poop, int(sleep/60), sleep%60, comFoodCount)
     
         elif action.Type == ActionType.Remove:
             response = "请输入要删除的项目序号\n"
