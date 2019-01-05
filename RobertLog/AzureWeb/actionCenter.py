@@ -275,9 +275,12 @@ class ActionCenter:
                     pass
 
             if (milk !=0 or breast !=0) and daysShown < 7:                 
-                response += "{0}日：奶瓶{1}mL，母乳{2}次共{3}分钟，睡觉{5}小时{6}分钟，大便{4}次\n".format(\
-                    cur.strftime("%m-%d"), milk, breastNum, breast, poop, int(sleep/60), sleep%60)
-                    
+                #response += "{0}日：奶瓶{1}mL，母乳{2}次共{3}分钟，睡觉{5}小时{6}分钟，大便{4}次\n".format(\
+                #    cur.strftime("%m-%d"), milk, breastNum, breast, poop, int(sleep/60), sleep%60)
+                #no breast version
+                response += "{0}日：奶瓶{1}mL，睡觉{3}小时{4}分钟，大便{2}次\n".format(\
+                    cur.strftime("%m-%d"), milk, poop, int(sleep/60), sleep%60)
+    
         elif action.Type == ActionType.Remove:
             response = "请输入要删除的项目序号\n"
             actions = self.rlSQL.GetActionReports(6)

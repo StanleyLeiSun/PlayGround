@@ -123,7 +123,7 @@ class RobertLogMSSQL:
 
     def GetLastAction(self, act_name):
         """List the last AD actions"""
-        cmd = "SELECT TOP 1 * FROM dbo.Actions Where ActionType = '%s' ORDER BY CreateTime DESC" % act_name
+        cmd = "SELECT TOP 1 * FROM dbo.Actions Where ActionType = '%s' AND ActionStatus = 'Active' ORDER BY CreateTime DESC" % act_name
         actList = self.__ExecQuery(cmd)
 
         if len(actList) <= 0:
