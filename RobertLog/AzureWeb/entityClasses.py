@@ -54,11 +54,13 @@ class ActionType:
     ComFood = "SupFood"
     ErrStatus = "ErrStatus"
     ComFoodList = "SupFoodList"
+    Pills = "Pills"
+
 
     actionNames = {UnKnown:"未知命令", Feed:"喂奶", Poop:"大便", AD:"吃了AD", Bath:"洗澡", \
     Reports:"汇报", WeeklyReports:"一周汇总", Notes:"备注", Remove:"撤销", FallSleep:"睡着了",\
     WakeUp:"睡觉", ListImage:"看照片", SleepTime:"睡着时间", DebugMsg:"DebugMsg", EatCa:"补钙",\
-    RemoveSpecific:"删除特定", ComFood:"辅食", ErrStatus:"状态错误", ComFoodList:"辅食食谱"}
+    RemoveSpecific:"删除特定", ComFood:"辅食", ErrStatus:"状态错误", ComFoodList:"辅食食谱", Pills:"吃药"}
 
 class DailyReport:
     def __init__(self, milk_ml, milk_min, milk_num, poop, sleep, date):

@@ -16,13 +16,14 @@ class ActionCenter:
     rlSQL = RobertLogMSSQL(host=config.db_server,user=config.db_user,pwd=config.db_pwd,db="robertlog")
 
     #Action List
-    FeedKeywords = {u"吃了",u"喂了", u"喂奶", u"吃奶", u"奶粉"}
+    FeedKeywords = {u"吃了",u"喂了", u"喂奶", u"吃奶", u"奶粉", u"喝奶"}
     ReportsKeywords = {u"报告", u"总结", u"情况"}
     WeeklyReportsKeywords = {u"一周报告", u"一周总结", u"一周情况", u"本周总结"}
     NotesKeywords = {u"备注", u"笔记"}
     mLKeywords = {u"ml",u"毫升"}
     MinKeywords = {u"分钟"}
-    ADKeywords = {u"AD",u"吃药", u"ad",u"喂药"}
+    ADKeywords = {u"AD",u"ad"}
+    PillsKeywords = {u"吃药",u"喂药" }
     PoopKeywords = {u"拉屎",u"大便", }
     BathKeywords = {u"洗澡"}
     RemoveKeywords = {u"撤销", u"删除"}
@@ -137,6 +138,8 @@ class ActionCenter:
             action.Type = ActionType.DebugMsg
         elif self.check_strList(msg.RawContent, self.FixInputKeywords):
             action.LoadFromString(msg.RawContent)
+        elif self.check_strList(msg.RawContent, self.PillsKeywords):
+            action.Type = ActionType.Pills
         elif self.check_strList(msg.RawContent, self.ListImageKeywords):
             action.Type = ActionType.ListImage
             files = cn_utility.listimgfiles(config.ImageRoot, 7)
@@ -222,12 +225,13 @@ class ActionCenter:
                 response += (sleepstatus.GenBrief() + "\n")
             else : 
                 delta_minutes = int((tnow - sleepstatus.TimeStamp).total_seconds()/60)
-                if delta_minutes > 180:
+                if delta_minutes > 240:
                     response += "\n醒了{0}小时{1}分钟了，该睡了".format(int(delta_minutes/60), delta_minutes%60) 
             
-            delta_minutes = int((tnow - lastmilk.TimeStamp).total_seconds()/60)
-            if delta_minutes > 240:
-                response += "\n上次喂奶是{0}小时{1}分钟前:{2}".format(int(delta_minutes/60), delta_minutes%60, lastmilk.GenBrief())
+            #disable milk alert for now
+            #delta_minutes = int((tnow - lastmilk.TimeStamp).total_seconds()/60)
+            #if delta_minutes > 240:
+                #response += "\n上次喂奶是{0}小时{1}分钟前:{2}".format(int(delta_minutes/60), delta_minutes%60, lastmilk.GenBrief())
 
         elif action.Type == ActionType.WeeklyReports:
             response = "统计结果: \n"
@@ -239,6 +243,7 @@ class ActionCenter:
             poop = 0
             sleep = 0
             daysShown = 0
+            pillstaken = 0
             for a in actions:
                 if a.Status == Action.Deleted:
                     continue
@@ -251,6 +256,7 @@ class ActionCenter:
                     poop = 0
                     breastNum = 0
                     sleep = 0
+                    pillstaken = 0
                     daysShown += 1
                     if daysShown >= 8 : break
                 cur = a.TimeStamp
