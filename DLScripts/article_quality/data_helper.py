@@ -21,8 +21,8 @@ def load_data(max_len,batch_size,n_words=20000,valid_portion=0.1,sort_by_len=Tru
     train_set_x, train_set_y = load_dataset_file()
 
     train_set_y = train_set_y.astype(float)
+    #train_set_y = train_set_y/5 
    
-    train_set_y = train_set_y/5 
     #train_set length
     n_samples= len(train_set_x)
     #shuffle and generate train and valid dataset
@@ -139,13 +139,6 @@ def batch_iter(data,batch_size):
         return_x = x[start_index:end_index]
         return_y = y[start_index:end_index]
         return_mask_x = mask_x[:,start_index:end_index]
-        # if(len(return_x)<batch_size):
-        #     print(len(return_x))
-        #     print return_x
-        #     print return_y
-        #     print return_mask_x
-        #     import sys
-        #     sys.exit(0)
         yield [return_x,return_y,return_mask_x]
 
 
@@ -166,8 +159,9 @@ def build_dict(d, sentence):
 
 def dict_to_embedding(dic, vacabulary_size, base_idx=0):
     ret_map = {}
-    for i in range(0, vacabulary_size):
-        ret_map[dic[i][0]] = vacabulary_size - i + base_idx
+    size = min(vacabulary_size, len(dic))
+    for i in range(0, size):
+        ret_map[dic[i][0]] = i + base_idx
 
     return ret_map
 
@@ -186,30 +180,49 @@ def encoding_sentence(sentence, mapping ):
     tokens = tokenlize_sentence(sentence)
     return [mapping.get(w,0) for w in tokens ]
 
+def prepare_fasttext(titles, sources, targets):
+    outline = ""
+    outf = open(lstm_config.data_root+"tencent_fasttext.csv",'w')
+    outtestf = open(lstm_config.data_root+"tencent_fasttext_test.csv",'w')
+    for i in range(0, len(titles)):
+        t = ", ".join(list(jieba.cut(titles[i])))
+        l = "\t__label__" + targets[i]
+        s = "\tsource_" + sources[i]
+        outline = l + s + t + '\n'
+        if i%10 == 9 :
+            outtestf.write(outline)
+        else:
+            outf.write(outline)
+    outf.close()
+
+def prepare_lstm(titles, sources, targets):
+
+    mapping = build_embedding_map(titles, lstm_config.args.vocabulary_size)
+
+    source_dic = {}
+    build_dict(source_dic, sources)
+    source_mapping = dict_to_embedding(sorted(source_dic.items(),reverse=True), lstm_config.args.sourcelist_size , len(mapping))
+    
+    print("Total source count:%d"%len(source_dic))
+    train_set_x = [ [source_mapping.get(sources[i],0)] + encoding_sentence(s, mapping) for i,s in enumerate(titles)]
+    save_embedded(mapping, train_set_x, targets, 'tencent_quality')
+
+
 def vector_rawdata_file():
     dataset_path='~/data/tencent-dump.csv'
     article = pd.read_table(dataset_path,  error_bad_lines=False)
     article = article[['title','source', 'quality']].drop_duplicates().dropna()
     article = article.where(article['quality'] >= 2).where(article['quality'] < 5)
     train_set_x = np.array(article['title'], dtype='unicode_')
-    train_set_y = np.array(article[['quality']], dtype='unicode_')
+    train_set_y = np.array(article['quality'], dtype='unicode_')
     sources = np.array(article['source'], dtype='unicode_')
     
-    mapping = build_embedding_map(train_set_x, 5000)
-
-    source_dic = {}
-    build_dict(source_dic, sources)
-    source_mapping = dict_to_embedding(sorted(source_dic.items()), len(source_dic) -1 , len(mapping))
-    
-    print("Total source count:%d"%len(source_dic))
-    train_set_x = [ [source_mapping.get(sources[i],0)] + encoding_sentence(s, mapping) for i,s in enumerate(train_set_x)]
-    save_embedded(mapping, train_set_x, train_set_y, 'tencent_quality')
-
-    return train_set_x, train_set_y
+    prepare_lstm(train_set_x, sources, train_set_y)
+    prepare_fasttext(train_set_x, sources, train_set_y)    
 
 def build_vectors(sentences, vacabulary_size):
     vectorizer = skyfe.CountVectorizer()
-    trans = vectorizer.fit_transform(corpus)
+    trans = vectorizer.fit_transform(sentences)
     fname = vectorizer.get_feature_names()
     print (trans)
     print (trans.toarray())
@@ -223,7 +236,7 @@ def build_vectors(sentences, vacabulary_size):
 
     #hashed
     vectorizer2 = skyfe.HashingVectorizer(n_features = 6,norm = None)
-    trans = vectorizer2.fit_transform(corpus)
+    trans = vectorizer2.fit_transform(sentences)
     #fname = vectorizer2.get_feature_names()
     print (trans.toarray())
     #print (fname)
@@ -236,9 +249,12 @@ def tokenlize_sentence(sentence):
     if g_tokenlizer == 'normal':
         return sentence
     if g_tokenlizer == 'jieba':
-        return list(jieba.cut(s, cut_all=False))
+        return list(jieba.cut(sentence, cut_all=False))
+
 def test():
-    train_set_x, train_set_y = load_rawdata_file()
+    train_set_x, train_set_y = load_dataset_file()
+    print("x len", len(train_set_x))
+    print("y len", len(train_set_y))
 
 
 if __name__ == "__main__":

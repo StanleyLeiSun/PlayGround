@@ -3,7 +3,7 @@ import numpy as np
 import os
 import time
 import datetime
-from lstm_model import *
+from lstm_model import get_model
 import data_helper
 import lstm_config
 
@@ -25,6 +25,7 @@ class Config(object):
     valid_num=lstm_config.args.valid_num
     out_dir=lstm_config.args.out_dir
     checkpoint_every = lstm_config.args.check_point_every
+    token_vacabulary_size = lstm_config.args.vocabulary_size + lstm_config.args.sourcelist_size
 
 
 def evaluate(model,session,data,global_steps=None,summary_writer=None):
@@ -46,8 +47,13 @@ def evaluate(model,session,data,global_steps=None,summary_writer=None):
          for i , (c,h) in enumerate(model._initial_state):
             feed_dict[c]=state[i].c
             feed_dict[h]=state[i].h
-         count=session.run(fetches,feed_dict)
+         count =session.run(fetches,feed_dict)
          correct_num+=count
+         #if (step%50 == 0):
+             #print("...")
+             #print(x)
+             #print(y)
+             #print(scores)
          #correct, target, prediction  = session.run(fetches,feed_dict)
          #print("Correct_num: %i, batch_size: %i"%(correct_num, len(x)))
          #print("correct,target,prediciton")
@@ -66,6 +72,7 @@ def evaluate(model,session,data,global_steps=None,summary_writer=None):
     return accuracy
 
 def run_epoch(model,session,data,global_steps,valid_model,valid_data,train_summary_writer=None,valid_summary_writer=None):
+    state = session.run(model._initial_state)
     for step, (x,y,mask_x) in enumerate(data_helper.batch_iter(data,batch_size=lstm_config.args.batch_size)):
 
         feed_dict={}
@@ -75,17 +82,22 @@ def run_epoch(model,session,data,global_steps,valid_model,valid_data,train_summa
         model.assign_new_batch_size(session,len(x))
         fetches = [model.cost,model.accuracy,model.train_op,model.summary]
         #fetches = [model.cost,model.accuracy,model.train_op]
-        state = session.run(model._initial_state)
+        #state = session.run(model._initial_state)
         for i , (c,h) in enumerate(model._initial_state):
             feed_dict[c]=state[i].c
             feed_dict[h]=state[i].h
         cost,accuracy,_, summary = session.run(fetches,feed_dict)
         train_summary_writer.add_summary(summary,global_steps)
         train_summary_writer.flush()
-        valid_accuracy=evaluate(valid_model,session,valid_data,global_steps,valid_summary_writer)
+        valid_accuracy = 0
+        #valid_accuracy=evaluate(valid_model,session,valid_data,global_steps,valid_summary_writer)
+        #valid_accuracy=evaluate(model,session,valid_data,global_steps,valid_summary_writer)
         if(global_steps%100==0):
             print("the %i step, train cost is: %f and the train accuracy is %f and the valid accuracy is %f"%(global_steps,cost,accuracy,valid_accuracy))
         global_steps+=1
+
+        #if (step%50 == 0):
+        #    print(feed_dict)
 
     return global_steps
 
@@ -96,7 +108,10 @@ def train_step():
     eval_config=Config()
     eval_config.keep_prob=1.0
 
-    train_data,valid_data,test_data = data_helper.load_data(lstm_config.args.max_len,batch_size=config.batch_size)
+    train_data,valid_data,test_data = data_helper.load_data(
+        lstm_config.args.max_len,
+        n_words= config.token_vacabulary_size, 
+        batch_size=config.batch_size)
 
     print("begin training")
 
@@ -105,11 +120,11 @@ def train_step():
     with tf.Graph().as_default(), tf.Session() as session:
         initializer = tf.random_uniform_initializer(-1*lstm_config.args.init_scale,1*lstm_config.args.init_scale)
         with tf.variable_scope("model",reuse=None,initializer=initializer):
-            model = RNN_Model_Regression(config=config,is_training=True)
+            model = get_model(config=config,is_training=True)
 
         with tf.variable_scope("model",reuse=True,initializer=initializer):
-            valid_model = RNN_Model_Regression(config=eval_config,is_training=False)
-            test_model = RNN_Model_Regression(config=eval_config,is_training=False)
+            valid_model = get_model(config=eval_config,is_training=False)
+            test_model = get_model(config=eval_config,is_training=False)
 
         #add summary
         #train_summary_op = tf.merge_summary([model.loss_summary,model.accuracy])

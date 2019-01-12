@@ -9,6 +9,7 @@ import urllib
 import config
 import cn_utility
 import warning
+import logging
 
 class ActionCenter:
 
@@ -244,19 +245,33 @@ class ActionCenter:
             sleep = 0
             daysShown = 0
             pillstaken = 0
+            comFoodCount = 0
+            notesPerDay = ""
             for a in actions:
                 if a.Status == Action.Deleted:
                     continue
 
                 if a.TimeStamp.day != cur.day and (milk !=0 or breast !=0):                        
-                    response += "{0}日：奶瓶{1}mL，母乳{2}次共{3}分钟，睡觉{5}小时{6}分钟，大便{4}次\n".format(\
-                    cur.strftime("%m-%d"), milk, breastNum, breast, poop, int(sleep/60), sleep%60)
+                    #response += "{0}日：奶瓶{1}mL，母乳{2}次共{3}分钟，睡觉{5}小时{6}分钟，大便{4}次\n".format(\
+                    #cur.strftime("%m-%d"), milk, breastNum, breast, poop, int(sleep/60), sleep%60)
+                    #no breast milk version
+                    response += "{0}日：奶瓶{1}mL，辅食{5}次，睡觉{3}小时{4}分钟，大便{2}次\n".format(\
+                        cur.strftime("%m-%d"), milk, poop, int(sleep/60), sleep%60, comFoodCount)
+                    
+                    if len(notesPerDay) > 0:
+                        response += "今日备注: {0}\n".format(notesPerDay)
+                    
+                    if pillstaken > 0:
+                        response += "吃药{0}次\n".format(pillstaken)
+                    
                     milk = 0
                     breast = 0 
                     poop = 0
                     breastNum = 0
                     sleep = 0
                     pillstaken = 0
+                    comFoodCount = 0
+                    notesPerDay = ""
                     daysShown += 1
                     if daysShown >= 8 : break
                 cur = a.TimeStamp
@@ -275,14 +290,28 @@ class ActionCenter:
                     ect = extract_cn_time()
                     sleep += ect.extract_time_delta(a.Detail)
                     #print(cur, sleep, a.Detail)
+                elif a.Type == ActionType.ComFood:
+                    comFoodCount += 1
+                elif a.Type == ActionType.Pills:
+                    pillstaken += 1
                 elif a.Type == ActionType.Notes:
-                    #response += "{0}日{1}\n".format(cur.strftime("%m-%d"),a.GenBrief())
+                    #notesPerDay += "{0}日{1}\t".format(cur.strftime("%m-%d"),a.GenBrief())
+                    notesPerDay += a.GenBrief()
                     pass
 
             if (milk !=0 or breast !=0) and daysShown < 7:                 
-                response += "{0}日：奶瓶{1}mL，母乳{2}次共{3}分钟，睡觉{5}小时{6}分钟，大便{4}次\n".format(\
-                    cur.strftime("%m-%d"), milk, breastNum, breast, poop, int(sleep/60), sleep%60)
+                #response += "{0}日：奶瓶{1}mL，母乳{2}次共{3}分钟，睡觉{5}小时{6}分钟，大便{4}次\n".format(\
+                #    cur.strftime("%m-%d"), milk, breastNum, breast, poop, int(sleep/60), sleep%60)
+                #no breast version
+                response += "{0}日：奶瓶{1}mL，辅食{5}次,睡觉{3}小时{4}分钟，大便{2}次\n".format(\
+                    cur.strftime("%m-%d"), milk, poop, int(sleep/60), sleep%60, comFoodCount)
+                
+                if len(notesPerDay) > 0:
+                        response += "今日备注: {0}\n".format(notesPerDay)
                     
+                if pillstaken > 0:
+                        response += "吃药{0}次\n".format(pillstaken)
+    
         elif action.Type == ActionType.Remove:
             response = "请输入要删除的项目序号\n"
             actions = self.rlSQL.GetActionReports(6)
@@ -325,9 +354,11 @@ class ActionCenter:
     def Receive(self, raw_str):
         msg = Message(raw_str)
         if self.lastMsgID == msg.MsgId : 
+            logging.error("drop msg id:{0} content:{1}".format(msg.MsgId, msg.RawContent))
             return #dedup message retry
         else:
             self.lastMsgID = msg.MsgId
+            logging.error("going to process msg id:{0} content:{1}".format(msg.MsgId, msg.RawContent))
         
         self.rlSQL.LogMessage(msg)
 

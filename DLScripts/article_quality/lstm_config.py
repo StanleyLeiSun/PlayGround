@@ -8,8 +8,7 @@ parser.add_argument('-n', dest = "name", help="package's name", default='', type
 parser.add_argument('--batch_size',     default=640,    help='the batch_size of the training procedure', type=int)
 parser.add_argument('--lr',             default=0.1,    help='the learning rate', type=float)
 parser.add_argument('--lr_decay',       default=0.5,    help='the learning rate decay', type=float)
-parser.add_argument('--vocabulary_size',default=20000,   help='vocabulary_size', type=int)
-parser.add_argument('--emdedding_dim',  default=32,     help='embedding dim', type=int)
+parser.add_argument('--emdedding_dim',  default=128,     help='embedding dim', type=int)
 parser.add_argument('--max_len',        default=40,     help='max_len of training sentence', type=int)
 parser.add_argument('--valid_num',      default=100,    help='epoch num of validation', type=int)
 parser.add_argument('--checkpoint_num', default=1000,   help='epoch num of checkpoint', type=int)
@@ -22,7 +21,8 @@ parser.add_argument('--max_grad_norm',  default=5,      help='max_grad_norm', ty
 parser.add_argument('--hidden_layer_num',default=1,     help='LSTM hidden layer num', type=int)
 parser.add_argument('--check_point_every',default=10,   help='checkpoint every num epoch ', type=int)
 parser.add_argument('--hidden_neural_size',default=32,  help='LSTM hidden neural size', type=int)
-
+parser.add_argument('--vocabulary_size',default=160000,   help='vocabulary_size', type=int)
+parser.add_argument('--sourcelist_size',default=100000,   help='sourcelist_size', type=int)
 
 #parser.add_argument('--emdedding_dim',128,'embedding dim')
 #parser.add_argument('--hidden_neural_size',128,'LSTM hidden neural size')

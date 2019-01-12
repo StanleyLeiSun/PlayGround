@@ -2,6 +2,10 @@ import tensorflow as tf
 import numpy as np
 import lstm_config
 
+
+def get_model(config, is_training = True):
+    return RNN_Model_Category(config, is_training)
+
 class RNN_Model_Category(object):
 
     def __init__(self,config,is_training=True):
@@ -58,7 +62,6 @@ class RNN_Model_Category(object):
         out_put=out_put*self.mask_x[:,:,None]
 
         with tf.name_scope("mean_pooling_layer"):
-
             out_put=tf.reduce_sum(out_put,0)/(tf.reduce_sum(self.mask_x,0)[:,None])
 
         with tf.name_scope("Softmax_layer_and_output"):
@@ -68,6 +71,7 @@ class RNN_Model_Category(object):
 
         with tf.name_scope("loss"):
             self.loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits = self.logits+1e-10,labels = self.target)#??
+            #self.loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits = self.target,labels = self.target)#??
             self.cost = tf.reduce_mean(self.loss)
 
         with tf.name_scope("accuracy"):
@@ -133,7 +137,7 @@ class RNN_Model_Regression(object):
         self.mask_x = tf.placeholder(tf.float32,[num_step,None])
 
         hidden_neural_size=config.hidden_neural_size
-        vocabulary_size=config.vocabulary_size
+        vocabulary_size=config.token_vacabulary_size
         embed_dim=config.embed_dim
         hidden_layer_num=config.hidden_layer_num
 

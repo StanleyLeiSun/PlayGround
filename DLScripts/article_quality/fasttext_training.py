@@ -10,7 +10,7 @@ import lstm_config
 #print ("cbow ===========>")
 #print( model.words )# list of words in dictionary
 
-classifier = fasttext.supervised(lstm_config.data_root+'tencent_fasttext.csv', 'tencent_quality_model',lr=0.01,epoch=3,dim=64, ws = 8, min_count = 5)
+classifier = fasttext.supervised(lstm_config.data_root+'tencent_fasttext.csv', 'tencent_quality_model',lr=0.01,epoch=3,dim=128, ws = 8, min_count = 5)
 
 result = classifier.test(lstm_config.data_root+'tencent_fasttext_test.csv')
 print ('P@1:', result.precision)

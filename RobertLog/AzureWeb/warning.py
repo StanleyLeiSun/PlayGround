@@ -9,14 +9,18 @@ def GetWarnings(rlSQL):
 def WarningForADorCa(rlSQL):
     ad_action = rlSQL.GetLastAD()
     ca_action = rlSQL.GetLastCa()
+    pill_action = rlSQL.GetLastPill()
     n = cn_utility.GetNowForUTC8()
     hour = n.hour
 
     ad_hour_delta = (n - ad_action.TimeStamp).total_seconds() / 3600
     ca_hour_delta = (n - ca_action.TimeStamp).total_seconds() / 3600
+    pill_hour_delta = (n - pill_action.TimeStamp).total_seconds() / 3600
 
     if (ad_hour_delta <= 2) or (ca_hour_delta <= 2):
         return ""
+    if (pill_hour_delta < 24) and (pill_hour_delta > 8):
+        return "\n今天还吃药吗？"
     elif (ad_hour_delta > 23) or (  hour >=9 and hour < 13 and ad_hour_delta > 14 ):
         return "\n该考虑吃AD了。"
     elif (ca_hour_delta > 23) or (  hour >=14 and ca_hour_delta > 14 ):
