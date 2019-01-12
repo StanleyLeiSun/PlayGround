@@ -142,8 +142,8 @@ class ActionCenter:
             action.LoadFromString(msg.RawContent)
         elif self.check_strList(msg.RawContent, self.PillsKeywords):
             action.Type = ActionType.Pills
-            start = content.index(self.PillsKeywords.)
-            detail = content[start+2:].strip()
+            start = content.index("药")
+            detail = content[start+1:].strip()
             action.Detail = detail
         elif self.check_strList(msg.RawContent, self.ListImageKeywords):
             action.Type = ActionType.ListImage
