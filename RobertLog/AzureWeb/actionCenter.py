@@ -33,7 +33,7 @@ class ActionCenter:
     ListImageKeywords = {u"看照片"}
     ListSleepTimeKeywords = {u"几点睡",u"睡多久", u"睡了多久"}
     DebugMsgKeywords = {u"调试消息"}
-    EatCaKeywords = u"补钙", u"钙片"}
+    EatCaKeywords = {u"补钙", u"钙片"}
     ComFoodKeywords = [u"辅食"]
     ComFoodListKeywords = {u"食谱"}
     FixInputKeywords = {u"补录"}
