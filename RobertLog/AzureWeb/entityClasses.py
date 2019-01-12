@@ -93,7 +93,8 @@ class Action:
 
         brief = "[{0}] {1} ".format(self.TimeStamp.strftime( "%H:%M"), ActionType.actionNames[self.Type])
 
-        if self.Type in {ActionType.Feed, ActionType.Notes, ActionType.WakeUp, ActionType.SleepTime, ActionType.ComFood, ActionType.ErrStatus}:
+        if self.Type in {ActionType.Feed, ActionType.Notes, ActionType.WakeUp, ActionType.SleepTime,\
+            ActionType.ComFood, ActionType.ErrStatus, ActionType.Pills}:
             brief += self.Detail
         elif self.Type == ActionType.Poop:
             pass

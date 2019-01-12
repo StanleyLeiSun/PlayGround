@@ -33,7 +33,7 @@ class ActionCenter:
     ListImageKeywords = {u"看照片"}
     ListSleepTimeKeywords = {u"几点睡",u"睡多久", u"睡了多久"}
     DebugMsgKeywords = {u"调试消息"}
-    EatCaKeywords = {u"补钙", u"钙片"}
+    EatCaKeywords = u"补钙", u"钙片"}
     ComFoodKeywords = [u"辅食"]
     ComFoodListKeywords = {u"食谱"}
     FixInputKeywords = {u"补录"}
@@ -65,6 +65,7 @@ class ActionCenter:
         return False
 
     def DetectAction(self, msg):
+        msg.RawContent = msg.RawContent.replace("：", ":")
         action = Action(msg)
         num2d = num_cn2digital()
         ect = extract_cn_time()
@@ -141,6 +142,9 @@ class ActionCenter:
             action.LoadFromString(msg.RawContent)
         elif self.check_strList(msg.RawContent, self.PillsKeywords):
             action.Type = ActionType.Pills
+            start = content.index(self.PillsKeywords.)
+            detail = content[start+2:].strip()
+            action.Detail = detail
         elif self.check_strList(msg.RawContent, self.ListImageKeywords):
             action.Type = ActionType.ListImage
             files = cn_utility.listimgfiles(config.ImageRoot, 7)
