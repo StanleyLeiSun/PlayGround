@@ -364,7 +364,17 @@ class ActionCenter:
             self.lastMsgID = msg.MsgId
             logging.error("going to process msg id:{0} content:{1}".format(msg.MsgId, msg.RawContent))
         
+        msgs = self.rlSQL.GetMsgFromUser(msg.FromUser, 10)
+        isDup = False
+        for m in msgs:
+            if m.RawContent == msg.RawContent and abs((m.TimeStamp - msg.TimeStamp).total_seconds()) < 10 and m.RawContent.find("总结") < 0:
+                isDup = True
+                logging.error("find dup id:{0} content:{1}".format(msg.MsgId, msg.RawContent))
+        
         self.rlSQL.LogMessage(msg)
+
+        if isDup:
+            return
 
         if msg.MsgType == "image":
             return self.process_img_post(msg)
