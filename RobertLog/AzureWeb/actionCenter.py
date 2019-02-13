@@ -11,6 +11,16 @@ import cn_utility
 import warning
 import logging
 
+
+#try a specific logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+fh = logging.FileHandler('robert_actions.log')
+fh.setLevel(logging.DEBUG)
+formatter=logging.Formatter('[%(asctime)s] %(levelname)s [%(funcName)s: %(filename)s, %(lineno)d] %(message)s')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
+
 class ActionCenter:
 
     #SQL
@@ -358,18 +368,18 @@ class ActionCenter:
     def Receive(self, raw_str):
         msg = Message(raw_str)
         if self.lastMsgID == msg.MsgId : 
-            logging.error("drop msg id:{0} content:{1}".format(msg.MsgId, msg.RawContent))
+            logger.error("drop msg id:{0} content:{1}".format(msg.MsgId, msg.RawContent))
             return #dedup message retry
         else:
             self.lastMsgID = msg.MsgId
-            logging.error("going to process msg id:{0} content:{1}".format(msg.MsgId, msg.RawContent))
+            logger.error("going to process msg id:{0} content:{1}".format(msg.MsgId, msg.RawContent))
         
         msgs = self.rlSQL.GetMsgFromUser(msg.FromUser, 10)
         isDup = False
         for m in msgs:
             if m.RawContent == msg.RawContent and abs((m.TimeStamp - msg.TimeStamp).total_seconds()) < 10 and m.RawContent.find("总结") < 0:
                 isDup = True
-                logging.error("find dup id:{0} content:{1}".format(msg.MsgId, msg.RawContent))
+                logger.error("find dup id:{0} content:{1}".format(msg.MsgId, msg.RawContent))
         
         self.rlSQL.LogMessage(msg)
 
