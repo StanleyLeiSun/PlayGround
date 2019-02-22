@@ -109,8 +109,8 @@ class Action:
         else:
             pass
 
-        if len(brief) > 20:
-            brief = brief[0:20]
+        if len(brief) > 60:
+            brief = brief[0:60]
 
         return brief
 
