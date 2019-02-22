@@ -368,18 +368,18 @@ class ActionCenter:
     def Receive(self, raw_str):
         msg = Message(raw_str)
         if self.lastMsgID == msg.MsgId : 
-            logger.error("drop msg id:{0} content:{1}".format(msg.MsgId, msg.RawContent))
+            logger.error("drop msg id:{0}".format(msg.MsgId))
             return #dedup message retry
         else:
             self.lastMsgID = msg.MsgId
-            logger.error("going to process msg id:{0} content:{1}".format(msg.MsgId, msg.RawContent))
+            logger.error("going to process msg id:{0}".format(msg.MsgId))
         
         msgs = self.rlSQL.GetMsgFromUser(msg.FromUser, 10)
         isDup = False
         for m in msgs:
             if m.RawContent == msg.RawContent and abs((m.TimeStamp - msg.TimeStamp).total_seconds()) < 10 and m.RawContent.find("总结") < 0:
                 isDup = True
-                logger.error("find dup id:{0} content:{1}".format(msg.MsgId, msg.RawContent))
+                logger.error("find dup id:{0}".format(msg.MsgId))
         
         self.rlSQL.LogMessage(msg)
 

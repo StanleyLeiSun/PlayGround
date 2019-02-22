@@ -108,6 +108,10 @@ class Action:
             brief += "已经睡了{0}小时{1}分钟.\n天气干，记得涂唇膏。".format(int(delta_minutes/60), delta_minutes%60)
         else:
             pass
+
+        if len(brief) > 20:
+            brief = brief[0:20]
+
         return brief
 
     def LoadFromString(self, rawstr):
