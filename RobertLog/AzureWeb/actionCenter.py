@@ -44,10 +44,11 @@ class ActionCenter:
     ListSleepTimeKeywords = {u"几点睡",u"睡多久", u"睡了多久"}
     DebugMsgKeywords = {u"调试消息"}
     EatCaKeywords = {u"补钙", u"钙片"}
-    ComFoodKeywords = [u"辅食"]
+    ComFoodKeywords = [u"辅食", u"吃饭"]
     ComFoodListKeywords = {u"食谱"}
     FixInputKeywords = {u"补录"}
     PowderKeywords = {u"奶粉"}
+    SnacksKeywords = [u"零食"]
     
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", \
@@ -101,7 +102,14 @@ class ActionCenter:
             action.Type = ActionType.ComFoodList
         elif self.check_strList(msg.RawContent, self.ComFoodKeywords):
             action.Type = ActionType.ComFood
-            start = content.index(self.ComFoodKeywords[0])
+            start =  content.find(self.ComFoodKeywords[0])
+            if start < 0:
+                start =  content.find(self.ComFoodKeywords[1])
+            detail = content[start+2:].strip()
+            action.Detail = detail
+        elif self.check_strList(msg.RawContent, self.SnacksKeywords):
+            action.Type = ActionType.Snacks
+            start =  content.find(self.SnacksKeywords[0])
             detail = content[start+2:].strip()
             action.Detail = detail
         elif self.check_strList(content, self.FeedKeywords):
@@ -260,6 +268,7 @@ class ActionCenter:
             daysShown = 0
             pillstaken = 0
             comFoodCount = 0
+            snackCount = 0
             notesPerDay = ""
             for a in actions:
                 if a.Status == Action.Deleted:
@@ -269,8 +278,8 @@ class ActionCenter:
                     #response += "{0}日：奶瓶{1}mL，母乳{2}次共{3}分钟，睡觉{5}小时{6}分钟，大便{4}次\n".format(\
                     #cur.strftime("%m-%d"), milk, breastNum, breast, poop, int(sleep/60), sleep%60)
                     #no breast milk version
-                    response += "{0}日：奶瓶{1}mL，辅食{5}次，睡觉{3}小时{4}分钟，大便{2}次\n".format(\
-                        cur.strftime("%m-%d"), milk, poop, int(sleep/60), sleep%60, comFoodCount)
+                    response += "{0}日：奶瓶{1}mL，辅食{5}次,零食{6}次,睡觉{3}小时{4}分钟，大便{2}次\n".format(\
+                    cur.strftime("%m-%d"), milk, poop, int(sleep/60), sleep%60, comFoodCount, snackCount)
                     
                     if len(notesPerDay) > 0:
                         response += "今日备注: {0}\n".format(notesPerDay)
@@ -285,6 +294,7 @@ class ActionCenter:
                     sleep = 0
                     pillstaken = 0
                     comFoodCount = 0
+                    snackCount  = 0
                     notesPerDay = ""
                     daysShown += 1
                     if daysShown >= 8 : break
@@ -306,6 +316,8 @@ class ActionCenter:
                     #print(cur, sleep, a.Detail)
                 elif a.Type == ActionType.ComFood:
                     comFoodCount += 1
+                elif a.Type == ActionType.Snacks:
+                    snackCount += 1
                 elif a.Type == ActionType.Pills:
                     pillstaken += 1
                 elif a.Type == ActionType.Notes:
@@ -317,8 +329,8 @@ class ActionCenter:
                 #response += "{0}日：奶瓶{1}mL，母乳{2}次共{3}分钟，睡觉{5}小时{6}分钟，大便{4}次\n".format(\
                 #    cur.strftime("%m-%d"), milk, breastNum, breast, poop, int(sleep/60), sleep%60)
                 #no breast version
-                response += "{0}日：奶瓶{1}mL，辅食{5}次,睡觉{3}小时{4}分钟，大便{2}次\n".format(\
-                    cur.strftime("%m-%d"), milk, poop, int(sleep/60), sleep%60, comFoodCount)
+                response += "{0}日：奶瓶{1}mL，辅食{5}次,零食{6}次,睡觉{3}小时{4}分钟，大便{2}次\n".format(\
+                    cur.strftime("%m-%d"), milk, poop, int(sleep/60), sleep%60, comFoodCount, snackCount)
                 
                 if len(notesPerDay) > 0:
                         response += "今日备注: {0}\n".format(notesPerDay)

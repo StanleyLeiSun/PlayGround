@@ -55,12 +55,14 @@ class ActionType:
     ErrStatus = "ErrStatus"
     ComFoodList = "SupFoodList"
     Pills = "Pills"
+    Snacks = "Snacks"
 
 
     actionNames = {UnKnown:"未知命令", Feed:"喂奶", Poop:"大便", AD:"吃了AD", Bath:"洗澡", \
     Reports:"汇报", WeeklyReports:"一周汇总", Notes:"备注", Remove:"撤销", FallSleep:"睡着了",\
     WakeUp:"睡觉", ListImage:"看照片", SleepTime:"睡着时间", DebugMsg:"DebugMsg", EatCa:"补钙",\
-    RemoveSpecific:"删除特定", ComFood:"辅食", ErrStatus:"状态错误", ComFoodList:"辅食食谱", Pills:"吃药"}
+    RemoveSpecific:"删除特定", ComFood:"辅食", ErrStatus:"状态错误", ComFoodList:"辅食食谱", Pills:"吃药", \
+    Snacks:"零食"}
 
 class DailyReport:
     def __init__(self, milk_ml, milk_min, milk_num, poop, sleep, date):
@@ -94,7 +96,7 @@ class Action:
         brief = "[{0}] {1} ".format(self.TimeStamp.strftime( "%H:%M"), ActionType.actionNames[self.Type])
 
         if self.Type in {ActionType.Feed, ActionType.Notes, ActionType.WakeUp, ActionType.SleepTime,\
-            ActionType.ComFood, ActionType.ErrStatus, ActionType.Pills}:
+            ActionType.ComFood, ActionType.ErrStatus, ActionType.Pills, ActionType.Snacks}:
             brief += self.Detail
         elif self.Type == ActionType.Poop:
             pass
