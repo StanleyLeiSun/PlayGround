@@ -102,15 +102,15 @@ class ActionCenter:
             action.Type = ActionType.ComFoodList
         elif self.check_strList(msg.RawContent, self.ComFoodKeywords):
             action.Type = ActionType.ComFood
-            start =  content.find(self.ComFoodKeywords[0])
+            start =  msg.RawContent.find(self.ComFoodKeywords[0])
             if start < 0:
-                start =  content.find(self.ComFoodKeywords[1])
-            detail = content[start+2:].strip()
+                start =  msg.RawContent.find(self.ComFoodKeywords[1])
+            detail = msg.RawContent[start+2:].strip()
             action.Detail = detail
         elif self.check_strList(msg.RawContent, self.SnacksKeywords):
             action.Type = ActionType.Snacks
-            start =  content.find(self.SnacksKeywords[0])
-            detail = content[start+2:].strip()
+            start =  msg.RawContent.find(self.SnacksKeywords[0])
+            detail = msg.RawContent[start+2:].strip()
             action.Detail = detail
         elif self.check_strList(content, self.FeedKeywords):
             #feed
