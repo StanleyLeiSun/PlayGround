@@ -56,13 +56,14 @@ class ActionType:
     ComFoodList = "SupFoodList"
     Pills = "Pills"
     Snacks = "Snacks"
+    ViewNotes = "ViewNotes"
 
 
     actionNames = {UnKnown:"未知命令", Feed:"喂奶", Poop:"大便", AD:"吃了AD", Bath:"洗澡", \
     Reports:"汇报", WeeklyReports:"一周汇总", Notes:"备注", Remove:"撤销", FallSleep:"睡着了",\
     WakeUp:"睡觉", ListImage:"看照片", SleepTime:"睡着时间", DebugMsg:"DebugMsg", EatCa:"补钙",\
     RemoveSpecific:"删除特定", ComFood:"辅食", ErrStatus:"状态错误", ComFoodList:"辅食食谱", Pills:"吃药", \
-    Snacks:"零食"}
+    Snacks:"零食", ViewNotes:"备注列表"}
 
 class DailyReport:
     def __init__(self, milk_ml, milk_min, milk_num, poop, sleep, date):
@@ -111,8 +112,8 @@ class Action:
         else:
             pass
 
-        if len(brief) > 60:
-            brief = brief[0:60]
+        if len(brief) > 300:
+            brief = brief[0:300]
 
         return brief
 

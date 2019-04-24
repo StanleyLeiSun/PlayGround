@@ -49,6 +49,7 @@ class ActionCenter:
     FixInputKeywords = {u"补录"}
     PowderKeywords = {u"奶粉"}
     SnacksKeywords = [u"零食"]
+    ViewNotesKeywords = {u"看随笔"}
     
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", \
@@ -67,7 +68,7 @@ class ActionCenter:
     actiontype_skip_log = {ActionType.UnKnown, ActionType.Reports, ActionType.WeeklyReports,\
      ActionType.Remove, ActionType.NoPermission, ActionType.ListImage, \
      ActionType.SleepTime, ActionType.DebugMsg, ActionType.RemoveSpecific, \
-     ActionType.ErrStatus, ActionType.ComFoodList}
+     ActionType.ErrStatus, ActionType.ComFoodList, ActionType.ViewNotes}
 
     def check_strList(self, str, listStr):
         for s in listStr:
@@ -154,6 +155,8 @@ class ActionCenter:
                 action.Type = ActionType.ErrStatus
                 action.Detail = "重复的睡醒，上一次是："
                 action.Detail += lastAct.TimeStamp.strftime( "%H:%M")
+        elif self.check_strList(msg.RawContent, self.ViewNotesKeywords):
+            action.Type = ActionType.ViewNotes
         elif self.check_strList(msg.RawContent, self.DebugMsgKeywords):
             action.Type = ActionType.DebugMsg
         elif self.check_strList(msg.RawContent, self.FixInputKeywords):
@@ -364,6 +367,16 @@ class ActionCenter:
             foodList.sort(key=lambda a:a.TimeStamp)
             cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
             for f in foodList:
+                if f.TimeStamp.day != cur.day: #a new day 
+                    response += "\n[{0}] {1} ".format(f.TimeStamp.strftime("%m-%d"), f.Detail)
+                    cur = f.TimeStamp
+                else:
+                    response += f.Detail #f.GenBrief()
+        elif action.Type == ActionType.ViewNotes:
+            noteList = self.rlSQL.GetActionList( ActionType.Notes, 5)
+            noteList.sort(key=lambda a:a.TimeStamp)
+            cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
+            for f in noteList:
                 if f.TimeStamp.day != cur.day: #a new day 
                     response += "\n[{0}] {1} ".format(f.TimeStamp.strftime("%m-%d"), f.Detail)
                     cur = f.TimeStamp
