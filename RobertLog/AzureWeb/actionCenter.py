@@ -363,6 +363,7 @@ class ActionCenter:
         elif action.Type == ActionType.NoPermission:
             response = "抱歉您没有权限，可以尝试 '总结' 或 '一周总结' 查看萝卜成长状态。"
         elif action.Type == ActionType.ComFoodList:
+            response = "吃饭记录：\n"
             foodList = self.rlSQL.GetActionList( ActionType.ComFood, 80)
             foodList.sort(key=lambda a:a.TimeStamp)
             cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
@@ -373,6 +374,7 @@ class ActionCenter:
                 else:
                     response += f.Detail #f.GenBrief()
         elif action.Type == ActionType.ViewNotes:
+            response = "备注记录：\n"
             noteList = self.rlSQL.GetActionList( ActionType.Notes, 5)
             noteList.sort(key=lambda a:a.TimeStamp)
             cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
