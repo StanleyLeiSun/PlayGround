@@ -108,7 +108,8 @@ class Action:
         elif self.Type == ActionType.FallSleep:
             tnow = cn_utility.GetNowForUTC8()
             delta_minutes = int((tnow - self.TimeStamp).total_seconds()/60)
-            brief += "已经睡了{0}小时{1}分钟.\n天气干，记得涂唇膏。".format(int(delta_minutes/60), delta_minutes%60)
+            #brief += "已经睡了{0}小时{1}分钟.\n天气干，记得涂唇膏。".format(int(delta_minutes/60), delta_minutes%60)
+            brief += "已经睡了{0}小时{1}分钟.".format(int(delta_minutes/60), delta_minutes%60)
         else:
             pass
 
