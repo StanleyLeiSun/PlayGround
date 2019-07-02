@@ -23,8 +23,10 @@ def WarningForADorCa(rlSQL):
         return "\n今天还吃药吗？"
     elif (ad_hour_delta > 23) or (  hour >=9 and hour < 13 and ad_hour_delta > 14 ):
         return "\n该考虑吃AD了。"
-    elif (ca_hour_delta > 47) or (  hour >=14 and ca_hour_delta > 36 ):
+    elif (ca_hour_delta > 47) or (  hour >=14 and hour < 20 and ca_hour_delta > 36 ):
         return "\n该考虑吃钙片了。"
+    elif (hour >= 20) :
+        return "\n刷牙了吗？"
     
     return ""
 
