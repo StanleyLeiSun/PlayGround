@@ -243,6 +243,8 @@ class ActionCenter:
                         cur = a.TimeStamp
                         response += "\n{0}日(第{1}天)记录:\n".format(cur.strftime("%m-%d"), \
                         config.get_days_to_birth(cur))
+                    if len(response) > 250:
+                        response = response[-250:]
                     response += (a.GenBrief() + "\n")
 
             tnow = cn_utility.GetNowForUTC8()
