@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Wrapper of the Data Layer operations
+https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server?view=sql-server-2017
+
 """
 import datetime
 import pyodbc
@@ -16,7 +18,7 @@ class RobertLogMSSQL:
         self.password = pwd
         self.driver= driver
         self.isMSSQL = driver == '{SQL Server}'
-        #self.driver= '{ODBC Driver 13 for SQL Server}'
+        self.driver= '{ODBC Driver 17 for SQL Server}'
         #self.driver= '{SQL Server Native Client 11.0}'
 
     def __GetConnect(self):
