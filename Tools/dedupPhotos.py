@@ -16,35 +16,42 @@ def get_file_list(dir):
             #if s == "xxx":
                 #continue
             newDir=os.path.join(dir,s)
-            ret_files.append(get_file_list(newDir))
+            ret_files.extend(get_file_list(newDir))
     
     return ret_files
 
 def load_file_names(img_root):
     file_names=get_file_list(img_root)
+    img_names = []
     #keep only images
     pic_names=['bmp','jpg','png','tiff','gif','pcx','tga','exif','fpx','svg','psd','cdr','pcd','dxf','ufo','eps','ai','raw','WMF']
     for name in file_names:
         file_format=name.split('.')[-1]
-        if file_format not in pic_names:
-            file_names.remove(name)
+        if file_format.lower() in pic_names:
+            #file_names.remove(name)
+            img_names.append(name)
+    
+    return img_names
 
 #build image SIFT and file hash dataset
 
 def get_sift(images):
     
-    sift_det=cv2.xfeatures2d.SIFT_create()
+    sift_det=cv2.xfeatures2d.SIFT_create(1000)
     des_list=[]
     des_matrix=np.zeros((1,128))
     for path in images:
+        print(path)
         img=cv2.imread(path)
         gray=cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
         kp,des=sift_det.detectAndCompute(gray,None)
-        if des!=None:
+        print(len(des))
+        if len(des) > 0:
                 des_matrix=np.row_stack((des_matrix,des))
         des_list.append(des)
     
     des_matrix=des_matrix[1:,:]   # the des matrix of sift
+    return des_matrix, des_list
 
 #cluster and caculate the center for feature
 
@@ -53,7 +60,7 @@ def clustering(num_clusters, des_matrix):
     kmeans=KMeans(n_clusters=num_clusters,random_state=33)
     kmeans.fit(des_matrix)
     centres = kmeans.cluster_centers_ 
-    
+
     #return centres,des_list
 
 
@@ -99,3 +106,11 @@ def showImg(target_img_path,index,dataset_paths):
 if __name__ == '__main__':
     files = get_file_list("/mnt/d/BaiduNetdiskDownload/")
     print(len(files))
+    #print(files)
+    img_files = load_file_names("/mnt/d/BaiduNetdiskDownload/")
+    print(len(img_files))
+    #print(img_files)
+    matrix, l = get_sift(img_files)
+    print(len(l))
+
+    clustering(1000, matrix)

@@ -207,12 +207,13 @@ class RobertLogMSSQL:
         cur = self.__GetConnect()
         cur.execute(sqlcmd)
 
-        #streamWriter.writerow([d[0] for d in cur.description])
-        streamWriter.writerows(cur.fetchall())
+        streamWriter.writerow([d[0] for d in cur.description])
+        data = cur.fetchall()
+        streamWriter.writerows(data)
         self.conn.close()
 
-    def DumpTableToStream(self, table, streamWriter):
-        cmd  = "SELECT * FROM dbo.[{0}]".format(table)
+    def DumpTableToStream(self, table, streamWriter, orderby_column):
+        cmd  = " SELECT * FROM dbo.[{0}] ORDER BY {1}".format(table, orderby_column)
         self.DumpResultToStream(cmd, streamWriter)
 
     def ImportListToDB(self, table, headers, csv_data):
