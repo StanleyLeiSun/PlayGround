@@ -71,7 +71,7 @@ def TestImageList():
 
 
 #TestReport()
-#TestActions()
+TestActions()
 #TestDelete()
 #TestImageList()
 

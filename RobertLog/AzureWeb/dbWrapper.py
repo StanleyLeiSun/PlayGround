@@ -5,9 +5,13 @@ https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-micro
 
 """
 import datetime
+import json
 import pyodbc
 import pymysql
+import sqlite3
 from entityClasses import Message, Action
+from azure.cosmosdb.table.tableservice import TableService
+from azure.cosmosdb.table.models import Entity
 
 class RobertLogMSSQL:
     """Wrapper of the MSSQL"""
@@ -17,9 +21,15 @@ class RobertLogMSSQL:
         self.username = user
         self.password = pwd
         self.driver= driver
+        self.save_to_azuretable = False
         self.isMSSQL = driver == '{SQL Server}'
-        self.driver= '{ODBC Driver 17 for SQL Server}'
+        self.isSQLite3 = driver == 'SQLite3'
+        #self.driver= '{ODBC Driver 17 for SQL Server}'
         #self.driver= '{SQL Server Native Client 11.0}'
+        self.isSQLite3 = True
+
+        if self.save_to_azuretable:
+            azuretable_service = TableService(account_name='myaccount', account_key='mykey')
 
     def __GetConnect(self):
         if self.isMSSQL:
@@ -28,6 +38,8 @@ class RobertLogMSSQL:
             ';DATABASE='+self.database+\
             ';UID='+self.username+\
             ';PWD='+ self.password)
+        elif self.isSQLite3:
+            self.conn = sqlite3.connect('..\\database\\robertlogdb.db')
         else:
             self.conn = pymysql.Connect(
                 host=self.server,
@@ -65,12 +77,29 @@ class RobertLogMSSQL:
            "('%s',N'%s','%s','%s', '%s')" % (msg.TimeStamp, msg.RawContent, msg.FromUser, msg.ToUser, msg.MsgType)
         self.__ExecNonQuery(cmd)
 
+        if self.save_to_azuretable:
+            json_string = json.dump({'time','content','from','to','type'},\
+                msg.TimeStamp, msg.RawContent, msg.FromUser, msg.ToUser, msg.MsgType)
+            task = Entity()
+            task.PartitionKey = 'partition'
+            task.RowKey = ''
+            task.description = json_string
+            azuretable_service.insert_entity('robertlograwmsg', task)
+
     def AppendAction(self, act):
         """log a user action into DB for futhure query"""
         cmdstr = "INSERT INTO dbo.Actions (CreateTime, ActionType, FromUser, ActionDetail, ActionStatus) VALUES "+\
            "('%s','%s','%s',N'%s', '%s')" % (act.TimeStamp, act.Type, act.FromUser, act.Detail, act.Status)
         #print(cmdstr)
         self.__ExecNonQuery(cmdstr)
+
+        if self.save_to_azuretable:
+            json_string = json.dump({'time', 'type', 'from', 'detail', 'status'},act.TimeStamp, act.Type, act.FromUser, act.Detail, act.Status)
+            task = Entity()
+            task.PartitionKey = 'partition'
+            task.RowKey = ''
+            task.description = json_string
+            azuretable_service.insert_entity('robertlogaction', task)
 
     def GetActionReports(self, num = 30):
         """List all the last # actions"""
