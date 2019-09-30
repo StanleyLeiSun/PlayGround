@@ -17,7 +17,7 @@ actCenter = ActionCenter()
 #ms = RobertLogMSSQL(host=config.db_server,user=config.db_user,pwd=config.db_pwd,db="robertlog")
 
 str_feedcmd_xml =  "<xml><ToUserName><![CDATA[fromUser]]></ToUserName>" +\
-        "<FromUserName><![CDATA[toUser]]></FromUserName>" +\
+        "<FromUserName><![CDATA[ocgSc0eChTDEABMBHJ_urv4lMeCE]]></FromUserName>" +\
         "<CreateTime>123445</CreateTime>" +\
         "<MsgType><![CDATA[text]]></MsgType>"+\
         "<MsgId>13579</MsgId>"+\
