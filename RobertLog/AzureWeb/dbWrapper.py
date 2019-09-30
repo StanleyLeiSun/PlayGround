@@ -22,7 +22,7 @@ class RobertLogMSSQL:
         self.username = user
         self.password = pwd
         self.driver= driver
-        self.save_to_azuretable = False
+        self.save_to_azuretable = True
         self.isMSSQL = driver == '{SQL Server}'
         self.isSQLite3 = driver == 'SQLite3'
         #self.driver= '{ODBC Driver 17 for SQL Server}'
@@ -31,7 +31,8 @@ class RobertLogMSSQL:
         self.isMSSQL = False
 
         if self.save_to_azuretable:
-            azuretable_service = TableService(account_name='myaccount', account_key='mykey')
+            self.azuretable_service = TableService( \
+            account_name=config.azuretable_account, account_key=config.azuretable_key)
 
     def __GetConnect(self):
         if self.isMSSQL:
@@ -83,13 +84,13 @@ class RobertLogMSSQL:
         self.__ExecNonQuery(cmd)
 
         if self.save_to_azuretable:
-            json_string = json.dump({'time','content','from','to','type'},\
-                msg.TimeStamp, msg.RawContent, msg.FromUser, msg.ToUser, msg.MsgType)
+            json_string = json.dumps([{'time' : msg.TimeStamp.strftime("%Y-%m-%d %H:%M:%S"), \
+            'content' : msg.RawContent,'from' : msg.FromUser,'to' : msg.ToUser,'type' : msg.MsgType}])
             task = Entity()
             task.PartitionKey = 'partition'
-            task.RowKey = ''
+            task.RowKey = msg.TimeStamp.strftime("%Y%m%d%H%M%S")
             task.description = json_string
-            azuretable_service.insert_entity('robertlograwmsg', task)
+            self.azuretable_service.insert_entity('robertlograwmsg', task)
 
     def AppendAction(self, act):
         """log a user action into DB for futhure query"""
@@ -99,12 +100,13 @@ class RobertLogMSSQL:
         self.__ExecNonQuery(cmdstr)
 
         if self.save_to_azuretable:
-            json_string = json.dump({'time', 'type', 'from', 'detail', 'status'},act.TimeStamp, act.Type, act.FromUser, act.Detail, act.Status)
+            json_string = json.dumps([{'time' : act.TimeStamp.strftime("%Y-%m-%d %H:%M:%S"),\
+             'type' : act.Type, 'from' : act.FromUser, 'detail' : act.Detail, 'status' : act.Status}])
             task = Entity()
             task.PartitionKey = 'partition'
-            task.RowKey = ''
+            task.RowKey = act.TimeStamp.strftime("%Y%m%d%H%M%S")
             task.description = json_string
-            azuretable_service.insert_entity('robertlogaction', task)
+            self.azuretable_service.insert_entity('robertlogaction', task)
 
     def GetActionReports(self, num = 30):
         """List all the last # actions"""

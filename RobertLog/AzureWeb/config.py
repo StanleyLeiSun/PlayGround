@@ -15,6 +15,8 @@ db_server = xml.find("DBServer").text
 db_user = xml.find("DBUSER").text
 ImageRoot = "c:\\image\\"
 sqlite_db = xml.find("SQLITEDB").text
+azuretable_account = xml.find("AzureTableAccount").text
+azuretable_key = xml.find("AzureTableKey").text
 
 birthday = datetime.date(2017, 11, 8)
 
