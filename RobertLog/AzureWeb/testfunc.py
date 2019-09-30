@@ -12,7 +12,7 @@ import datetime
 import entityClasses
 
 
-#actCenter = ActionCenter()
+actCenter = ActionCenter()
 
 #ms = RobertLogMSSQL(host=config.db_server,user=config.db_user,pwd=config.db_pwd,db="robertlog")
 
@@ -20,6 +20,7 @@ str_feedcmd_xml =  "<xml><ToUserName><![CDATA[fromUser]]></ToUserName>" +\
         "<FromUserName><![CDATA[toUser]]></FromUserName>" +\
         "<CreateTime>123445</CreateTime>" +\
         "<MsgType><![CDATA[text]]></MsgType>"+\
+        "<MsgId>13579</MsgId>"+\
         "<Content><![CDATA[两点半喂了200]]></Content>"+\
         "</xml>"
 
