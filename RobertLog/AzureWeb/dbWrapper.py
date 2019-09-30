@@ -85,12 +85,22 @@ class RobertLogMSSQL:
 
         if self.save_to_azuretable:
             json_string = json.dumps([{'time' : msg.TimeStamp.strftime("%Y-%m-%d %H:%M:%S"), \
-            'content' : msg.RawContent,'from' : msg.FromUser,'to' : msg.ToUser,'type' : msg.MsgType}])
+            'content' : msg.RawContent,'from' : msg.FromUser,'to' : msg.ToUser,'type' : msg.MsgType}], ensure_ascii=False)
             task = Entity()
-            task.PartitionKey = 'partition'
+            task.PartitionKey = msg.TimeStamp.strftime("%Y%m")
             task.RowKey = msg.TimeStamp.strftime("%Y%m%d%H%M%S")
             task.description = json_string
-            self.azuretable_service.insert_entity('robertlograwmsg', task)
+            iRetry = 1
+            iRetryMax = 10
+            while iRetry <= iRetryMax:#retry for 10 times
+                try:
+                    self.azuretable_service.insert_entity('robertlograwmsg', task)
+                except:
+                    task.RowKey =  (msg.TimeStamp + datetime.timedelta(seconds=iRetry)).strftime("%Y%m%d%H%M%S")
+                    iRetry += 1
+                else:
+                    iRetry = iRetryMax + 1
+            
 
     def AppendAction(self, act):
         """log a user action into DB for futhure query"""
@@ -101,12 +111,21 @@ class RobertLogMSSQL:
 
         if self.save_to_azuretable:
             json_string = json.dumps([{'time' : act.TimeStamp.strftime("%Y-%m-%d %H:%M:%S"),\
-             'type' : act.Type, 'from' : act.FromUser, 'detail' : act.Detail, 'status' : act.Status}])
+             'type' : act.Type, 'from' : act.FromUser, 'detail' : act.Detail, 'status' : act.Status}], ensure_ascii=False)
             task = Entity()
-            task.PartitionKey = 'partition'
+            task.PartitionKey = act.TimeStamp.strftime("%Y%m")
             task.RowKey = act.TimeStamp.strftime("%Y%m%d%H%M%S")
             task.description = json_string
-            self.azuretable_service.insert_entity('robertlogaction', task)
+            iRetry = 1
+            while iRetry <= 10:#retry for 10 times
+                try:
+                    self.azuretable_service.insert_entity('robertlogaction', task)
+                except:
+                    task.RowKey =  (act.TimeStamp + datetime.timedelta(seconds=iRetry)).strftime("%Y%m%d%H%M%S")
+                    iRetry += 1
+                else:
+                    iRetry = 11
+            
 
     def GetActionReports(self, num = 30):
         """List all the last # actions"""
