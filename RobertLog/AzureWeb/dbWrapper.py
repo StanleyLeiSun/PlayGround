@@ -12,6 +12,7 @@ import sqlite3
 from entityClasses import Message, Action
 from azure.cosmosdb.table.tableservice import TableService
 from azure.cosmosdb.table.models import Entity
+import config
 
 class RobertLogMSSQL:
     """Wrapper of the MSSQL"""
@@ -40,7 +41,8 @@ class RobertLogMSSQL:
             ';UID='+self.username+\
             ';PWD='+ self.password)
         elif self.isSQLite3:
-            self.conn = sqlite3.connect('..\\database\\robertlogdb.db')
+            self.conn = sqlite3.connect(config.sqlite_db)
+            self.conn.row_factory = sqlite3.Row
         else:
             self.conn = pymysql.Connect(
                 host=self.server,
@@ -56,9 +58,9 @@ class RobertLogMSSQL:
     def __ExecQuery(self,sql):
         """Execute a SQL query"""
         if not self.isMSSQL:
-            sql = sql.replace("dbo.", "")
+            sql = sql.replace("dbo.", "").replace("N'","'")
         cur = self.__GetConnect()
-        print(sql)
+        #print(sql)
         cur.execute(sql)
         resList = cur.fetchall()
         self.conn.close()
@@ -67,9 +69,9 @@ class RobertLogMSSQL:
     def __ExecNonQuery(self,sql):
         """Execute a SQL statement"""
         if not self.isMSSQL:
-            sql = sql.replace("dbo.", "")
+            sql = sql.replace("dbo.", "").replace("N'","'")
         cur = self.__GetConnect()
-        print(sql)
+        #print(sql)
         cur.execute(sql)
         self.conn.commit()
         self.conn.close()
@@ -106,7 +108,7 @@ class RobertLogMSSQL:
 
     def GetActionReports(self, num = 30):
         """List all the last # actions"""
-        cmd = "SELECT TOP %s * FROM dbo.Actions ORDER BY CreateTime DESC" % num
+        cmd = self.GenSelectTopSQL("FROM dbo.Actions ORDER BY CreateTime DESC", num)
         actList = self.__ExecQuery(cmd)
         retList = []
         for a in actList:
@@ -117,7 +119,7 @@ class RobertLogMSSQL:
 
     def GetActionFromUser(self, fromUser, num = 1):
         """List all the last # actions"""
-        cmd = "SELECT TOP {0} * FROM dbo.Actions WHERE FromUser = N'{1}' ORDER BY CreateTime DESC".format(num, fromUser)
+        cmd = self.GenSelectTopSQL("FROM dbo.Actions WHERE FromUser = N'{0}' ORDER BY CreateTime DESC".format(fromUser), num)
         actList = self.__ExecQuery(cmd)
         retList = []
         for a in actList:
@@ -141,7 +143,7 @@ class RobertLogMSSQL:
 
     def GetMsgFromUser(self, fromUser, num = 1):
         """List all the last # message"""
-        cmd = "select top {0} * from dbo.RawMsg where FromUser = N'{1}' ORDER BY TimeStamp DESC".format(num, fromUser)
+        cmd = self.GenSelectTopSQL("from dbo.RawMsg where FromUser = N'{0}' ORDER BY TimeStamp DESC".format(fromUser), num)
         msgList = self.__ExecQuery(cmd)
         retList = []
         for m in msgList:
@@ -160,7 +162,7 @@ class RobertLogMSSQL:
 
     def GetLastAction(self, act_name):
         """List the last AD actions"""
-        cmd = "SELECT TOP 1 * FROM dbo.Actions Where ActionType = '%s' AND ActionStatus = 'Active' ORDER BY CreateTime DESC" % act_name
+        cmd =  self.GenSelectTopSQL("FROM dbo.Actions Where ActionType = '%s' AND ActionStatus = 'Active' ORDER BY CreateTime DESC" % act_name, 1)
         actList = self.__ExecQuery(cmd)
 
         if len(actList) <= 0:
@@ -173,7 +175,7 @@ class RobertLogMSSQL:
 
     def GetActionList(self, act_name, num):
         """List the last AD actions"""
-        cmd = "SELECT TOP {0} * FROM dbo.Actions Where ActionType = '{1}' ORDER BY CreateTime DESC".format(num, act_name)
+        cmd = self.GenSelectTopSQL("FROM dbo.Actions Where ActionType = '{0}' ORDER BY CreateTime DESC".format(act_name), num)
         actList = self.__ExecQuery(cmd)
 
         if len(actList) <= 0:
@@ -187,7 +189,7 @@ class RobertLogMSSQL:
     
     def GetSleepStatus(self):
         """List the last AD actions"""
-        cmd = "SELECT TOP 1 * FROM dbo.Actions Where ActionStatus = 'Active' AND ( ActionType = 'Sleep' OR ActionType = 'WakeUp') ORDER BY CreateTime DESC"
+        cmd = self.GenSelectTopSQL("FROM dbo.Actions Where ActionStatus = 'Active' AND ( ActionType = 'Sleep' OR ActionType = 'WakeUp') ORDER BY CreateTime DESC", 1)
 
         actList = self.__ExecQuery(cmd)
 
@@ -199,31 +201,38 @@ class RobertLogMSSQL:
 
         return act
 
+    def getdbattr(self, v, attribute_name):
+        if self.isMSSQL:
+            return v.getattr(attribute_name)
+        else:
+            return v[attribute_name]
+
     def LoadActionFromDB(self, a):
         act = Action()
-        act.FromUser = a.FromUser.strip()
-        act.Status = a.ActionStatus.strip()
-        act.Type = a.ActionType.strip()
-        act.Detail = a.ActionDetail.strip()
-        pos = a.CreateTime.index('.')
-        timestr = a.CreateTime[:pos].strip()
+        act.FromUser = self.getdbattr(a, "FromUser").strip()
+        act.Status = self.getdbattr(a, "ActionStatus").strip()
+        act.Type = self.getdbattr(a, "ActionType").strip()
+        act.Detail = self.getdbattr(a, "ActionDetail").strip()
+        ct = self.getdbattr(a, "CreateTime")
+        pos = ct.index('.')
+        timestr = ct[:pos].strip()
         act.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
-        act.ActionID = a.ActionID
+        act.ActionID = self.getdbattr(a, "ActionID")
         return act
 
     def LoadMsgFromDB(self, m):
         msg = Message()
-        msg.FromUser = m.FromUser.strip()
-        msg.ToUser = m.ToUser.strip()
-        msg.RawContent = m.RawMsg.strip()
-        pos = m.TimeStamp.index('.')
-        timestr = m.TimeStamp[:pos].strip()
+        msg.FromUser = self.getdbattr(m, "FromUser").strip()
+        msg.ToUser = self.getdbattr(m, "ToUser").strip()
+        msg.RawContent = self.getdbattr(m, "RawMsg").strip()
+        pos = self.getdbattr(m, "TimeStamp").index('.')
+        timestr = self.getdbattr(m, "TimeStamp")[:pos].strip()
         msg.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
         return msg
 
     def GetLastNumMsg(self, num = 20):
         """List all the last # actions"""
-        cmd = "select top %s * from dbo.RawMsg" % num 
+        cmd = self.GenSelectTopSQL("from dbo.RawMsg",num)
         cmd += " where RawMsg NOT like N'%调试%' ORDER BY TimeStamp DESC"
         actList = self.__ExecQuery(cmd)
         if len(actList) <= 0:
@@ -261,3 +270,9 @@ class RobertLogMSSQL:
 
         self.conn.commit()
         self.conn.close()
+
+    def GenSelectTopSQL(self, sql_cmd, num):
+        if self.isMSSQL:
+            return "SELECT TOP {0} * {1}".format(num, sql_cmd)
+        else:
+            return "SELECT * {0} LIMIT 0,{1}".format(sql_cmd, num)

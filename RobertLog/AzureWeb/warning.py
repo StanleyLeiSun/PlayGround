@@ -2,15 +2,28 @@
 import dbWrapper
 import entityClasses
 import cn_utility
+from entityClasses import Message, Action
 
 def GetWarnings(rlSQL):
     return WarningForADorCa(rlSQL)
 
 def WarningForADorCa(rlSQL):
+ 
+    nact = Action()
+    nact.TimeStamp = cn_utility.GetNowForUTC8()
     ad_action = rlSQL.GetLastAD()
+    if ad_action is None:
+        ad_action = nact
+    
     ca_action = rlSQL.GetLastCa()
+    if ca_action is None:
+        ca_action = nact
+    
     pill_action = rlSQL.GetLastPill()
-    n = cn_utility.GetNowForUTC8()
+    if pill_action is None:
+        pill_action = nact
+
+    n = cn_utility.GetNowForUTC8()   
     hour = n.hour
 
     ad_hour_delta = (n - ad_action.TimeStamp).total_seconds() / 3600

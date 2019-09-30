@@ -14,6 +14,7 @@ weichat_token = xml.find("WeiChatToken").text
 db_server = xml.find("DBServer").text
 db_user = xml.find("DBUSER").text
 ImageRoot = "c:\\image\\"
+sqlite_db = xml.find("SQLITEDB").text
 
 birthday = datetime.date(2017, 11, 8)
 
