@@ -225,7 +225,7 @@ class ActionCenter:
             cur = datetime.datetime.utcnow() + datetime.timedelta(days=2)
             actions = self.rlSQL.GetActionReports(30)
             actions.sort(key=lambda a:a.TimeStamp)
-            lastmilk = sleepstatus = None
+            lastmilk = sleepstatus = Action()
             for a in actions:
                 if a.Status == Action.Deleted:
                     continue
@@ -251,10 +251,13 @@ class ActionCenter:
             if sleepstatus.Type == ActionType.FallSleep:
                 #is sleeping
                 response += (sleepstatus.GenBrief() + "\n")
-            else : 
+            elif sleepstatus.Type == ActionType.WakeUp:
                 delta_minutes = int((tnow - sleepstatus.TimeStamp).total_seconds()/60)
                 if delta_minutes > 240:
                     response += "\n醒了{0}小时{1}分钟了，该睡了".format(int(delta_minutes/60), delta_minutes%60) 
+            else:
+                #don't find last status skip
+                pass
             
             #disable milk alert for now
             #delta_minutes = int((tnow - lastmilk.TimeStamp).total_seconds()/60)

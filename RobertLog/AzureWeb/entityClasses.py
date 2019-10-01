@@ -83,11 +83,11 @@ class Action:
     Deleted = "Deleted"
 
     def __init__(self, msg = None):
+        self.Type = "UnKnown"
         if msg :
             self.message = msg
             self.FromUser =msg.FromUser
             self.Status = "Active"
-            self.Type = "UnKnown"
             self.Detail = msg.RawContent
             self.TimeStamp = msg.TimeStamp
 
