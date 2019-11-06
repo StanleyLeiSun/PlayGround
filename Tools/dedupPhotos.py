@@ -110,19 +110,26 @@ if __name__ == '__main__':
     img_path = "/Users/stansun/Pictures/index/2017/小萝卜/"
     files = get_file_list(img_path)
     print("Found %d files totally."%len(files))
-    #print(files)
+
     img_files = load_file_names(img_path)
-    print("Identified %d images."%len(img_files))
-    #print(img_files)
-    matrix, l = get_sift(img_files)
-    #print("Going to save %d matrix."%len(l))
+    img_count = len(img_files)
+    print("Identified %d images."%img_count)
 
-    with open(img_path + 'img_features.data', 'wb') as f:  
-        feature_string = pickle.dump(matrix, f) 
+    idx = 0
+    while (idx < img_count):
+        first_idx = idx * 1000
+        last_idx = (idx + 1) * 1000
+        if last_idx >= img_count:
+            last_idx = img_count - 1
+        matrix, l = get_sift(img_files[first_idx:last_idx])
+        print("Going to save matrix start from%d"%first_idx)
 
-    c = clustering(100, matrix)
-    with open(img_path + 'img_cluster.data', 'wb') as f:  
-        matrix_string = pickle.dump(c, f) 
+        with open(img_path + 'img_features_%d.data'%first_idx, 'wb') as f:  
+            feature_string = pickle.dump(matrix, f) 
+
+    #c = clustering(100, matrix)
+    #with open(img_path + 'img_cluster.data', 'wb') as f:  
+    #    matrix_string = pickle.dump(c, f) 
 
     #with open(fn, 'r') as f:  
     #    summer = pickle.load(f) 
