@@ -111,7 +111,7 @@ def showImg(target_img_path,index,dataset_paths):
 
 
 if __name__ == '__main__':
-    img_path = "/Users/stansun/Pictures/index/2017/"
+    img_path = "/mnt/d/pic/index/2019/"
     files = get_file_list(img_path)
     print("Found %d files totally."%len(files))
 
@@ -121,7 +121,7 @@ if __name__ == '__main__':
 
     idx = 0
     while (idx < img_count):
-        last_idx = idx + 50
+        last_idx = idx + 1000
         if last_idx >= img_count:
             last_idx = img_count - 1
         matrix, l = get_sift(img_files[idx:last_idx])
