@@ -2,7 +2,7 @@
 #For web service
 
 #run docker
-docker run -it -p :80:80 -v /conf:/conf stansun/radishsvc /bin/bash
+sudo docker run -it -p :80:80 -v /conf:/conf stansun/radishsvc /bin/bash
 
 #then start uwsgi
 
