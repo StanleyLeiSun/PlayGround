@@ -5,7 +5,6 @@
 docker run -it -p :80:80 -v /conf:/conf stansun/radishsvc /bin/bash
 
 #then start uwsgi
-uwsgi --ini /home/PlayGround/RobertLog/docker/radish_uwsgi.ini
 
 #Sync code...
 docker attach
@@ -52,4 +51,4 @@ killall -s HUP /usr/local/bin/uwsgi
 
 docker rm $(docker ps -a -q)
 
-docker commit -a "author" -m "commit message"  容器id namespace/name:tag
+docker commit -a "stansun" -m "commit message"  容器id namespace/name:tag
