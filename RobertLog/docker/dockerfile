@@ -6,7 +6,7 @@ FROM ubuntu:latest
 # owner
 MAINTAINER Stanley.Lei.Sun@gmail.com
 
-# Operation
+# Operation, runs during create the image
 RUN apt-get -yqq update && apt-get install -yqq python3 \
     python3-pip \
     unixodbc-dev \
@@ -39,7 +39,7 @@ ENV HOSTNAME stansunradish
 
 EXPOSE 80
 
-# start up cmd
+# start up cmd which could be overwrite when create an instance.
 WORKDIR /home/PlayGround
 CMD git pull && uwsgi --ini /home/PlayGround/RobertLog/docker/radish_uwsgi.ini
 #CMD ["/usr/bin/supervisord"]

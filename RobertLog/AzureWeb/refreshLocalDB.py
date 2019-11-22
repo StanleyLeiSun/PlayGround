@@ -15,12 +15,15 @@ def enumPartition(partition):
     actions = azuretable_service.query_entities('robertlogaction', filter="PartitionKey eq '%s'"%partition, select='description')
     for act in actions:
         rlSQL.JsonAction2DB(act.description)
-   
-if __name__ == '__main__':
-    
+
+def refreshDB():
     now = cn_utility.GetNowForUTC8()
     partition = now.strftime("%Y%m")
     enumPartition(partition)
 
     partition = (now.replace(day=1)  - datetime.timedelta(days=1)).strftime("%Y%m")
     enumPartition(partition)
+
+if __name__ == '__main__':
+    refreshDB()
+    

@@ -8,6 +8,7 @@ import reporting
 import logging
 import logging.config
 import time
+import refreshLocalDB
 
 app = Flask(__name__)
 weixin = WeixinInterface()
@@ -43,5 +44,6 @@ def get_image():
 
 if __name__ == '__main__':
     #reporting.chart_for_last_days(90)
+    refreshLocalDB.refreshDB()
     app.run(host="0.0.0.0", port=80)
     pass
