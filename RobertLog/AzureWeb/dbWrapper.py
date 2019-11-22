@@ -125,7 +125,13 @@ class RobertLogMSSQL:
                     iRetry += 1
                 else:
                     iRetry = 11
-            
+    
+    def JsonAction2DB(self, msg):
+
+        act = json.loads(msg)
+        cmdstr = "INSERT INTO dbo.Actions (CreateTime, ActionType, FromUser, ActionDetail, ActionStatus) VALUES "+\
+           "('%s','%s','%s',N'%s', '%s')" % (act[0]['time'], act[0]['type'], act[0]['from'], act[0]['detail'], act[0]['status'])
+        self.__ExecNonQuery(cmdstr)
 
     def GetActionReports(self, num = 30):
         """List all the last # actions"""
