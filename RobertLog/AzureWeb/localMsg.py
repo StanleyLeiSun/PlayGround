@@ -30,4 +30,4 @@ def TestReport(msg):
     str_report = str_cmdtemplate_xml.format("备注 " + msg)
     print(actCenter.Receive(str_report))
 
-TestReport("萝卜在幼儿园是个小暖男，楼上装修突然有很大噪音后就跑到老师那里拍拍老师然后说：萌萌别怕。")
+TestReport("萝卜很喜欢吃面食，尤其是各种饼。奶奶送萝卜去幼儿园，萝卜哭着不让奶奶走，老师说今天早餐吃饼，马上不哭进来换鞋，换鞋了时候还问饼在哪儿呢")

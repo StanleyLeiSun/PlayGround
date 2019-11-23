@@ -6,7 +6,7 @@ https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-micro
 """
 import datetime
 import json
-import pyodbc
+#import pyodbc
 import pymysql
 import sqlite3
 from entityClasses import Message, Action
@@ -27,8 +27,8 @@ class RobertLogMSSQL:
         self.isSQLite3 = driver == 'SQLite3'
         #self.driver= '{ODBC Driver 17 for SQL Server}'
         #self.driver= '{SQL Server Native Client 11.0}'
-        self.isSQLite3 = False
-        self.isMSSQL = True
+        self.isSQLite3 = True
+        self.isMSSQL = False
 
         if self.save_to_azuretable:
             self.azuretable_service = TableService( \
