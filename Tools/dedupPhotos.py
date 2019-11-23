@@ -4,6 +4,8 @@ import cv2
 import numpy as np
 from sklearn.cluster  import KMeans
 from matplotlib import pyplot as plt
+import pickle  
+import gc
 
 #load image file names
 
@@ -37,20 +39,25 @@ def load_file_names(img_root):
 
 def get_sift(images):
     
-    sift_det=cv2.xfeatures2d.SIFT_create(1000)
+    sift_det=cv2.xfeatures2d.SIFT_create(500)
     des_list=[]
+    total = len(images)
+    i = 1
     des_matrix=np.zeros((1,128))
     for path in images:
-        print(path)
+        #print("Going to process:" + path, end='\r')
         img=cv2.imread(path)
         gray=cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
         kp,des=sift_det.detectAndCompute(gray,None)
-        print(len(des))
+        print("{2:.2f}% Done. Img: {0} has {1} features.".format( path, len(des), i*100/total), end='\r')
+        i = i + 1
         if len(des) > 0:
                 des_matrix=np.row_stack((des_matrix,des))
         des_list.append(des)
+        gc.collect()
     
     des_matrix=des_matrix[1:,:]   # the des matrix of sift
+    print("")
     return des_matrix, des_list
 
 #cluster and caculate the center for feature
@@ -61,7 +68,7 @@ def clustering(num_clusters, des_matrix):
     kmeans.fit(des_matrix)
     centres = kmeans.cluster_centers_ 
 
-    #return centres,des_list
+    return centres
 
 
 #convert SIFT to feature
@@ -104,13 +111,30 @@ def showImg(target_img_path,index,dataset_paths):
 
 
 if __name__ == '__main__':
-    files = get_file_list("/mnt/d/BaiduNetdiskDownload/")
-    print(len(files))
-    #print(files)
-    img_files = load_file_names("/mnt/d/BaiduNetdiskDownload/")
-    print(len(img_files))
-    #print(img_files)
-    matrix, l = get_sift(img_files)
-    print(len(l))
+    img_path = "/mnt/d/pic/index/2019/"
+    files = get_file_list(img_path)
+    print("Found %d files totally."%len(files))
 
-    clustering(1000, matrix)
+    img_files = load_file_names(img_path)
+    img_count = len(img_files)
+    print("Identified %d images."%img_count)
+
+    idx = 0
+    while (idx < img_count):
+        last_idx = idx + 1000
+        if last_idx >= img_count:
+            last_idx = img_count - 1
+        matrix, l = get_sift(img_files[idx:last_idx])
+        print("Going to save matrix start from:%d"%idx)
+
+        with open(img_path + 'img_features_%d.data'%idx, 'wb') as f:  
+            feature_string = pickle.dump(matrix, f) 
+        idx = last_idx + 1
+
+    #c = clustering(100, matrix)
+    #with open(img_path + 'img_cluster.data', 'wb') as f:  
+    #    matrix_string = pickle.dump(c, f) 
+
+    #with open(fn, 'r') as f:  
+    #    summer = pickle.load(f) 
+    print("We're done. Bye.")

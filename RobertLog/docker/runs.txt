@@ -1,11 +1,14 @@
 
+#first thing first
+#enable as auto start
+sudo systemctl enable docker
+
 #For web service
 
 #run docker
-docker run -it -p :80:80 -v /conf:/conf stansun/radish /bin/bash
+sudo docker run -it -p :80:80 -v /conf:/conf --restart=always stansun/radishsvc /bin/bash
 
 #then start uwsgi
-uwsgi --ini /home/PlayGround/RobertLog/docker/radish_uwsgi.ini
 
 #Sync code...
 docker attach
@@ -21,6 +24,8 @@ docker run --name radishdb -e MYSQL_ROOT_PASSWORD=<pwd> -e MYSQL_DATABASE=radish
 sudo apt-get install mysql-client-core-5.7
 mysql -h127.0.0.1 -P3306 -uroot -p<pwd>
 
+#for ref
+sudo docker container update --restart=always container_name
 
 #Not used
 #nginx config
@@ -51,3 +56,5 @@ killall -s HUP /usr/local/bin/uwsgi
 
 
 docker rm $(docker ps -a -q)
+
+docker commit -a "stansun" -m "commit message"  容器id namespace/name:tag
