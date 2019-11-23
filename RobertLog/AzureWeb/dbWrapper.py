@@ -6,7 +6,7 @@ https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-micro
 """
 import datetime
 import json
-#import pyodbc
+import pyodbc
 import pymysql
 import sqlite3
 from entityClasses import Message, Action
@@ -27,8 +27,8 @@ class RobertLogMSSQL:
         self.isSQLite3 = driver == 'SQLite3'
         #self.driver= '{ODBC Driver 17 for SQL Server}'
         #self.driver= '{SQL Server Native Client 11.0}'
-        self.isSQLite3 = True
-        self.isMSSQL = False
+        self.isSQLite3 = False
+        self.isMSSQL = True
 
         if self.save_to_azuretable:
             self.azuretable_service = TableService( \
@@ -235,8 +235,12 @@ class RobertLogMSSQL:
         act.Type = self.getdbattr(a, "ActionType").strip()
         act.Detail = self.getdbattr(a, "ActionDetail").strip()
         ct = self.getdbattr(a, "CreateTime")
-        pos = ct.index('.')
-        timestr = ct[:pos].strip()
+        pos = ct.find('.')
+        if pos >= 0 :
+            timestr = ct[:pos].strip()
+        else :
+            timestr = ct.strip()
+
         act.TimeStamp = datetime.datetime.strptime(timestr, '%Y-%m-%d %H:%M:%S')
         act.ActionID = self.getdbattr(a, "ActionID")
         return act
