@@ -9,6 +9,7 @@ import logging
 import logging.config
 import time
 import refreshLocalDB
+import cn_utility
 
 app = Flask(__name__)
 weixin = WeixinInterface()
@@ -41,6 +42,13 @@ def get_image():
     name = flask.request.args.get('name')
     file_name = config.ImageRoot + name
     return flask.send_file(file_name, mimetype='image/jpeg')
+
+@app.route('/robert_story/<int:idx>', methods=['GET'])
+def get_image(idx = 0):
+    target_month = cn_utility.MoveMonthBy(idx)
+    #story line file name: prefix + year_month
+    file_name = config.StoryLineName + name
+    return flask.send_file(file_name, mimetype='text/html')
 
 if __name__ == '__main__':
     #reporting.chart_for_last_days(90)

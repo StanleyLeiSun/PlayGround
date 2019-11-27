@@ -227,3 +227,10 @@ def FormatStringToDateTime(rawstr):
         except ValueError:
             continue
         return GetNowForUTC8().replace(month = dtret.month, day = dtret.day, hour = dtret.hour, minute = dtret.minute)
+
+def MoveMonthBy(idx):  
+    month_cursor = GetNowForUTC8()
+    while idx > 0:
+        month_cursor = month_cursor.replace(day=1)  - datetime.timedelta(days=1)
+        idx -= 1
+    return month_cursor

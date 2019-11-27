@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Story Line for {{MONTH.strftime("%Y-%m")}} </title>
+</head>
+<body>
+Story Line for {{MONTH.strftime("%Y-%m")}} 
+<table border="1xp">
+    {% for a in ACTIONS %}
+        <tr>
+            <td>{{ a[0].time }}</td>
+            <td>{{ a[0].detail }}</td>
+            <td>{{ a[0].fromName }}</td>
+            <td>{{ a[0].status }}</td>
+        </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
