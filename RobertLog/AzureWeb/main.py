@@ -43,11 +43,12 @@ def get_image():
     file_name = config.ImageRoot + name
     return flask.send_file(file_name, mimetype='image/jpeg')
 
+@app.route('/robert_story/', methods=['GET'])
 @app.route('/robert_story/<int:idx>', methods=['GET'])
-def get_image(idx = 0):
+def get_storyline(idx = 0):
     target_month = cn_utility.MoveMonthBy(idx)
     #story line file name: prefix + year_month
-    file_name = config.StoryLineName + name
+    file_name = config.StoryLineName + target_month.strftime("%Y_%m")
     return flask.send_file(file_name, mimetype='text/html')
 
 if __name__ == '__main__':
