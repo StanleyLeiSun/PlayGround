@@ -51,8 +51,10 @@ def get_storyline(idx = 0):
     file_name = config.StoryLineName + target_month.strftime("%Y_%m")
     return flask.send_file(file_name, mimetype='text/html')
 
+#always run this?
+#refreshLocalDB.refreshDB()
+
 if __name__ == '__main__':
     #reporting.chart_for_last_days(90)
-    refreshLocalDB.refreshDB()
     app.run(host="0.0.0.0", port=80)
     pass
