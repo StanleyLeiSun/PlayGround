@@ -8,6 +8,8 @@ sudo systemctl enable docker
 #run docker
 sudo docker run -it -p :80:80 -v /conf:/conf --restart=always stansun/radishsvc /bin/bash
 
+sudo docker run -it -p :80:80 -v /conf:/conf --restart=always stansun/radishsvc uwsgi --ini /home/PlayGround/RobertLog/docker/radish_uwsgi.ini
+
 #then start uwsgi
 
 #Sync code...

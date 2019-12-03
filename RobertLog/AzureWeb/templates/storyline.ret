@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <title>Story Line for {{MONTH.strftime("%Y-%m")}} </title>
 </head>
-<body>
+<body style="font-size:48px"  width=80% style="font-size:44px">
 Story Line for {{MONTH.strftime("%Y-%m")}} 
 <table border="1xp">
     {% for a in ACTIONS %}
         <tr>
             <td>{{ a[0].time }}</td>
             <td>{{ a[0].detail }}</td>
-            <td>{{ a[0].fromName }}</td>
-            <td>{{ a[0].status }}</td>
+            <td nowrap="nowrap">{{ a[0].fromName }}</td>
         </tr>
     {% endfor %}
 </table>
