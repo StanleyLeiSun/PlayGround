@@ -1,11 +1,12 @@
 import os
 
-import cv2
+#import cv2
 import numpy as np
 from sklearn.cluster  import KMeans
 from matplotlib import pyplot as plt
 import pickle  
 import gc
+import hashlib
 
 #load image file names
 
@@ -34,6 +35,28 @@ def load_file_names(img_root):
             img_names.append(name)
     
     return img_names
+
+
+def get_file_hash(file_path):
+    md5_1 = hashlib.md5()
+    with open(file_path,'rb') as f:
+        while 1:
+            data =f.read()
+            if data:
+                md5_1.update(data)
+            else:
+                break
+    ret = md5_1.hexdigest()
+    return ret
+
+
+#get file info {name, size, hash, full_path}
+def get_file_info(file_name):
+    [dirname,filename]=os.path.split(file_name)
+    file_size = os.path.getsize(file_name)
+    file_hash = get_file_hash(file_name)
+    return (filename,file_size, file_hash, file_name)
+
 
 #build image SIFT and file hash dataset
 
@@ -109,9 +132,28 @@ def showImg(target_img_path,index,dataset_paths):
         plt.subplot(4,3,i+4),plt.imshow(plt.imread(paths[i]))
     plt.show()
 
+def find_dup_hash(files):
+    file_dict = {}
+    dup_files = []
+    for f in files:
+        file_info = get_file_info(f)
+        exist = file_dict.get(file_info[2])
+
+        if (exist is None):
+            file_dict[file_info[2]] = file_info
+        else: #find a dup
+            if ((exist[0] == file_info[0]) is False):
+                print ("find dup:")
+                print (exist[3])
+                print (file_info[3])
+            
+            dup_files.append(file_info)
+    
+    return dup_files
+    
 
 if __name__ == '__main__':
-    img_path = "/mnt/d/pic/index/2019/"
+    img_path = "/mnt/d/pic/index/2017/"
     files = get_file_list(img_path)
     print("Found %d files totally."%len(files))
 
@@ -119,17 +161,25 @@ if __name__ == '__main__':
     img_count = len(img_files)
     print("Identified %d images."%img_count)
 
-    idx = 0
-    while (idx < img_count):
-        last_idx = idx + 1000
-        if last_idx >= img_count:
-            last_idx = img_count - 1
-        matrix, l = get_sift(img_files[idx:last_idx])
-        print("Going to save matrix start from:%d"%idx)
+    dup = find_dup_hash(files)
 
-        with open(img_path + 'img_features_%d.data'%idx, 'wb') as f:  
-            feature_string = pickle.dump(matrix, f) 
-        idx = last_idx + 1
+    sum_size = 0
+    for f in dup:
+        sum_size += f[1]
+    
+    print("Find {0} dup. Total Size: {1}MB".format(len(dup), (int)(sum_size/(1024*1024))))
+
+    # idx = 0
+    # while (idx < img_count):
+    #     last_idx = idx + 1000
+    #     if last_idx >= img_count:
+    #         last_idx = img_count - 1
+    #     matrix, l = get_sift(img_files[idx:last_idx])
+    #     print("Going to save matrix start from:%d"%idx)
+
+    #     with open(img_path + 'img_features_%d.data'%idx, 'wb') as f:  
+    #         feature_string = pickle.dump(matrix, f) 
+    #     idx = last_idx + 1
 
     #c = clustering(100, matrix)
     #with open(img_path + 'img_cluster.data', 'wb') as f:  
