@@ -50,7 +50,7 @@ class ActionCenter:
     PowderKeywords = {u"奶粉"}
     SnacksKeywords = [u"零食"]
     ViewNotesKeywords = {u"看随笔"}
-    MMFoodLogKeywords = {u"妈妈饮食"}
+    MMFoodLogKeywords = [u"妈妈饮食"]
     
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", \
