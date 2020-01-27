@@ -57,13 +57,14 @@ class ActionType:
     Pills = "Pills"
     Snacks = "Snacks"
     ViewNotes = "ViewNotes"
+    MMFoodLog = "MMFoodLog"
 
 
     actionNames = {UnKnown:"未知命令", Feed:"喂奶", Poop:"大便", AD:"吃了AD", Bath:"洗澡", \
     Reports:"汇报", WeeklyReports:"一周汇总", Notes:"备注", Remove:"撤销", FallSleep:"睡着了",\
     WakeUp:"睡觉", ListImage:"看照片", SleepTime:"睡着时间", DebugMsg:"DebugMsg", EatCa:"补钙",\
     RemoveSpecific:"删除特定", ComFood:"辅食", ErrStatus:"状态错误", ComFoodList:"辅食食谱", Pills:"吃药", \
-    Snacks:"零食", ViewNotes:"备注列表"}
+    Snacks:"零食", ViewNotes:"备注列表", MMFoodLog:"妈妈饮食记录"}
 
 class DailyReport:
     def __init__(self, milk_ml, milk_min, milk_num, poop, sleep, date):

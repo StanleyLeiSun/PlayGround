@@ -50,6 +50,7 @@ class ActionCenter:
     PowderKeywords = {u"奶粉"}
     SnacksKeywords = [u"零食"]
     ViewNotesKeywords = {u"看随笔"}
+    MMFoodLogKeywords = {u"妈妈饮食"}
     
 
     users_can_write = {"ocgSc0eChTDEABMBHJ_urv4lMeCE", "ocgSc0fzGH2Os2cmFYQ58zdDPCWw", \
@@ -107,6 +108,13 @@ class ActionCenter:
             if start < 0:
                 start =  msg.RawContent.find(self.ComFoodKeywords[1])
             detail = msg.RawContent[start+2:].strip()
+            action.Detail = detail
+        elif self.check_strList(msg.RawContent, self.MMFoodLogKeywords):
+            action.Type = ActionType.MMFoodLog
+            start =  msg.RawContent.find(self.MMFoodLogKeywords[0])
+            if start < 0:
+                start =  0
+            detail = msg.RawContent[start+4:].strip()
             action.Detail = detail
         elif self.check_strList(msg.RawContent, self.SnacksKeywords):
             action.Type = ActionType.Snacks
