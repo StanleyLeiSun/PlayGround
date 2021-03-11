@@ -31,7 +31,7 @@ def loan_cal(y_input, ir_input):
         invest_total += m_i #总投资池
         invest_total -= mp2 #投资金额每月减少，精细化运营，最后一天提取月供
         #print('等额本金第{}月：投资回报{}元，总资金池{}'.format( i+1, round(m_i, 2), round(invest_total, 2)))
-        #print('投资-利息{}'.format(m_i-m_r))
+        print('投资-利息{}'.format(m_i-m_r))
 
 
     print('等额本金共还款：{}元,其中利息：{}元。'.format(round(total, 2), round(total-p,2)))
@@ -51,7 +51,7 @@ def loan_cal(y_input, ir_input):
     # print('等额本息共还款:{}元'.format(round(mp1*m, 2)))
 
 loan_cal(10, 5.33)
-loan_cal(20, 5.33)
+#loan_cal(20, 5.33)
 
 loan_cal(10, 6.33)
 #loan_cal(15, 5.2)
