@@ -1,3 +1,4 @@
+#encoding: utf-8
 import math
 
 def loan_cal(y_input, ir_input):
@@ -11,7 +12,7 @@ def loan_cal(y_input, ir_input):
     
     mir = pow( (1+ir),1/12) -1 #月投资回报
 
-    print('\r\n贷款年份：{}，投资利息：{}，每月利息：{}'.format(y, round(ir*100,2), round(mir*100,2)))
+    print('\n贷款年份：{}，投资利息：{}，每月利息：{}'.format(y, round(ir*100,2), round(mir*100,2)))
 
     total = 0
     invest_total= p #假设不提前还款，投资金额
