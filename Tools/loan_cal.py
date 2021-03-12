@@ -1,3 +1,4 @@
+#encoding: utf-8
 import math
 
 def loan_cal(y_input, ir_input):
@@ -11,7 +12,7 @@ def loan_cal(y_input, ir_input):
     
     mir = pow( (1+ir),1/12) -1 #月投资回报
 
-    print('\r\n贷款年份：{}，投资利息：{}，每月利息：{}'.format(y, round(ir*100,2), round(mir*100,2)))
+    print('\n贷款年份：{}，投资利息：{}，每月利息：{}'.format(y, round(ir*100,2), round(mir*100,2)))
 
     mp1 = (p*mr*math.pow(1+mr, m))/(math.pow(1+mr, m)-1)  #等额本息月供，每月月供相等
 
