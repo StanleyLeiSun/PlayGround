@@ -1,14 +1,14 @@
 #encoding: utf-8
 import math
 
-def loan_cal(y_input, ir_input):
+def loan_cal(y_input, ir_input, loan_left = 280, month_pass = 0):
     y = y_input #贷款年份
     ir = ir_input/100 #年化投资回报
 
     r = 5.2/100 #年利率
     mr = r/12    #月利率
-    m = y*12      #贷款总月数
-    p = 280*10000  #贷款本金
+    m = y*12 - month_pass     #贷款总月数
+    p = loan_left*10000  #贷款本金
     
     mir = pow( (1+ir),1/12) -1 #月投资回报
 
@@ -29,6 +29,7 @@ def loan_cal(y_input, ir_input):
         mp2 = (p / m) + m_r  #等额本金月供，每月月供不相等
         total += mp2 
         #print('等额本金第{}个月:月供：{}元,利息：{}元，年累计：{}'.format(i+1, round(mp2, 2), round(m_r,2), round(year_r[year])))
+        print('{}'.format(round(mp2/10000, 2)))
 
         #invest_total -= mp2 #投资金额每月减少，提前留出月供
         m_i = invest_total * mir #当月投资回报
@@ -44,8 +45,8 @@ def loan_cal(y_input, ir_input):
 
     print('等额本金共还款：{}元,其中利息：{}元。'.format(round(total, 2), round(total-p,2)))
     print('月周期滚动,投资回报{}'.format( round(invest_total, 2)))
-    print('等额本息共还款:{}元, 月供:{}元'.format(round(mp1*m, 2),round(mp1, 2)))
-    print('等息-等金：累计{}'.format(round(delta_total,2)))
+    #print('等额本息共还款:{}元, 月供:{}元'.format(round(mp1*m, 2),round(mp1, 2)))
+    #print('等息-等金：累计{}'.format(round(delta_total,2)))
 
     invest_total=p
     for i in range(0, y):
@@ -53,11 +54,12 @@ def loan_cal(y_input, ir_input):
         m_i = invest_total * ir #当年投资回报
         invest_total += m_i #当年投资池
         #print('等额本金第{}年：投资回报{}元，总资金池{}'.format( i, round(m_i, 2), round(invest_total, 2)))
-    print('年周期滚动，投资回报{}'.format( round(invest_total, 2)))
+        #print('等额本金第{}年：年累计{}万元'.format( i,(round((year_r[i]+p/y)/10000, 2))))
+    #print('年周期滚动，投资回报{}'.format( round(invest_total, 2)))
 
     
 
-loan_cal(10, 5.33)
+loan_cal(20, 5.2, 247, 11)
 #loan_cal(20, 5.33)
 
 #loan_cal(10, 6.33)
