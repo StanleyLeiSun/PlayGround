@@ -28,6 +28,7 @@ def loan_cal(y_input, ir_input, loan_left = 280, month_pass = 0):
         
         mp2 = (p / m) + m_r  #等额本金月供，每月月供不相等
         total += mp2 
+
         #print('等额本金第{}个月:月供：{}元,利息：{}元，年累计：{}'.format(i+1, round(mp2, 2), round(m_r,2), round(year_r[year])))
         print('{}'.format(round(mp2/10000, 2)))
 
@@ -59,10 +60,11 @@ def loan_cal(y_input, ir_input, loan_left = 280, month_pass = 0):
 
     
 
-loan_cal(20, 5.2, 247, 11)
-#loan_cal(20, 5.33)
 
-#loan_cal(10, 6.33)
+loan_cal(20, 5.2, 247, 11)
+
+
+#loan_cal(10, 6)
 #loan_cal(15, 5.2)
 #loan_cal(15, 5.8)
 
