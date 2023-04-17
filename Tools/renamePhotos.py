@@ -3,6 +3,31 @@ import os
 import time
 import shutil
 
+def parseArgument():
+    if len(argv) < 4:
+        print("Usage: python renamePhotos.py fromDir toDir")
+        exit(1)
+    
+    if argv[1] !=  'merge' and argv[1] != 'merge-by-date':
+        print("Usage: python renamePhotos.py cmd<merge, merge-by-date> fromDir toDir")
+        exit(1)
+    
+    if not os.path.isdir(argv[2]):
+        print("Error source")
+        exit(1)
+
+    if not os.path.isdir(argv[3]):
+        print("Error target")
+        #exit(1)
+
+    params = {}
+    i = 1
+    for a in argv[1:] :
+        params[a] = i
+        i += 1
+
+    return argv[1], argv[2], argv[3],params
+
 def TimeStampToTime(timestamp):
     timeStruct = time.localtime(timestamp)
     return time.strftime('%Y-%m-%d',timeStruct)
@@ -20,28 +45,46 @@ def GetFileList(dir, fileList):
             GetFileList(newDir, fileList)  
     return fileList
 
+def copyFile(source, target):
+    [dirname,filename]=os.path.split(source)
+    if not os.path.exists(dirname):
+        os.path.os.mkdir(dirname)
+        shutil.copy(source, target)
+    
 def enumAndRename(fromDir, toDir):
     fileList = GetFileList(fromDir, [])
     for f in fileList:
         t = os.path.getmtime(f)
         strDate = TimeStampToTime(t)
         [dirname,filename]=os.path.split(f)
-        strNewDir = os.path.join(toDir, strDate)
-        if not os.path.exists(strNewDir):
-            os.path.os.mkdir(strNewDir)
         strNewName = os.path.join(toDir, strDate, strDate + '-' + filename)
-        print(strNewName)
-        shutil.copy(f, strNewName)
+        copyFile(f, strNewName)
+
+def enumAndCopy(fromDir, toDir, printOnly = True):
+    fileList = GetFileList(fromDir, [])
+    for f in fileList:
+        strNewPath = f.replace(fromDir, toDir)
+        if os.path.exists(strNewPath):
+            continue
+
+        if printOnly == True:
+            size = os.path.getsize(f)
+            print( "File:{f}, Size:{size}")
+            continue
+        #do the real copy
+        copyFile(f, strNewPath)
+        
+
 
 if __name__ == '__main__':
-    fromDir = argv[1]
-    toDir = argv[2]
-    print(fromDir)
-    print(toDir)
-    if not os.path.isdir(fromDir):
-        print("Error source")
+    cmd, fromDir ,toDir, params = parseArgument()
 
-    if not os.path.isdir(toDir):
-        print("Error target")
-    
-    enumAndRename(fromDir, toDir)
+    print("cmd:{cmd}, fromDir:{fromDir}, toDir:{toDir}")
+
+    if cmd == "merge":
+        printOnly = False
+        if params.has_key("printOnly"):
+            printOnly = True
+        enumAndCopy(fromDir, toDir,printOnly)
+    elif cmd == "merge-by-date":
+        enumAndRename(fromDir, toDir)
