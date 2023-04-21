@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from sys import argv
 import os
 import time
@@ -46,10 +47,11 @@ def GetFileList(dir, fileList):
     return fileList
 
 def copyFile(source, target):
-    [dirname,filename]=os.path.split(source)
+    [dirname,filename]=os.path.split(target)
     if not os.path.exists(dirname):
+        print("Make dir", dirname)
         os.path.os.mkdir(dirname)
-        shutil.copy(source, target)
+    shutil.copy(source, target)
     
 def enumAndRename(fromDir, toDir):
     fileList = GetFileList(fromDir, [])
@@ -69,7 +71,7 @@ def enumAndCopy(fromDir, toDir, printOnly = True):
 
         if printOnly == True:
             size = os.path.getsize(f)
-            print( "File:{f}, Size:{size}")
+            print( "File:{f}, Size:{size}",f, strNewPath, size)
             continue
         #do the real copy
         copyFile(f, strNewPath)
