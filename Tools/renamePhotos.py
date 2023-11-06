@@ -90,3 +90,9 @@ if __name__ == '__main__':
         enumAndCopy(fromDir, toDir,printOnly)
     elif cmd == "merge-by-date":
         enumAndRename(fromDir, toDir)
+
+def check_datepattern(path):
+
+    import re
+    patterns = [r'\d{4}-\d{2}-\d{2}',r'\d{4}\d{2}\d{2}',r'\d{4}-\d{2}-\d{2}']
+    sub_string = re.findall(pattern, os.path.basename(path))[0]
