@@ -7,24 +7,12 @@ from matplotlib import pyplot as plt
 import pickle  
 import gc
 import hashlib
+import file_ext as fe
 
 #load image file names
 
-def get_file_list(dir):
-    ret_files = []
-    if os.path.isfile(dir):
-        ret_files.append(dir)
-    elif os.path.isdir(dir):  
-        for s in os.listdir(dir):
-            #if s == "xxx":
-                #continue
-            newDir=os.path.join(dir,s)
-            ret_files.extend(get_file_list(newDir))
-    
-    return ret_files
-
 def load_file_names(img_root):
-    file_names=get_file_list(img_root)
+    file_names=fe.get_file_list(img_root)
     img_names = []
     #keep only images
     pic_names=['bmp','jpg','png','tiff','gif','pcx','tga','exif','fpx','svg','psd','cdr','pcd','dxf','ufo','eps','ai','raw','WMF']
@@ -154,7 +142,7 @@ def find_dup_hash(files):
 
 if __name__ == '__main__':
     img_path = "/mnt/d/pic/index/2017/"
-    files = get_file_list(img_path)
+    files = fe.get_file_list(img_path)
     print("Found %d files totally."%len(files))
 
     img_files = load_file_names(img_path)
