@@ -15,6 +15,17 @@ from app.services.action_log_service import log_action
 router = APIRouter(prefix="/api/templates", tags=["templates"])
 
 
+@router.post("/voice", response_model=VoiceParsedIntent)
+async def voice_input(
+    req: VoiceRequest,
+    user: User = Depends(require_parent),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await parse_intent(req.text)
+    await log_action(db, user.id, "voice_input", metadata={"text": req.text, "parsed": result})
+    return VoiceParsedIntent(**result)
+
+
 @router.get("/{child_id}")
 async def get_templates(
     child_id: int,
@@ -69,14 +80,3 @@ async def delete_template(
         raise HTTPException(status_code=404, detail="Template not found")
     await log_action(db, user.id, "delete_template", "task_template", template_id)
     return {"ok": True}
-
-
-@router.post("/voice", response_model=VoiceParsedIntent)
-async def voice_input(
-    req: VoiceRequest,
-    user: User = Depends(require_parent),
-    db: AsyncSession = Depends(get_db),
-):
-    result = await parse_intent(req.text)
-    await log_action(db, user.id, "voice_input", metadata={"text": req.text, "parsed": result})
-    return VoiceParsedIntent(**result)
