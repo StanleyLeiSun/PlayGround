@@ -13,7 +13,7 @@
 - [x] 2.1 Implement POST /api/auth/login (accept username + password, validate against seeded users, return JWT)
 - [x] 2.2 Implement GET /api/auth/me (return current user info with role)
 - [x] 2.3 Implement role-based access control decorator (parent-only guard for protected endpoints)
-- [ ] 2.4 Write tests: login success/failure, token validation, RBAC enforcement
+- [x] 2.4 Write tests: login success/failure, token validation, RBAC enforcement
 
 ## 3. Task Template Management
 
@@ -22,7 +22,7 @@
 - [x] 3.3 Implement PUT /api/templates/{id} and DELETE /api/templates/{id}
 - [x] 3.4 Implement GET/POST /api/conditional-tasks/{child_id} (conditional task CRUD)
 - [x] 3.5 Implement POST /api/templates/voice (send text to LLM, return parsed intent JSON)
-- [ ] 3.6 Write tests: template CRUD, conditional task CRUD, voice parsing with mock LLM
+- [x] 3.6 Write tests: template CRUD, conditional task CRUD, voice parsing with mock LLM
 
 ## 4. Daily Task Generation
 
@@ -31,7 +31,7 @@
 - [x] 4.3 Implement fallback generation in GET /api/daily-tasks/{child_id}/{date} (generate if none exist)
 - [x] 4.4 Implement idempotency check (skip if tasks already exist for child+date)
 - [x] 4.5 Implement conditional task insertion trigger (called after each check-in, check all required done)
-- [ ] 4.6 Write tests: scheduled generation, fallback, idempotency, conditional trigger
+- [x] 4.6 Write tests: scheduled generation, fallback, idempotency, conditional trigger
 
 ## 5. Check-in Flow
 
@@ -42,14 +42,14 @@
 - [x] 5.5 Implement GET /api/progress/{child_id}/photo/{id} (authenticated photo retrieval)
 - [x] 5.6 Wire point awarding into check-in flow (call points service after successful check-in)
 - [x] 5.7 Wire conditional task trigger into check-in flow (check and insert if all required done)
-- [ ] 5.8 Write tests: check-in with/without photo, duplicate prevention, photo access control
+- [x] 5.8 Write tests: check-in with/without photo, duplicate prevention, photo access control
 
 ## 6. Progress Tracking
 
 - [x] 6.1 Implement GET /api/progress/{child_id}/{date} (return task list with status, timeline order, points summary)
 - [x] 6.2 Implement date restriction for grandparent role (only today allowed)
 - [x] 6.3 Implement photo review: PUT /api/progress/{child_id}/photo/{id}/review (mark valid/needs-redo)
-- [ ] 6.4 Write tests: progress query, role-based date restriction, photo review
+- [x] 6.4 Write tests: progress query, role-based date restriction, photo review
 
 ## 7. Points and Rewards
 
@@ -58,7 +58,7 @@
 - [x] 7.3 Implement CRUD for rewards: GET/POST /api/rewards, PUT/DELETE /api/rewards/{id}
 - [x] 7.4 Implement POST /api/rewards/{id}/redeem (balance check, deduct, create redemption with pending status)
 - [x] 7.5 Implement PUT /api/rewards/redemptions/{id}/fulfill (parent-only, mark as fulfilled)
-- [ ] 7.6 Write tests: point awarding, balance query, redemption flow, insufficient points, RBAC
+- [x] 7.6 Write tests: point awarding, balance query, redemption flow, insufficient points, RBAC
 
 ## 8. Action Logging
 
@@ -66,7 +66,7 @@
 - [x] 8.2 Implement ActionLogService (async append-only writes, no update/delete)
 - [x] 8.3 Add logging calls to all endpoints: login, check-in, template CRUD, reward redeem, photo review
 - [x] 8.4 Implement GET /api/action-logs (parent-only, filterable by user_id/date range, paginated)
-- [ ] 8.5 Write tests: log creation on each action type, query filters, RBAC enforcement
+- [x] 8.5 Write tests: log creation on each action type, query filters, RBAC enforcement
 
 ## 9. Android Client
 
