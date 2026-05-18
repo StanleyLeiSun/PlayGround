@@ -11,15 +11,15 @@ from app.services import points_service
 
 async def generate_daily_tasks(db: AsyncSession, child_id: int, target_date: date) -> list[DailyTask]:
     """Generate daily tasks from templates for a given child and date."""
-    # Idempotency check
-    existing = await db.execute(
+    # Get existing tasks for this child and date
+    existing_result = await db.execute(
         select(DailyTask).where(
             DailyTask.child_id == child_id,
             func.date(DailyTask.date) == target_date,
         )
     )
-    if existing.scalars().first():
-        return list(existing.scalars().all())
+    existing_tasks = list(existing_result.scalars().all())
+    existing_template_ids = {t.source_template_id for t in existing_tasks if t.source_template_id}
 
     weekday = target_date.isoweekday()  # 1=Monday, 7=Sunday
 
@@ -30,8 +30,10 @@ async def generate_daily_tasks(db: AsyncSession, child_id: int, target_date: dat
     )
     templates = result.scalars().all()
 
-    tasks = []
+    new_tasks = []
     for t in templates:
+        if t.id in existing_template_ids:
+            continue
         task = DailyTask(
             child_id=child_id,
             date=datetime.combine(target_date, datetime.min.time()),
@@ -43,12 +45,14 @@ async def generate_daily_tasks(db: AsyncSession, child_id: int, target_date: dat
             is_conditional=False,
         )
         db.add(task)
-        tasks.append(task)
+        new_tasks.append(task)
 
-    await db.flush()
-    for t in tasks:
-        await db.refresh(t)
-    return tasks
+    if new_tasks:
+        await db.flush()
+        for t in new_tasks:
+            await db.refresh(t)
+
+    return existing_tasks + new_tasks
 
 
 async def check_and_insert_conditional_tasks(db: AsyncSession, child_id: int, target_date: date):
@@ -103,7 +107,10 @@ async def check_and_insert_conditional_tasks(db: AsyncSession, child_id: int, ta
 
 
 async def get_daily_tasks(db: AsyncSession, child_id: int, target_date: date) -> list[DailyTask]:
-    """Get daily tasks, generating if needed (fallback)."""
+    """Get daily tasks, generating from templates if needed."""
+    # Always check for new templates to generate
+    await generate_daily_tasks(db, child_id, target_date)
+
     result = await db.execute(
         select(DailyTask)
         .where(
@@ -112,12 +119,7 @@ async def get_daily_tasks(db: AsyncSession, child_id: int, target_date: date) ->
         )
         .order_by(DailyTask.is_conditional, DailyTask.id)
     )
-    tasks = list(result.scalars().all())
-
-    if not tasks:
-        tasks = await generate_daily_tasks(db, child_id, target_date)
-
-    return tasks
+    return list(result.scalars().all())
 
 
 async def check_in_task(
