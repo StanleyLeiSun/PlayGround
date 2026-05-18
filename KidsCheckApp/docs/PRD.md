@@ -263,6 +263,7 @@ KidsCheck 是一款面向家庭的 Android 学习打卡应用，帮助父母远�
 | `point_transaction` | id, child_id, amount, reason, related_task_id, created_at | 积分流水 |
 | `reward` | id, family_id, title, cost_points, description, image_url | 奖励 |
 | `reward_redemption` | id, child_id, reward_id, points_spent, redeemed_at, status | 兑换记录 |
+| `action_log` | id, user_id, action, target_type, target_id, metadata(JSON), created_at | 用户行为日志 |
 
 #### 关键索引
 
@@ -306,7 +307,14 @@ KidsCheck 是一款面向家庭的 Android 学习打卡应用，帮助父母远�
 - 照片存储不公开访问，需携带 Token 请求
 - 家庭数据隔离，用户只能访问自己家庭的数据
 
-### 5.3 可靠性
+### 5.3 行为日志
+
+- 所有用户操作（登录、打卡、模板增删改、积分兑换、照片审核等）均记录行为日志
+- 每条日志包含：时间戳、用户ID、行为类型、操作对象类型/ID、附加元数据（JSON）
+- 日志仅追加写入，不可修改删除
+- 后端通过中间件/装饰器统一埋点，前端关键交互通过 API 上报
+
+### 5.4 可靠性
 
 - 打卡操作需要本地暂存，网络恢复后补传
 - 每日任务生成失败需要有重试机制

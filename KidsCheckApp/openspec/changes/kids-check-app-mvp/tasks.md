@@ -60,23 +60,31 @@
 - [ ] 7.5 Implement PUT /api/rewards/redemptions/{id}/fulfill (parent-only, mark as fulfilled)
 - [ ] 7.6 Write tests: point awarding, balance query, redemption flow, insufficient points, RBAC
 
-## 8. Android Client
+## 8. Action Logging
 
-- [ ] 8.1 Build login screen (user list selector + password input, token storage)
-- [ ] 8.2 Build bottom navigation (3 tabs: 今日任务, 进度, 我的)
-- [ ] 8.3 Build today's task list screen (child switch tabs: 萝卜/蚕豆, task cards, pending/done states)
-- [ ] 8.4 Build check-in bottom sheet (photo capture for written, confirm-only for reading, celebration animation)
-- [ ] 8.5 Build progress screen (date picker, progress bar, timeline, photo thumbnails)
-- [ ] 8.6 Build "我的" screen (child points, menu items with role-based visibility)
-- [ ] 8.7 Build task template management screen (weekday groups, conditional tasks section, parent-only)
-- [ ] 8.8 Build voice input integration (Android STT → API call → confirmation card)
-- [ ] 8.9 Build rewards screen (reward list, redeem button, point balance display)
-- [ ] 8.10 Implement offline caching for today's task list (Room database)
-- [ ] 8.11 Implement photo compression before upload (max 1MB)
+- [ ] 8.1 Create action_log table migration (id, user_id, action, target_type, target_id, metadata JSON, created_at)
+- [ ] 8.2 Implement ActionLogService (async append-only writes, no update/delete)
+- [ ] 8.3 Add logging calls to all endpoints: login, check-in, template CRUD, reward redeem, photo review
+- [ ] 8.4 Implement GET /api/action-logs (parent-only, filterable by user_id/date range, paginated)
+- [ ] 8.5 Write tests: log creation on each action type, query filters, RBAC enforcement
 
-## 9. Integration and Deployment
+## 9. Android Client
 
-- [ ] 9.1 End-to-end testing: login → template setup → daily generation → check-in → progress view
-- [ ] 9.2 Configure production deployment (systemd service, nginx reverse proxy, HTTPS)
-- [ ] 9.3 Setup PostgreSQL backup schedule (daily pg_dump)
-- [ ] 9.4 Write API documentation (FastAPI auto-generated OpenAPI/Swagger)
+- [ ] 9.1 Build login screen (user list selector + password input, token storage)
+- [ ] 9.2 Build bottom navigation (3 tabs: 今日任务, 进度, 我的)
+- [ ] 9.3 Build today's task list screen (child switch tabs: 萝卜/蚕豆, task cards, pending/done states)
+- [ ] 9.4 Build check-in bottom sheet (photo capture for written, confirm-only for reading, celebration animation)
+- [ ] 9.5 Build progress screen (date picker, progress bar, timeline, photo thumbnails)
+- [ ] 9.6 Build "我的" screen (child points, menu items with role-based visibility)
+- [ ] 9.7 Build task template management screen (weekday groups, conditional tasks section, parent-only)
+- [ ] 9.8 Build voice input integration (Android STT → API call → confirmation card)
+- [ ] 9.9 Build rewards screen (reward list, redeem button, point balance display)
+- [ ] 9.10 Implement offline caching for today's task list (Room database)
+- [ ] 9.11 Implement photo compression before upload (max 1MB)
+
+## 10. Integration and Deployment
+
+- [ ] 10.1 End-to-end testing: login → template setup → daily generation → check-in → progress view
+- [ ] 10.2 Configure production deployment (systemd service, nginx reverse proxy, HTTPS)
+- [ ] 10.3 Setup PostgreSQL backup schedule (daily pg_dump)
+- [ ] 10.4 Write API documentation (FastAPI auto-generated OpenAPI/Swagger)

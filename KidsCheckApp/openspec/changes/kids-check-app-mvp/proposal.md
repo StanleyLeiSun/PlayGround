@@ -22,6 +22,7 @@
 - `check-in`: 打卡流程（确认完成 + 拍照存证）、照片上传与存储
 - `progress-tracking`: 打卡进度时间线、照片审核、每日完成统计
 - `points-and-rewards`: 积分自动发放、积分账户管理、奖励库管理、积分兑换与兑现确认
+- `action-logging`: 所有用户操作的统一行为日志记录（时间、用户、行为）
 
 ### Modified Capabilities
 
