@@ -36,11 +36,11 @@
 
 ### D2: 认证方案
 
-**选择**: JWT Token（access token + refresh token）
+**选择**: 简化登录（选择用户名 + 输入密码），JWT Token 鉴权
 
-**理由**: 无状态认证，适合 REST API，客户端实现简单。access token 有效期 7 天（低频使用场景），refresh token 30 天。
+**理由**: 固定 6 个用户，无需注册流程。登录页直接列出用户名供选择，输入密码（统一为 123456）即可。access token 有效期 30 天（家庭私用场景安全性要求低）。
 
-**替代方案**: Session-based — 需要服务端存储会话状态，对于移动端不够友好。
+**替代方案**: 无密码直接选人登录 — 过于简单，无法区分设备/防止误操作。
 
 ### D3: 每日任务生成策略
 
@@ -68,9 +68,9 @@
 
 ### D6: 数据库 Schema 设计
 
-**选择**: 11 张表，关系型设计，使用 PostgreSQL 自增 ID + UUID 作为外部标识
+**选择**: 9 张表（去掉 family 和独立 user 注册），预置种子数据，使用 PostgreSQL 自增 ID
 
-**理由**: 业务实体关系清晰（家庭→用户/孩子→模板/任务→打卡/积分），关系型数据库天然适配。UUID 对外暴露避免 ID 猜测。
+**理由**: 固定用户场景无需复杂身份管理。用户和孩子表通过 migration 种子数据初始化。表结构：user, child, task_template, conditional_task, daily_task, check_in_photo, point_account, point_transaction, reward, reward_redemption。
 
 **替代方案**: NoSQL（如 MongoDB）— 对于结构化强关系数据，查询和一致性保证不如 PostgreSQL。
 
@@ -88,4 +88,4 @@
 - **[Risk] 照片存储容量增长** → Mitigation: 客户端压缩至 1MB 以下；按月归档旧照片；后续可迁移 OSS
 - **[Risk] 大模型 API 不可用导致语音功能降级** → Mitigation: 语音功能非核心路径，失败时 fallback 到手动创建并提示用户
 - **[Risk] 定时任务跨天漏生成** → Mitigation: 请求今日任务时若发现无记录则触发补生成逻辑
-- **[Risk] JWT Token 泄露** → Mitigation: HTTPS 传输；Token 绑定设备 ID；支持手动踢出设备
+- **[Risk] 固定密码安全性低** → Mitigation: 家庭私用场景可接受；后端仅在内网或 HTTPS 下暴露；后续可加密码修改功能

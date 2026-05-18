@@ -32,7 +32,27 @@ KidsCheck 是一款面向家庭的 Android 学习打卡应用，帮助父母远�
 
 ### 2.1 角色与权限
 
-| 功能 | 父母 | 爷爷奶奶 |
+**预置用户（无需注册）：**
+
+| 用户名 | 角色 | 密码 |
+|--------|------|------|
+| 爸爸 | parent | 123456 |
+| 妈妈 | parent | 123456 |
+| 爷爷 | grandparent | 123456 |
+| 奶奶 | grandparent | 123456 |
+| 姥姥 | grandparent | 123456 |
+| 姥爷 | grandparent | 123456 |
+
+**预置孩子：**
+
+| 昵称 | 称呼 | 年龄 |
+|------|------|------|
+| 萝卜 | 大宝 | 8岁 |
+| 蚕豆 | 二宝 | 5岁 |
+
+**权限矩阵：**
+
+| 功能 | 父母 | 爷爷奶奶/姥姥姥爷 |
 |------|:----:|:--------:|
 | 查看今日任务列表 | ✓ | ✓ |
 | 打卡（确认完成+拍照） | ✓ | ✓ |
@@ -41,11 +61,7 @@ KidsCheck 是一款面向家庭的 Android 学习打卡应用，帮助父母远�
 | 管理任务模板 | ✓ | ✗ |
 | 语音输入任务 | ✓ | ✗ |
 | 管理积分奖励库 | ✓ | ✗ |
-| 家庭管理（邀请成员） | ✓ | ✗ |
 | 积分兑换操作 | ✓ | ✓ |
-
-- 孩子无独立账号，作为"档案"挂在家庭下
-- 爷爷奶奶由父母通过邀请码加入家庭
 
 ### 2.2 任务模板管理
 
@@ -138,12 +154,10 @@ KidsCheck 是一款面向家庭的 Android 学习打卡应用，帮助父母远�
 - 兑换后扣除积分，生成兑换记录（status=pending）
 - 父母确认兑现后状态变为 fulfilled
 
-### 2.7 家庭管理
+### 2.7 登录
 
-- 父母注册时创建家庭
-- 添加孩子档案（姓名、年龄、头像）
-- 生成邀请码，爷爷奶奶扫码/输入码加入
-- 一个家庭支持多个父母和爷爷奶奶角色
+- 登录页展示用户列表（爸爸/妈妈/爷爷/奶奶/姥姥/姥爷），选择后输入密码即可
+- 无需注册流程，所有用户和孩子数据预置于数据库
 
 ---
 
@@ -170,9 +184,7 @@ KidsCheck 是一款面向家庭的 Android 学习打卡应用，帮助父母远�
 | 任务模板管理 | 我的→菜单 | 父母 |
 | 奖励库管理 | 我的→菜单 | 父母 |
 | 积分兑换 | 我的→菜单 | 全部 |
-| 家庭管理 | 我的→菜单 | 父母 |
-| 登录/注册 | 启动 | 全部 |
-| 加入家庭 | 注册后 | 爷爷奶奶 |
+| 登录 | 启动 | 全部 |
 
 ### 3.3 设计规范
 
@@ -241,13 +253,12 @@ KidsCheck 是一款面向家庭的 Android 学习打卡应用，帮助父母远�
 
 | 表 | 关键字段 | 说明 |
 |---|---------|------|
-| `family` | id, name, invite_code | 家庭 |
-| `user` | id, family_id, role, name, phone | 用户（父母/爷爷奶奶） |
-| `child` | id, family_id, name, age, avatar | 孩子档案 |
-| `task_template` | id, child_id, weekday, title, type, description, points, sort_order | 周任务模板 |
+| `user` | id, username, password_hash, role(parent/grandparent) | 预置用户 |
+| `child` | id, name, nickname, age | 预置孩子档案 |
+| `task_template` | id, child_id, weekday(1-7), title, type(written/reading), description, points, sort_order | 周任务模板 |
 | `conditional_task` | id, child_id, trigger_condition(v1固定为"all_required_done"), title, type, description, points | 条件任务模板 |
-| `daily_task` | id, child_id, date, source_template_id, title, type, status, completed_at, completed_by | 每日任务实例 |
-| `check_in_photo` | id, daily_task_id, photo_url, uploaded_by, uploaded_at, reviewed, review_note | 打卡照片 |
+| `daily_task` | id, child_id, date, source_template_id, title, type, status(pending/done), completed_at, completed_by | 每日任务实例 |
+| `check_in_photo` | id, daily_task_id, photo_url, uploaded_by, uploaded_at, reviewed(bool), review_note | 打卡照片 |
 | `point_account` | id, child_id, balance | 积分账户 |
 | `point_transaction` | id, child_id, amount, reason, related_task_id, created_at | 积分流水 |
 | `reward` | id, family_id, title, cost_points, description, image_url | 奖励 |
@@ -263,13 +274,9 @@ KidsCheck 是一款面向家庭的 Android 学习打卡应用，帮助父母远�
 
 | 模块 | 端点 | 方法 | 说明 |
 |------|------|------|------|
-| 认证 | `/api/auth/register` | POST | 注册 |
-| | `/api/auth/login` | POST | 登录 |
-| | `/api/auth/join-family` | POST | 通过邀请码加入家庭 |
-| 家庭 | `/api/family` | GET | 获取家庭信息 |
-| | `/api/family/invite-code` | POST | 生成邀请码 |
-| 孩子 | `/api/children` | GET/POST | 列表/创建孩子档案 |
-| | `/api/children/{id}` | PUT/DELETE | 更新/删除 |
+| 认证 | `/api/auth/login` | POST | 登录（用户名+密码） |
+| | `/api/auth/me` | GET | 获取当前用户信息 |
+| 孩子 | `/api/children` | GET | 列出预置孩子档案 |
 | 模板 | `/api/templates/{child_id}` | GET/POST | 获取/创建任务模板 |
 | | `/api/templates/{id}` | PUT/DELETE | 更新/删除模板 |
 | | `/api/templates/voice` | POST | 语音意图解析 |
@@ -310,9 +317,7 @@ KidsCheck 是一款面向家庭的 Android 学习打卡应用，帮助父母远�
 
 ### v1.0 MVP
 
-- [ ] 用户注册/登录
-- [ ] 家庭创建与邀请
-- [ ] 孩子档案管理
+- [ ] 用户登录（预置账号）
 - [ ] 周任务模板（手动创建）
 - [ ] 每日任务自动生成
 - [ ] 打卡（确认+拍照）

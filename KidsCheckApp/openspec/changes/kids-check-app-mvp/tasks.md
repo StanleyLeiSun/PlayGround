@@ -2,20 +2,18 @@
 
 - [ ] 1.1 Initialize FastAPI project structure (main.py, routers/, models/, schemas/, services/, config.py)
 - [ ] 1.2 Configure PostgreSQL connection with SQLAlchemy async (database.py, alembic for migrations)
-- [ ] 1.3 Create Alembic migration for all 11 tables (family, user, child, task_template, conditional_task, daily_task, check_in_photo, point_account, point_transaction, reward, reward_redemption)
-- [ ] 1.4 Setup JWT authentication middleware (auth.py: token generation, validation, role extraction)
-- [ ] 1.5 Setup file upload directory structure and static file serving for photos
-- [ ] 1.6 Initialize Android project with Kotlin + Jetpack Compose, configure Retrofit HTTP client
+- [ ] 1.3 Create Alembic migration for tables: user, child, task_template, conditional_task, daily_task, check_in_photo, point_account, point_transaction, reward, reward_redemption
+- [ ] 1.4 Create seed data migration: 6 users (爸爸/妈妈 role=parent, 爷爷/奶奶/姥姥/姥爷 role=grandparent, password=123456 hashed), 2 children (萝卜 age=8, 蚕豆 age=5), 2 point accounts (balance=0)
+- [ ] 1.5 Setup JWT authentication middleware (auth.py: token generation, validation, role extraction)
+- [ ] 1.6 Setup file upload directory structure and static file serving for photos
+- [ ] 1.7 Initialize Android project with Kotlin + Jetpack Compose, configure Retrofit HTTP client
 
-## 2. Family Management
+## 2. Authentication
 
-- [ ] 2.1 Implement POST /api/auth/register (create user + family, return JWT)
-- [ ] 2.2 Implement POST /api/auth/login (validate credentials, return JWT)
-- [ ] 2.3 Implement POST /api/family/invite-code (generate 6-char code with 24h expiry)
-- [ ] 2.4 Implement POST /api/auth/join-family (validate invite code, assign grandparent role)
-- [ ] 2.5 Implement CRUD endpoints for children: GET/POST /api/children, PUT/DELETE /api/children/{id}
-- [ ] 2.6 Implement role-based access control decorator (parent-only guard for protected endpoints)
-- [ ] 2.7 Write tests: registration, login, invite flow, child CRUD, RBAC enforcement
+- [ ] 2.1 Implement POST /api/auth/login (accept username + password, validate against seeded users, return JWT)
+- [ ] 2.2 Implement GET /api/auth/me (return current user info with role)
+- [ ] 2.3 Implement role-based access control decorator (parent-only guard for protected endpoints)
+- [ ] 2.4 Write tests: login success/failure, token validation, RBAC enforcement
 
 ## 3. Task Template Management
 
@@ -41,7 +39,7 @@
 - [ ] 5.2 Implement photo upload handling (compress validation, UUID naming, store to filesystem)
 - [ ] 5.3 Implement check_in_photo record creation with photo_url, uploaded_by, uploaded_at
 - [ ] 5.4 Implement duplicate check-in prevention (409 if already done)
-- [ ] 5.5 Implement GET /api/progress/{child_id}/photo/{id} (authenticated photo retrieval with family check)
+- [ ] 5.5 Implement GET /api/progress/{child_id}/photo/{id} (authenticated photo retrieval)
 - [ ] 5.6 Wire point awarding into check-in flow (call points service after successful check-in)
 - [ ] 5.7 Wire conditional task trigger into check-in flow (check and insert if all required done)
 - [ ] 5.8 Write tests: check-in with/without photo, duplicate prevention, photo access control
@@ -64,22 +62,21 @@
 
 ## 8. Android Client
 
-- [ ] 8.1 Build login/register screens with Compose (phone + password form, token storage)
+- [ ] 8.1 Build login screen (user list selector + password input, token storage)
 - [ ] 8.2 Build bottom navigation (3 tabs: 今日任务, 进度, 我的)
-- [ ] 8.3 Build today's task list screen (child switch tabs, task cards, pending/done states)
+- [ ] 8.3 Build today's task list screen (child switch tabs: 萝卜/蚕豆, task cards, pending/done states)
 - [ ] 8.4 Build check-in bottom sheet (photo capture for written, confirm-only for reading, celebration animation)
 - [ ] 8.5 Build progress screen (date picker, progress bar, timeline, photo thumbnails)
-- [ ] 8.6 Build "我的" screen (family info, child points, menu items with role-based visibility)
-- [ ] 8.7 Build task template management screen (weekday groups, conditional tasks section)
+- [ ] 8.6 Build "我的" screen (child points, menu items with role-based visibility)
+- [ ] 8.7 Build task template management screen (weekday groups, conditional tasks section, parent-only)
 - [ ] 8.8 Build voice input integration (Android STT → API call → confirmation card)
 - [ ] 8.9 Build rewards screen (reward list, redeem button, point balance display)
-- [ ] 8.10 Build family management screen (child profiles, invite code generation/display)
-- [ ] 8.11 Implement offline caching for today's task list (Room database)
-- [ ] 8.12 Implement photo compression before upload (max 1MB)
+- [ ] 8.10 Implement offline caching for today's task list (Room database)
+- [ ] 8.11 Implement photo compression before upload (max 1MB)
 
 ## 9. Integration and Deployment
 
-- [ ] 9.1 End-to-end testing: complete flow from registration → template setup → daily generation → check-in → progress view
+- [ ] 9.1 End-to-end testing: login → template setup → daily generation → check-in → progress view
 - [ ] 9.2 Configure production deployment (systemd service, nginx reverse proxy, HTTPS)
 - [ ] 9.3 Setup PostgreSQL backup schedule (daily pg_dump)
 - [ ] 9.4 Write API documentation (FastAPI auto-generated OpenAPI/Swagger)
