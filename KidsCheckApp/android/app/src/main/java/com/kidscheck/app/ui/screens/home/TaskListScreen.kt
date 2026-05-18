@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.kidscheck.app.ui.screens.home
 
 import android.Manifest
@@ -248,9 +250,9 @@ fun TaskCard(task: DailyTask, onClick: () -> Unit) {
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(task.title, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                if (task.type == "written") {
                     Surface(shape = RoundedCornerShape(10.dp), color = PrimaryLight) {
-                        Text(task.type, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                        Text("📷 拍照", modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                             fontSize = 12.sp, color = Primary)
                     }
                 }

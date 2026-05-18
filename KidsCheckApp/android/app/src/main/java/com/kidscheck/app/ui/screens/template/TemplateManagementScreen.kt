@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.kidscheck.app.ui.screens.template
 
 import android.app.Activity
@@ -145,9 +147,11 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(template.title, fontSize = 16.sp, modifier = Modifier.weight(1f))
-                        Surface(shape = RoundedCornerShape(8.dp), color = PrimaryLight) {
-                            Text(template.type, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                                fontSize = 12.sp, color = Primary)
+                        if (template.type == "written") {
+                            Surface(shape = RoundedCornerShape(8.dp), color = PrimaryLight) {
+                                Text("📷 拍照", modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                    fontSize = 12.sp, color = Primary)
+                            }
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("${template.points}分", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Primary)
@@ -229,6 +233,7 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                     intent.weekday?.let { Text("星期: $it") }
                     intent.title?.let { Text("任务: $it") }
                     intent.points?.let { Text("积分: $it") }
+                    Text("要求拍照: ${if (intent.type == "written") "是" else "否"}")
                 }
             },
             confirmButton = {
@@ -259,7 +264,7 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
 fun AddTemplateDialog(onDismiss: () -> Unit, onConfirm: (TaskTemplateCreate, Boolean) -> Unit) {
     var title by remember { mutableStateOf("") }
     var weekday by remember { mutableIntStateOf(1) }
-    var type by remember { mutableStateOf("written") }
+    var requirePhoto by remember { mutableStateOf(false) }
     var points by remember { mutableStateOf("5") }
     var isConditional by remember { mutableStateOf(false) }
 
@@ -278,11 +283,11 @@ fun AddTemplateDialog(onDismiss: () -> Unit, onConfirm: (TaskTemplateCreate, Boo
                         }
                     }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = type == "written", onClick = { type = "written" }, label = { Text("书面") })
-                    FilterChip(selected = type == "reading", onClick = { type = "reading" }, label = { Text("阅读") })
-                }
                 OutlinedTextField(value = points, onValueChange = { points = it }, label = { Text("积分") }, singleLine = true)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = requirePhoto, onCheckedChange = { requirePhoto = it })
+                    Text("要求拍照", fontSize = 14.sp)
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = isConditional, onCheckedChange = { isConditional = it })
                     Text("条件任务", fontSize = 14.sp)
@@ -292,6 +297,7 @@ fun AddTemplateDialog(onDismiss: () -> Unit, onConfirm: (TaskTemplateCreate, Boo
         confirmButton = {
             TextButton(onClick = {
                 if (title.isNotBlank()) {
+                    val type = if (requirePhoto) "written" else "reading"
                     onConfirm(TaskTemplateCreate(weekday, title, type, points = points.toIntOrNull() ?: 5), isConditional)
                 }
             }) { Text("添加") }
