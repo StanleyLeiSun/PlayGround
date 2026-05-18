@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import com.kidscheck.app.data.api.RetrofitInstance
 import com.kidscheck.app.data.model.*
 import com.kidscheck.app.ui.theme.*
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -41,6 +42,7 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
     var showAddDialog by remember { mutableStateOf(false) }
     var voiceResult by remember { mutableStateOf<VoiceParsedIntent?>(null) }
     var showVoiceConfirm by remember { mutableStateOf(false) }
+    var reloadJob by remember { mutableStateOf<Job?>(null) }
 
     val speechLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -63,7 +65,8 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
     }
 
     fun reload() {
-        scope.launch {
+        reloadJob?.cancel()
+        reloadJob = scope.launch {
             try {
                 val api = RetrofitInstance.getApi(context)
                 selectedChild?.let { child ->
