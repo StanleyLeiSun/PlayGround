@@ -208,15 +208,21 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                 scope.launch {
                     try {
                         val api = RetrofitInstance.getApi(context)
-                        if (isConditional && selectedChild != null) {
+                        val resp = if (isConditional && selectedChild != null) {
                             api.createConditionalTask(selectedChild!!.id, ConditionalTaskCreate(data.title, data.type, data.description, data.points))
                         } else if (selectedChild != null) {
                             api.createTemplate(selectedChild!!.id, data)
+                        } else null
+                        if (resp != null && resp.isSuccessful) {
+                            showAddDialog = false
+                            reload()
+                        } else {
+                            val code = resp?.code() ?: -1
+                            val errBody = resp?.errorBody()?.string() ?: ""
+                            Toast.makeText(context, "添加失败 (HTTP $code): $errBody", Toast.LENGTH_LONG).show()
                         }
-                        showAddDialog = false
-                        reload()
                     } catch (e: Exception) {
-                        Toast.makeText(context, "添加失败", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "添加失败: ${e.message}", Toast.LENGTH_LONG).show()
                     }
                 }
             }
