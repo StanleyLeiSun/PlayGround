@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KidsCheck - 打卡助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF8C42;
+            --primary-light: #FFF3E8;
+            --success: #4CAF50;
+            --success-light: #E8F5E9;
+            --gray: #9E9E9E;
+            --gray-light: #F5F5F5;
+            --text: #333333;
+            --text-secondary: #666666;
+            --border: #EEEEEE;
+            --danger: #FF5252;
+            --purple: #7C4DFF;
+            --purple-light: #F3EEFF;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        .phone-frame {
+            width: 390px;
+            height: 844px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-bar {
+            height: 44px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .header {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .child-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px;
+            background: white;
+        }
+
+        .child-tab {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid var(--border);
+        }
+
+        .child-tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            padding-bottom: 80px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .task-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .task-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255,140,66,0.15);
+        }
+
+        .task-card.done {
+            background: var(--success-light);
+            border-color: var(--success);
+            opacity: 0.8;
+        }
+
+        .task-card.locked {
+            background: var(--gray-light);
+            border-color: var(--border);
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .task-checkbox {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 3px solid var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .task-card.done .task-checkbox {
+            border-color: var(--success);
+            background: var(--success);
+            color: white;
+        }
+
+        .task-card.locked .task-checkbox {
+            border-color: var(--gray);
+            background: var(--gray-light);
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .task-meta {
+            font-size: 14px;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .task-tag {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .task-points {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: white;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px 16px;
+        }
+
+        .nav-item .icon {
+            font-size: 24px;
+        }
+
+        .nav-item .label {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .nav-item.active .label {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: flex-end;
+            z-index: 100;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-task-name {
+            font-size: 18px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #E67A35;
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--text);
+        }
+
+        .btn-cancel {
+            background: transparent;
+            color: var(--gray);
+        }
+
+        /* Progress Page */
+        .progress-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .date-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .date-nav button {
+            background: var(--gray-light);
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .progress-bar-container {
+            background: var(--gray-light);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #FFB74D);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 14px;
+            padding: 14px 0;
+            border-left: 3px solid var(--border);
+            margin-left: 14px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 18px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .timeline-item.pending::before {
+            background: var(--gray);
+        }
+
+        .timeline-time {
+            font-size: 14px;
+            color: var(--gray);
+            min-width: 50px;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-task {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .timeline-photo {
+            font-size: 13px;
+            color: var(--primary);
+            cursor: pointer;
+            margin-top: 4px;
+        }
+
+        .points-summary {
+            background: linear-gradient(135deg, var(--primary), #FFB74D);
+            border-radius: 16px;
+            padding: 16px 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .points-summary .label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .points-summary .value {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        /* My Page */
+        .profile-card {
+            background: linear-gradient(135deg, var(--primary), #FFB74D);
+            border-radius: 20px;
+            padding: 24px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .profile-card .family-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .children-points {
+            display: flex;
+            gap: 20px;
+        }
+
+        .child-point-card {
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .child-point-card .name {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .child-point-card .points {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover {
+            border-color: var(--primary);
+        }
+
+        .menu-item .menu-icon {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: var(--primary-light);
+        }
+
+        .menu-item .menu-text {
+            font-size: 16px;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .menu-item .menu-arrow {
+            color: var(--gray);
+            font-size: 18px;
+        }
+
+        .menu-item.parent-only {
+            position: relative;
+        }
+
+        .menu-item.parent-only::after {
+            content: '父母';
+            position: absolute;
+            right: 40px;
+            font-size: 11px;
+            background: var(--purple-light);
+            color: var(--purple);
+            padding: 2px 8px;
+            border-radius: 8px;
+        }
+
+        /* Template Page */
+        .template-weekday {
+            margin-bottom: 20px;
+        }
+
+        .weekday-header {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--primary-light);
+        }
+
+        .template-task {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            gap: 12px;
+        }
+
+        .template-task:last-child {
+            border-bottom: none;
+        }
+
+        .template-task .t-name {
+            flex: 1;
+            font-size: 16px;
+        }
+
+        .template-task .t-tag {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 8px;
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .template-task .t-points {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .template-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .template-actions button {
+            background: none;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .template-actions .edit-btn {
+            color: var(--primary);
+        }
+
+        .template-actions .del-btn {
+            color: var(--danger);
+        }
+
+        .voice-btn {
+            position: fixed;
+            bottom: 90px;
+            right: calc(50% - 175px);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255,140,66,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .voice-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .fab-add {
+            position: absolute;
+            bottom: 90px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255,140,66,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Celebration animation */
+        .celebration {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            animation: celebrate 1s ease forwards;
+            z-index: 200;
+            pointer-events: none;
+            display: none;
+        }
+
+        .celebration.show {
+            display: block;
+        }
+
+        @keyframes celebrate {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+
+        /* Role Switch */
+        .role-switch {
+            display: flex;
+            gap: 8px;
+            padding: 8px 20px;
+            background: var(--gray-light);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .role-btn {
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: white;
+        }
+
+        .role-btn.active {
+            background: var(--purple);
+            color: white;
+            border-color: var(--purple);
+        }
+
+        .conditional-divider {
+            text-align: center;
+            font-size: 14px;
+            color: var(--gray);
+            padding: 8px 0;
+            margin: 8px 0;
+            border-top: 1px dashed var(--border);
+        }
+
+        /* Page visibility */
+        .page {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .page.active {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <span>9:41</span>
+        </div>
+
+        <!-- Role Switch -->
+        <div class="role-switch">
+            <span style="font-size:13px;color:var(--text-secondary);line-height:30px;">视角：</span>
+            <div class="role-btn active" onclick="switchRole('parent')">父母</div>
+            <div class="role-btn" onclick="switchRole('grandparent')">爷爷奶奶</div>
+        </div>
+
+        <!-- Page: Today Tasks -->
+        <div class="page active" id="page-tasks">
+            <div class="header">
+                <h1>今日任务</h1>
+                <span style="font-size:14px;color:var(--gray);">周日 · 5月18日</span>
+            </div>
+            <div class="child-tabs">
+                <div class="child-tab active" onclick="switchChild(this, '大宝')">大宝</div>
+                <div class="child-tab" onclick="switchChild(this, '小宝')">小宝</div>
+            </div>
+            <div class="content" id="task-content">
+                <div class="section-title">📋 必做任务</div>
+                <div class="task-list" id="required-tasks">
+                    <div class="task-card" onclick="openCheckin('数学口算', true)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-info">
+                            <div class="task-name">数学口算</div>
+                            <div class="task-meta">
+                                <span class="task-tag">书面</span>
+                                <span>2页</span>
+                            </div>
+                        </div>
+                        <div class="task-points">+5分</div>
+                    </div>
+                    <div class="task-card done">
+                        <div class="task-checkbox">✓</div>
+                        <div class="task-info">
+                            <div class="task-name">语文抄写</div>
+                            <div class="task-meta">
+                                <span class="task-tag">书面</span>
+                                <span>1页</span>
+                            </div>
+                        </div>
+                        <div class="task-points">+5分</div>
+                    </div>
+                    <div class="task-card" onclick="openCheckin('英语阅读', false)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-info">
+                            <div class="task-name">英语阅读</div>
+                            <div class="task-meta">
+                                <span class="task-tag">阅读</span>
+                                <span>20分钟</span>
+                            </div>
+                        </div>
+                        <div class="task-points">+3分</div>
+                    </div>
+                    <div class="task-card" onclick="openCheckin('古诗背诵', false)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-info">
+                            <div class="task-name">古诗背诵</div>
+                            <div class="task-meta">
+                                <span class="task-tag">阅读</span>
+                                <span>2首</span>
+                            </div>
+                        </div>
+                        <div class="task-points">+3分</div>
+                    </div>
+                </div>
+
+                <div class="conditional-divider">🌟 完成全部必做任务后解锁</div>
+
+                <div class="task-list" id="conditional-tasks">
+                    <div class="task-card locked">
+                        <div class="task-checkbox">🔒</div>
+                        <div class="task-info">
+                            <div class="task-name">画画</div>
+                            <div class="task-meta">
+                                <span class="task-tag">条件</span>
+                                <span>30分钟</span>
+                            </div>
+                        </div>
+                        <div class="task-points">+5分</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page: Progress -->
+        <div class="page" id="page-progress">
+            <div class="header">
+                <h1>打卡进度</h1>
+            </div>
+            <div class="child-tabs">
+                <div class="child-tab active">大宝</div>
+                <div class="child-tab">小宝</div>
+            </div>
+            <div class="content">
+                <div class="progress-header">
+                    <div class="date-nav">
+                        <button>‹</button>
+                        <span>5月18日 周日</span>
+                        <button>›</button>
+                    </div>
+                </div>
+
+                <div class="progress-bar-container">
+                    <div class="progress-bar-label">
+                        <span>完成进度</span>
+                        <span>3/5</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" style="width: 60%"></div>
+                    </div>
+                </div>
+
+                <div class="section-title">📅 时间线</div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-time">09:15</div>
+                            <div class="timeline-task">语文抄写</div>
+                            <div class="timeline-photo">📷 查看照片</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-time">10:00</div>
+                            <div class="timeline-task">数学口算</div>
+                            <div class="timeline-photo">📷 查看照片</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-time">10:45</div>
+                            <div class="timeline-task">英语阅读</div>
+                            <div class="timeline-photo">✓ 已确认</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item pending">
+                        <div class="timeline-content">
+                            <div class="timeline-time">--:--</div>
+                            <div class="timeline-task" style="color:var(--gray)">古诗背诵</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item pending">
+                        <div class="timeline-content">
+                            <div class="timeline-time">--:--</div>
+                            <div class="timeline-task" style="color:var(--gray)">画画（条件）</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="points-summary">
+                    <div>
+                        <div class="label">今日获得</div>
+                        <div class="value">+13 分</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div class="label">累计积分</div>
+                        <div class="value">156 分</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page: My -->
+        <div class="page" id="page-my">
+            <div class="header">
+                <h1>我的</h1>
+            </div>
+            <div class="content">
+                <div class="profile-card">
+                    <div class="family-name">🏠 阳光家庭</div>
+                    <div class="children-points">
+                        <div class="child-point-card">
+                            <div class="name">大宝</div>
+                            <div class="points">156分</div>
+                        </div>
+                        <div class="child-point-card">
+                            <div class="name">小宝</div>
+                            <div class="points">89分</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="menu-list">
+                    <div class="menu-item" onclick="showPage('page-rewards')">
+                        <div class="menu-icon">🎁</div>
+                        <div class="menu-text">积分兑换</div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                    <div class="menu-item parent-only" onclick="showPage('page-template')">
+                        <div class="menu-icon">📝</div>
+                        <div class="menu-text">任务模板管理</div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                    <div class="menu-item parent-only">
+                        <div class="menu-icon">🏆</div>
+                        <div class="menu-text">奖励库管理</div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                    <div class="menu-item parent-only">
+                        <div class="menu-icon">👨‍👩‍👧‍👦</div>
+                        <div class="menu-text">家庭管理</div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-icon">⚙️</div>
+                        <div class="menu-text">设置</div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page: Template Management -->
+        <div class="page" id="page-template">
+            <div class="header">
+                <h1 style="font-size:18px">← 任务模板管理</h1>
+                <button class="voice-btn" style="position:static;width:40px;height:40px;font-size:18px;box-shadow:none">🎤</button>
+            </div>
+            <div class="child-tabs">
+                <div class="child-tab active">大宝</div>
+                <div class="child-tab">小宝</div>
+            </div>
+            <div class="content">
+                <div class="template-weekday">
+                    <div class="weekday-header">周一</div>
+                    <div class="template-task">
+                        <span class="t-name">数学口算</span>
+                        <span class="t-tag">书面</span>
+                        <span class="t-points">5分</span>
+                        <div class="template-actions">
+                            <button class="edit-btn">编辑</button>
+                            <button class="del-btn">删除</button>
+                        </div>
+                    </div>
+                    <div class="template-task">
+                        <span class="t-name">英语阅读</span>
+                        <span class="t-tag">阅读</span>
+                        <span class="t-points">3分</span>
+                        <div class="template-actions">
+                            <button class="edit-btn">编辑</button>
+                            <button class="del-btn">删除</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="template-weekday">
+                    <div class="weekday-header">周二</div>
+                    <div class="template-task">
+                        <span class="t-name">语文抄写</span>
+                        <span class="t-tag">书面</span>
+                        <span class="t-points">5分</span>
+                        <div class="template-actions">
+                            <button class="edit-btn">编辑</button>
+                            <button class="del-btn">删除</button>
+                        </div>
+                    </div>
+                    <div class="template-task">
+                        <span class="t-name">古诗背诵</span>
+                        <span class="t-tag">阅读</span>
+                        <span class="t-points">3分</span>
+                        <div class="template-actions">
+                            <button class="edit-btn">编辑</button>
+                            <button class="del-btn">删除</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="template-weekday">
+                    <div class="weekday-header">周三</div>
+                    <div class="template-task">
+                        <span class="t-name">数学口算</span>
+                        <span class="t-tag">书面</span>
+                        <span class="t-points">5分</span>
+                        <div class="template-actions">
+                            <button class="edit-btn">编辑</button>
+                            <button class="del-btn">删除</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:20px;padding-top:16px;border-top:2px dashed var(--border)">
+                    <div class="weekday-header" style="color:var(--purple)">🌟 条件任务</div>
+                    <div class="template-task">
+                        <span class="t-name">画画30分钟</span>
+                        <span class="t-tag" style="background:var(--purple-light);color:var(--purple)">条件</span>
+                        <span class="t-points">5分</span>
+                        <div class="template-actions">
+                            <button class="edit-btn">编辑</button>
+                            <button class="del-btn">删除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="fab-add" onclick="alert('添加新任务')">+</button>
+        </div>
+
+        <!-- Page: Rewards -->
+        <div class="page" id="page-rewards">
+            <div class="header">
+                <h1 style="font-size:18px">← 积分兑换</h1>
+                <span style="font-size:14px;color:var(--primary);font-weight:600">大宝：156分</span>
+            </div>
+            <div class="content">
+                <div class="section-title">🎁 可兑换奖励</div>
+                <div class="task-list">
+                    <div class="task-card" style="cursor:pointer">
+                        <div style="font-size:32px">📺</div>
+                        <div class="task-info">
+                            <div class="task-name">看一集动画片</div>
+                            <div class="task-meta">需要 10 积分</div>
+                        </div>
+                        <div class="btn-primary" style="width:auto;padding:8px 16px;font-size:14px;margin:0">兑换</div>
+                    </div>
+                    <div class="task-card" style="cursor:pointer">
+                        <div style="font-size:32px">🎮</div>
+                        <div class="task-info">
+                            <div class="task-name">玩30分钟游戏</div>
+                            <div class="task-meta">需要 20 积分</div>
+                        </div>
+                        <div class="btn-primary" style="width:auto;padding:8px 16px;font-size:14px;margin:0">兑换</div>
+                    </div>
+                    <div class="task-card" style="cursor:pointer">
+                        <div style="font-size:32px">🏞️</div>
+                        <div class="task-info">
+                            <div class="task-name">周末去公园</div>
+                            <div class="task-meta">需要 30 积分</div>
+                        </div>
+                        <div class="btn-primary" style="width:auto;padding:8px 16px;font-size:14px;margin:0">兑换</div>
+                    </div>
+                    <div class="task-card" style="cursor:pointer">
+                        <div style="font-size:32px">🧸</div>
+                        <div class="task-info">
+                            <div class="task-name">买一个小玩具</div>
+                            <div class="task-meta">需要 100 积分</div>
+                        </div>
+                        <div class="btn-primary" style="width:auto;padding:8px 16px;font-size:14px;margin:0;background:var(--gray)">不够</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Check-in Modal -->
+        <div class="modal-overlay" id="checkin-modal">
+            <div class="modal-content">
+                <div class="modal-title">确认完成</div>
+                <div class="modal-task-name" id="modal-task-name">数学口算</div>
+                <button class="btn btn-primary" id="photo-btn" onclick="completeTask()">
+                    📷 拍照存证并完成
+                </button>
+                <button class="btn btn-secondary" id="confirm-only-btn" onclick="completeTask()" style="display:none">
+                    ✓ 确认完成
+                </button>
+                <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+            </div>
+        </div>
+
+        <!-- Celebration -->
+        <div class="celebration" id="celebration">⭐ +5</div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="showPage('page-tasks')">
+                <span class="icon">📋</span>
+                <span class="label">今日任务</span>
+            </div>
+            <div class="nav-item" onclick="showPage('page-progress')">
+                <span class="icon">📊</span>
+                <span class="label">进度</span>
+            </div>
+            <div class="nav-item" onclick="showPage('page-my')">
+                <span class="icon">👤</span>
+                <span class="label">我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentRole = 'parent';
+
+        function switchRole(role) {
+            currentRole = role;
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Hide parent-only items for grandparent
+            document.querySelectorAll('.parent-only').forEach(item => {
+                item.style.display = role === 'grandparent' ? 'none' : 'flex';
+            });
+        }
+
+        function switchChild(el, name) {
+            document.querySelectorAll('.child-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+
+            // Update nav
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if (pageId === 'page-tasks') {
+                document.querySelectorAll('.nav-item')[0].classList.add('active');
+            } else if (pageId === 'page-progress') {
+                document.querySelectorAll('.nav-item')[1].classList.add('active');
+            } else if (pageId === 'page-my') {
+                document.querySelectorAll('.nav-item')[2].classList.add('active');
+            }
+        }
+
+        function openCheckin(taskName, requirePhoto) {
+            document.getElementById('modal-task-name').textContent = taskName;
+            document.getElementById('checkin-modal').classList.add('show');
+
+            if (requirePhoto) {
+                document.getElementById('photo-btn').style.display = 'flex';
+                document.getElementById('confirm-only-btn').style.display = 'none';
+            } else {
+                document.getElementById('photo-btn').style.display = 'none';
+                document.getElementById('confirm-only-btn').style.display = 'flex';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('checkin-modal').classList.remove('show');
+        }
+
+        function completeTask() {
+            closeModal();
+
+            // Show celebration
+            const cel = document.getElementById('celebration');
+            cel.classList.add('show');
+            setTimeout(() => cel.classList.remove('show'), 1000);
+
+            // Mark first pending task as done (demo)
+            const pending = document.querySelector('.task-card:not(.done):not(.locked)');
+            if (pending) {
+                pending.classList.add('done');
+                pending.querySelector('.task-checkbox').textContent = '✓';
+                pending.onclick = null;
+            }
+        }
+    </script>
+</body>
+</html>
