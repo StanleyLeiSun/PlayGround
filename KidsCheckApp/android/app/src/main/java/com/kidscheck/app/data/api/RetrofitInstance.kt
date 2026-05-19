@@ -1,6 +1,7 @@
 package com.kidscheck.app.data.api
 
 import android.content.Context
+import com.kidscheck.app.BuildConfig
 import com.kidscheck.app.util.TokenManager
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -10,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
-    const val BASE_URL = "http://10.0.2.2:8000"  // Emulator localhost
+    const val BASE_URL = BuildConfig.BASE_URL
 
     private fun createClient(context: Context): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {

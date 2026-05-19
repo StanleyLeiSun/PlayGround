@@ -55,11 +55,16 @@ interface ApiService {
         @Path("date") date: String
     ): Response<List<DailyTask>>
 
-    @Multipart
     @POST("/api/daily-tasks/{id}/check-in")
     suspend fun checkIn(
+        @Path("id") taskId: Int
+    ): Response<DailyTask>
+
+    @Multipart
+    @POST("/api/daily-tasks/{id}/check-in")
+    suspend fun checkInWithPhoto(
         @Path("id") taskId: Int,
-        @Part photo: MultipartBody.Part? = null
+        @Part photo: MultipartBody.Part
     ): Response<DailyTask>
 
     @GET("/api/progress/{childId}/{date}")

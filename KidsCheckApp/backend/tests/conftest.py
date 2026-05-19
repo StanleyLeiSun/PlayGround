@@ -15,7 +15,7 @@ from app.models.models import (
 )
 from app.middleware.auth import create_token
 
-TEST_DB_URL = "sqlite+aiosqlite:///./test_kidscheck.db"
+TEST_DB_URL = "sqlite+aiosqlite:///./kidscheck_test.db"
 engine = create_async_engine(TEST_DB_URL, echo=False)
 TestSession = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 

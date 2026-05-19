@@ -72,7 +72,7 @@ fun TaskListScreen(childId: Int, childName: String) {
                         "photo", photoFile!!.name,
                         bytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
                     )
-                    val resp = api.checkIn(selectedTask!!.id, part)
+                    val resp = api.checkInWithPhoto(selectedTask!!.id, part)
                     if (resp.isSuccessful) {
                         showCheckinSheet = false
                         showCelebration = true
@@ -114,6 +114,28 @@ fun TaskListScreen(childId: Int, childName: String) {
     Box(modifier = Modifier.fillMaxSize()) {
         if (loading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Primary)
+        } else if (tasks.isEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Box(
+                    modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray)
+                )
+                Box(modifier = Modifier.width(3.dp).height(32.dp).background(Border))
+                Box(
+                    modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray)
+                )
+                Box(modifier = Modifier.width(3.dp).height(32.dp).background(Border))
+                Box(
+                    modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray)
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Text("今天没有任务", fontSize = 18.sp, fontWeight = FontWeight.Medium, color = Gray)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("请家长在模板管理中添加任务", fontSize = 14.sp, color = TextSecondary)
+            }
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(16.dp),

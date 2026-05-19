@@ -157,58 +157,65 @@ fun ProgressScreen(childId: Int) {
             Text("📅 时间线", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
         }
 
-        items(timelineTasks) { task ->
-            Row(modifier = Modifier.padding(start = 14.dp)) {
-                // Timeline line + dot
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(
-                        modifier = Modifier.size(14.dp).clip(CircleShape)
-                            .background(if (task.status == "done") Success else Gray)
-                    )
-                    if (task != timelineTasks.lastOrNull()) {
-                        Box(modifier = Modifier.width(3.dp).height(40.dp).background(Border))
-                    }
+        if (timelineTasks.isEmpty()) {
+            item {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray))
+                    Box(modifier = Modifier.width(3.dp).height(32.dp).background(Border))
+                    Box(modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray))
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("当天没有任务", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Gray)
                 }
-                Spacer(modifier = Modifier.width(20.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    val isDone = task.status == "done"
-                    val timeText = if (isDone) {
-                        formatCompletedAt(task.completedAt) ?: "已完成"
-                    } else {
-                        "未完成"
-                    }
-                    val submitter = if (isDone) {
-                        task.completedByUsername ?: task.completedBy?.let { "用户#$it" }
-                    } else {
-                        null
-                    }
-                    val headerText = if (submitter.isNullOrBlank()) timeText else "$timeText · 提交人：$submitter"
-                    Text(
-                        headerText,
-                        fontSize = 14.sp,
-                        color = TextSecondary
-                    )
-                    Text(task.title, fontSize = 16.sp, fontWeight = FontWeight.Medium,
-                        color = if (task.status == "done") TextPrimary else Gray)
-                    if (task.photos.isNotEmpty()) {
-                        AssistChip(
-                            onClick = {
-                                val urls = task.photos.map { resolvePhotoUrl(it.photoUrl) }
-                                if (urls.isNotEmpty()) {
-                                    photoViewerUrls = urls
-                                    photoViewerIndex = 0
-                                    showPhotoViewer = true
-                                }
-                            },
-                            label = { Text("查看照片") },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Photo,
-                                    contentDescription = null
-                                )
-                            },
-                            modifier = Modifier.padding(top = 6.dp)
+            }
+        } else {
+            items(timelineTasks) { task ->
+                Row(modifier = Modifier.padding(start = 14.dp)) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(
+                            modifier = Modifier.size(14.dp).clip(CircleShape)
+                                .background(if (task.status == "done") Success else Gray)
                         )
+                        if (task != timelineTasks.lastOrNull()) {
+                            Box(modifier = Modifier.width(3.dp).height(40.dp).background(Border))
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(20.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        val isDone = task.status == "done"
+                        val timeText = if (isDone) {
+                            formatCompletedAt(task.completedAt) ?: "已完成"
+                        } else {
+                            "未完成"
+                        }
+                        val submitter = if (isDone) {
+                            task.completedByUsername ?: task.completedBy?.let { "用户#$it" }
+                        } else {
+                            null
+                        }
+                        val headerText = if (submitter.isNullOrBlank()) timeText else "$timeText · 提交人：$submitter"
+                        Text(headerText, fontSize = 14.sp, color = TextSecondary)
+                        Text(task.title, fontSize = 16.sp, fontWeight = FontWeight.Medium,
+                            color = if (task.status == "done") TextPrimary else Gray)
+                        if (task.photos.isNotEmpty()) {
+                            AssistChip(
+                                onClick = {
+                                    val urls = task.photos.map { resolvePhotoUrl(it.photoUrl) }
+                                    if (urls.isNotEmpty()) {
+                                        photoViewerUrls = urls
+                                        photoViewerIndex = 0
+                                        showPhotoViewer = true
+                                    }
+                                },
+                                label = { Text("查看照片") },
+                                leadingIcon = {
+                                    Icon(imageVector = Icons.Default.Photo, contentDescription = null)
+                                },
+                                modifier = Modifier.padding(top = 6.dp)
+                            )
+                        }
                     }
                 }
             }

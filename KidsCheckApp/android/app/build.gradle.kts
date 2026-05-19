@@ -1,8 +1,17 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
 }
+
+val configProps = Properties().apply {
+    val f = rootProject.file("config.properties")
+    if (f.exists()) load(FileInputStream(f))
+}
+val prodBaseUrl: String = configProps.getProperty("prod.base_url", "https://api.kidscheck.example.com")
 
 android {
     namespace = "com.kidscheck.app"
@@ -23,6 +32,22 @@ android {
         }
     }
 
+    flavorDimensions += "environment"
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000\"")
+        }
+        create("localProd") {
+            dimension = "environment"
+            buildConfigField("String", "BASE_URL", "\"$prodBaseUrl\"")
+        }
+        create("prod") {
+            dimension = "environment"
+            buildConfigField("String", "BASE_URL", "\"$prodBaseUrl\"")
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -34,6 +59,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     composeOptions {
@@ -53,7 +79,6 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    // 显式指定 material3 版本，避免与 Compose BOM 对应的 compose-* 版本不匹配导致运行时崩溃（NoSuchMethodError）
     implementation("androidx.compose.material3:material3:1.2.1")
     implementation("androidx.compose.material:material-icons-extended")
 
