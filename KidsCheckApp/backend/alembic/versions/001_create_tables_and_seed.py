@@ -5,6 +5,7 @@ Revises:
 Create Date: 2026-05-18
 
 """
+import os
 from typing import Sequence, Union
 
 from alembic import op
@@ -134,22 +135,25 @@ def upgrade() -> None:
     )
     op.create_index("ix_action_log_user_created", "action_log", ["user_id", "created_at"])
 
-    # Seed data: 6 users
-    op.execute("""
+    # Seed data: 6 users (password depends on environment)
+    env = os.getenv("APP_ENV", "dev")
+    password = "123456" if env == "dev" else "KidsCheck2026!"
+
+    op.execute(f"""
         INSERT INTO "user" (username, password_hash, role) VALUES
-        ('爸爸', '123456', 'parent'),
-        ('妈妈', '123456', 'parent'),
-        ('爷爷', '123456', 'grandparent'),
-        ('奶奶', '123456', 'grandparent'),
-        ('姥姥', '123456', 'grandparent'),
-        ('姥爷', '123456', 'grandparent')
+        ('爸爸', '{password}', 'parent'),
+        ('妈妈', '{password}', 'parent'),
+        ('爷爷', '{password}', 'grandparent'),
+        ('奶奶', '{password}', 'grandparent'),
+        ('姥姥', '{password}', 'grandparent'),
+        ('姥爷', '{password}', 'grandparent')
     """)
 
     # Seed data: 2 children
     op.execute("""
         INSERT INTO child (name, nickname, age) VALUES
-        ('萝卜', '大宝', 8),
-        ('蚕豆', '二宝', 5)
+        ('孙北峤', '萝卜', 8),
+        ('孙南崧', '蚕豆', 5)
     """)
 
     # Seed data: 2 point accounts

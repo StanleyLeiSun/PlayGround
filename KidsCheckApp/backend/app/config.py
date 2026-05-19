@@ -1,11 +1,18 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
+APP_ENV = os.getenv("APP_ENV", "dev")
+env_file = Path(__file__).parent.parent / f".env.{APP_ENV}"
+if env_file.exists():
+    load_dotenv(env_file, override=True)
+
 # Database
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./kidscheck.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./kidscheck_dev.db")
 
 # JWT
-JWT_SECRET = os.getenv("JWT_SECRET", "kidscheck-secret-key-change-in-production")
+JWT_SECRET = os.getenv("JWT_SECRET", "kidscheck-secret-key-dev")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_DAYS = 30
 

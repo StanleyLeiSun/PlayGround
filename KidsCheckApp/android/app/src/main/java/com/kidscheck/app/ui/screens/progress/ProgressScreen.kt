@@ -105,29 +105,52 @@ fun ProgressScreen(childId: Int) {
             Text("📅 时间线", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
         }
 
-        items(p.tasks.sortedWith(compareBy<DailyTask> { it.isConditional }.thenBy { it.completedAt ?: "zzz" })) { task ->
-            Row(modifier = Modifier.padding(start = 14.dp)) {
-                // Timeline line + dot
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        if (p.tasks.isEmpty()) {
+            item {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Box(
-                        modifier = Modifier.size(14.dp).clip(CircleShape)
-                            .background(if (task.status == "done") Success else Gray)
+                        modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray)
                     )
-                    if (task != p.tasks.last()) {
-                        Box(modifier = Modifier.width(3.dp).height(40.dp).background(Border))
-                    }
+                    Box(modifier = Modifier.width(3.dp).height(32.dp).background(Border))
+                    Box(
+                        modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray)
+                    )
+                    Box(modifier = Modifier.width(3.dp).height(32.dp).background(Border))
+                    Box(
+                        modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("当天没有任务", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Gray)
                 }
-                Spacer(modifier = Modifier.width(20.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        task.completedAt?.take(16)?.replace("T", " ") ?: "--:--",
-                        fontSize = 14.sp, color = Gray
-                    )
-                    Text(task.title, fontSize = 16.sp, fontWeight = FontWeight.Medium,
-                        color = if (task.status == "done") TextPrimary else Gray)
-                    if (task.photos.isNotEmpty()) {
-                        Text("📷 查看照片", fontSize = 13.sp, color = Primary,
-                            modifier = Modifier.clickable { /* open photo */ })
+            }
+        } else {
+            items(p.tasks.sortedWith(compareBy<DailyTask> { it.isConditional }.thenBy { it.completedAt ?: "zzz" })) { task ->
+                Row(modifier = Modifier.padding(start = 14.dp)) {
+                    // Timeline line + dot
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(
+                            modifier = Modifier.size(14.dp).clip(CircleShape)
+                                .background(if (task.status == "done") Success else Gray)
+                        )
+                        if (task != p.tasks.last()) {
+                            Box(modifier = Modifier.width(3.dp).height(40.dp).background(Border))
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(20.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            task.completedAt?.take(16)?.replace("T", " ") ?: "--:--",
+                            fontSize = 14.sp, color = Gray
+                        )
+                        Text(task.title, fontSize = 16.sp, fontWeight = FontWeight.Medium,
+                            color = if (task.status == "done") TextPrimary else Gray)
+                        if (task.photos.isNotEmpty()) {
+                            Text("📷 查看照片", fontSize = 13.sp, color = Primary,
+                                modifier = Modifier.clickable { /* open photo */ })
+                        }
                     }
                 }
             }

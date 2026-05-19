@@ -1,14 +1,30 @@
 #!/usr/bin/env bash
 # Deploy debug APK to running emulator/device on code change.
 # Usage:
-#   ./scripts/deploy.sh          # build + install + restart once
-#   ./scripts/deploy.sh --watch  # auto-rebuild on file change (requires fswatch)
+#   ./scripts/deploy.sh                # build dev flavor + install + restart
+#   ./scripts/deploy.sh localProd      # build localProd flavor + install + restart
+#   ./scripts/deploy.sh --watch        # auto-rebuild dev on file change (requires fswatch)
+#   ./scripts/deploy.sh localProd --watch
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 PACKAGE="com.kidscheck.app"
 MAIN_ACTIVITY="com.kidscheck.app.MainActivity"
+
+# Parse flavor argument (default: dev)
+FLAVOR="dev"
+WATCH=false
+for arg in "$@"; do
+  case "$arg" in
+    --watch) WATCH=true ;;
+    dev|localProd|prod) FLAVOR="$arg" ;;
+  esac
+done
+
+# Capitalize first letter for Gradle task name
+FLAVOR_CAP="$(echo "${FLAVOR:0:1}" | tr '[:lower:]' '[:upper:]')${FLAVOR:1}"
+TASK="assemble${FLAVOR_CAP}Debug"
 
 # Locate Android SDK
 if [ -z "${ANDROID_HOME:-}" ]; then
@@ -29,10 +45,10 @@ if [ ! -x "$ADB" ]; then
 fi
 
 build_and_deploy() {
-  echo "🔨 Building debug APK..."
-  "$PROJECT_DIR/gradlew" -p "$PROJECT_DIR" assembleDebug -q
+  echo "🔨 Building $FLAVOR debug APK..."
+  "$PROJECT_DIR/gradlew" -p "$PROJECT_DIR" "$TASK" -q
 
-  APK=$(find "$PROJECT_DIR/app/build/outputs/apk/debug" -name "*.apk" | head -1)
+  APK=$(find "$PROJECT_DIR/app/build/outputs/apk/$FLAVOR/debug" -name "*.apk" | head -1)
   if [ -z "$APK" ]; then
     echo "❌ APK not found after build." >&2
     return 1
@@ -45,12 +61,12 @@ build_and_deploy() {
   "$ADB" shell am force-stop "$PACKAGE"
   "$ADB" shell am start -n "$PACKAGE/$MAIN_ACTIVITY"
 
-  echo "✅ Done! App restarted on device."
+  echo "✅ Done! App ($FLAVOR) restarted on device."
 }
 
 build_and_deploy
 
-if [ "${1:-}" = "--watch" ]; then
+if [ "$WATCH" = true ]; then
   if ! command -v fswatch &>/dev/null; then
     echo "⚠️  fswatch not found. Install with: brew install fswatch" >&2
     exit 1
