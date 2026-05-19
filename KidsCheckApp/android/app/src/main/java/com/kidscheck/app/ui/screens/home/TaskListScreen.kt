@@ -314,12 +314,8 @@ private suspend fun loadTasks(
             onResult(taskList)
             db.dailyTaskDao().clearFor(childId, date)
             db.dailyTaskDao().insertAll(taskList.map { it.toCached(childId, date) })
-        } else {
-            onResult(emptyList())
         }
-    } catch (_: Exception) {
-        onResult(emptyList())
-    }
+    } catch (_: Exception) {}
 }
 
 private fun CachedDailyTask.toDailyTask() = DailyTask(
