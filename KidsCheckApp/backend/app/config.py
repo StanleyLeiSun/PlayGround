@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 # Database
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/kidscheck")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./kidscheck.db")
 
 # JWT
 JWT_SECRET = os.getenv("JWT_SECRET", "kidscheck-secret-key-change-in-production")

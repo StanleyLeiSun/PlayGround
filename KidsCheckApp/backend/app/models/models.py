@@ -176,7 +176,7 @@ class ActionLog(Base):
     action = Column(String(100), nullable=False)
     target_type = Column(String(50), nullable=True)
     target_id = Column(Integer, nullable=True)
-    metadata = Column(JSON, nullable=True)
+    meta = Column("metadata", JSON, nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     __table_args__ = (

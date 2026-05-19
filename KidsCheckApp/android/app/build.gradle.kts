@@ -53,7 +53,8 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+    // 显式指定 material3 版本，避免与 Compose BOM 对应的 compose-* 版本不匹配导致运行时崩溃（NoSuchMethodError）
+    implementation("androidx.compose.material3:material3:1.2.1")
     implementation("androidx.compose.material:material-icons-extended")
 
     // Navigation

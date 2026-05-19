@@ -16,7 +16,7 @@ async def log_action(
         action=action,
         target_type=target_type,
         target_id=target_id,
-        metadata=metadata,
+        meta=metadata,
     )
     db.add(entry)
     await db.flush()

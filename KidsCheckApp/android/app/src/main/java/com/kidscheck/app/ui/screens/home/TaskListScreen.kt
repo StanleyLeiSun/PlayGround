@@ -24,11 +24,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.kidscheck.app.data.api.RetrofitInstance
 import com.kidscheck.app.data.local.AppDatabase
 import com.kidscheck.app.data.local.CachedDailyTask
@@ -46,6 +49,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun TaskListScreen(childId: Int, childName: String) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
     val db = remember { AppDatabase.getInstance(context) }
     var tasks by remember { mutableStateOf<List<DailyTask>>(emptyList()) }
@@ -85,15 +89,26 @@ fun TaskListScreen(childId: Int, childName: String) {
         }
     }
 
-    LaunchedEffect(childId) {
+    // 先展示本地缓存；真正的刷新走 onResume，确保从“模板管理”等页面返回后也会拉取最新今日任务
+    LaunchedEffect(childId, today) {
         // Show cached data immediately
         val cached = db.dailyTaskDao().getTasks(childId, today)
         if (cached.isNotEmpty()) {
             tasks = cached.map { it.toDailyTask() }
             loading = false
         }
-        // Fetch fresh data from API
-        loadTasks(context, childId, today, db) { tasks = it; loading = false }
+    }
+
+    DisposableEffect(lifecycleOwner, childId, today) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                scope.launch {
+                    loadTasks(context, childId, today, db) { tasks = it; loading = false }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {

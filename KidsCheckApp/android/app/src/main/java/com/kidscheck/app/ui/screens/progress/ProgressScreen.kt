@@ -91,7 +91,7 @@ fun ProgressScreen(childId: Int) {
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     LinearProgressIndicator(
-                        progress = { if (p.totalTasks > 0) p.completedTasks.toFloat() / p.totalTasks else 0f },
+                        progress = if (p.totalTasks > 0) p.completedTasks.toFloat() / p.totalTasks else 0f,
                         modifier = Modifier.fillMaxWidth().height(12.dp).clip(RoundedCornerShape(6.dp)),
                         color = Primary,
                         trackColor = Border,

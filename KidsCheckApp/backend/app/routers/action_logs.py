@@ -39,7 +39,7 @@ async def get_action_logs(
         ActionLogResponse(
             id=l.id, user_id=l.user_id, action=l.action,
             target_type=l.target_type, target_id=l.target_id,
-            metadata=l.metadata, created_at=l.created_at,
+            metadata=l.meta, created_at=l.created_at,
         )
         for l in logs
     ]

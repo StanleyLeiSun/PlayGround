@@ -128,7 +128,7 @@ fun UserChip(name: String, selected: Boolean, onClick: () -> Unit) {
             .width(100.dp),
         shape = RoundedCornerShape(12.dp),
         color = if (selected) Primary else GrayLight,
-        border = if (selected) null else ButtonDefaults.outlinedButtonBorder(enabled = true)
+        border = if (selected) null else ButtonDefaults.outlinedButtonBorder
     ) {
         Text(
             name,
