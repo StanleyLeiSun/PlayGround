@@ -63,6 +63,7 @@ data class DailyTask(
     val status: String,
     @SerializedName("completed_at") val completedAt: String?,
     @SerializedName("completed_by") val completedBy: Int?,
+    @SerializedName("completed_by_username") val completedByUsername: String? = null,
     @SerializedName("is_conditional") val isConditional: Boolean,
     val photos: List<CheckInPhoto> = emptyList()
 )

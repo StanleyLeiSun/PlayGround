@@ -38,13 +38,21 @@ async def get_progress(
     account = result.scalar_one_or_none()
     cumulative = account.balance if account else 0
 
+    completed_ids = {t.completed_by for t in tasks if t.completed_by}
+    username_by_id: dict[int, str] = {}
+    if completed_ids:
+        result = await db.execute(select(User.id, User.username).where(User.id.in_(completed_ids)))
+        username_by_id = {uid: name for uid, name in result.all()}
+
     task_responses = []
     for t in sorted(tasks, key=lambda x: (x.is_conditional, x.completed_at or datetime.max)):
         task_responses.append(DailyTaskResponse(
             id=t.id, child_id=t.child_id, date=t.date,
             title=t.title, type=t.type.value, points=t.points,
             status=t.status.value, completed_at=t.completed_at,
-            completed_by=t.completed_by, is_conditional=t.is_conditional,
+            completed_by=t.completed_by,
+            completed_by_username=username_by_id.get(t.completed_by) if t.completed_by else None,
+            is_conditional=t.is_conditional,
             photos=[
                 CheckInPhotoResponse(
                     id=p.id, photo_url=p.photo_url, uploaded_by=p.uploaded_by,

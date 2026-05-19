@@ -93,6 +93,7 @@ class DailyTaskResponse(BaseModel):
     status: str
     completed_at: Optional[datetime]
     completed_by: Optional[int]
+    completed_by_username: Optional[str] = None
     is_conditional: bool
     photos: list["CheckInPhotoResponse"] = []
 

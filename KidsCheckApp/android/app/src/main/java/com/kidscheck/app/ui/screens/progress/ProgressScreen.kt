@@ -1,7 +1,6 @@
 package com.kidscheck.app.ui.screens.progress
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,15 +15,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.kidscheck.app.data.api.RetrofitInstance
 import com.kidscheck.app.data.model.DailyTask
 import com.kidscheck.app.data.model.ProgressResponse
 import com.kidscheck.app.ui.theme.*
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeParseException
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.launch
 
@@ -35,6 +41,9 @@ fun ProgressScreen(childId: Int) {
     var progress by remember { mutableStateOf<ProgressResponse?>(null) }
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
     var loading by remember { mutableStateOf(true) }
+    var photoViewerUrls by remember { mutableStateOf<List<String>>(emptyList()) }
+    var photoViewerIndex by remember { mutableIntStateOf(0) }
+    var showPhotoViewer by remember { mutableStateOf(false) }
 
     LaunchedEffect(childId, currentDate) {
         loading = true
@@ -56,6 +65,49 @@ fun ProgressScreen(childId: Int) {
     }
 
     val p = progress ?: return
+    val timelineTasks = remember(p.tasks) {
+        p.tasks.sortedWith(compareBy<DailyTask> { it.isConditional }.thenBy { it.completedAt ?: "zzz" })
+    }
+
+    if (showPhotoViewer) {
+        AlertDialog(
+            onDismissRequest = { showPhotoViewer = false },
+            confirmButton = { TextButton(onClick = { showPhotoViewer = false }) { Text("关闭") } },
+            title = { Text("照片") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    val url = photoViewerUrls.getOrNull(photoViewerIndex)
+                    if (url != null) {
+                        AsyncImage(
+                            model = url,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxWidth().height(320.dp).clip(RoundedCornerShape(12.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                        if (photoViewerUrls.size > 1) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                TextButton(
+                                    onClick = { photoViewerIndex = (photoViewerIndex - 1).coerceAtLeast(0) },
+                                    enabled = photoViewerIndex > 0
+                                ) { Text("上一张") }
+                                Text("${photoViewerIndex + 1}/${photoViewerUrls.size}", color = TextSecondary)
+                                TextButton(
+                                    onClick = { photoViewerIndex = (photoViewerIndex + 1).coerceAtMost(photoViewerUrls.size - 1) },
+                                    enabled = photoViewerIndex < photoViewerUrls.size - 1
+                                ) { Text("下一张") }
+                            }
+                        }
+                    } else {
+                        Text("无法加载照片链接", color = TextSecondary)
+                    }
+                }
+            }
+        )
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -105,7 +157,7 @@ fun ProgressScreen(childId: Int) {
             Text("📅 时间线", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextSecondary)
         }
 
-        items(p.tasks.sortedWith(compareBy<DailyTask> { it.isConditional }.thenBy { it.completedAt ?: "zzz" })) { task ->
+        items(timelineTasks) { task ->
             Row(modifier = Modifier.padding(start = 14.dp)) {
                 // Timeline line + dot
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -113,21 +165,50 @@ fun ProgressScreen(childId: Int) {
                         modifier = Modifier.size(14.dp).clip(CircleShape)
                             .background(if (task.status == "done") Success else Gray)
                     )
-                    if (task != p.tasks.last()) {
+                    if (task != timelineTasks.lastOrNull()) {
                         Box(modifier = Modifier.width(3.dp).height(40.dp).background(Border))
                     }
                 }
                 Spacer(modifier = Modifier.width(20.dp))
                 Column(modifier = Modifier.weight(1f)) {
+                    val isDone = task.status == "done"
+                    val timeText = if (isDone) {
+                        formatCompletedAt(task.completedAt) ?: "已完成"
+                    } else {
+                        "未完成"
+                    }
+                    val submitter = if (isDone) {
+                        task.completedByUsername ?: task.completedBy?.let { "用户#$it" }
+                    } else {
+                        null
+                    }
+                    val headerText = if (submitter.isNullOrBlank()) timeText else "$timeText · 提交人：$submitter"
                     Text(
-                        task.completedAt?.take(16)?.replace("T", " ") ?: "--:--",
-                        fontSize = 14.sp, color = Gray
+                        headerText,
+                        fontSize = 14.sp,
+                        color = TextSecondary
                     )
                     Text(task.title, fontSize = 16.sp, fontWeight = FontWeight.Medium,
                         color = if (task.status == "done") TextPrimary else Gray)
                     if (task.photos.isNotEmpty()) {
-                        Text("📷 查看照片", fontSize = 13.sp, color = Primary,
-                            modifier = Modifier.clickable { /* open photo */ })
+                        AssistChip(
+                            onClick = {
+                                val urls = task.photos.map { resolvePhotoUrl(it.photoUrl) }
+                                if (urls.isNotEmpty()) {
+                                    photoViewerUrls = urls
+                                    photoViewerIndex = 0
+                                    showPhotoViewer = true
+                                }
+                            },
+                            label = { Text("查看照片") },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Photo,
+                                    contentDescription = null
+                                )
+                            },
+                            modifier = Modifier.padding(top = 6.dp)
+                        )
                     }
                 }
             }
@@ -159,4 +240,26 @@ fun ProgressScreen(childId: Int) {
             }
         }
     }
+}
+
+private fun formatCompletedAt(value: String?): String? {
+    if (value.isNullOrBlank()) return null
+    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+    return try {
+        val instant = OffsetDateTime.parse(value).toInstant()
+        instant.atZone(ZoneId.systemDefault()).format(timeFormatter)
+    } catch (_: DateTimeParseException) {
+        try {
+            val instant = LocalDateTime.parse(value).atOffset(ZoneOffset.UTC).toInstant()
+            instant.atZone(ZoneId.systemDefault()).format(timeFormatter)
+        } catch (_: DateTimeParseException) {
+            value.replace("T", " ").take(16)
+        }
+    }
+}
+
+private fun resolvePhotoUrl(photoUrl: String): String {
+    if (photoUrl.startsWith("http://") || photoUrl.startsWith("https://")) return photoUrl
+    val base = RetrofitInstance.BASE_URL.trimEnd('/')
+    return if (photoUrl.startsWith("/")) base + photoUrl else "$base/$photoUrl"
 }
