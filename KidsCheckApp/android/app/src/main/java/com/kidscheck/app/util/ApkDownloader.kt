@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import com.kidscheck.app.data.api.RetrofitInstance
 import com.kidscheck.app.data.model.AppVersion
@@ -111,7 +112,11 @@ object ApkDownloader {
         this.onProgress = onProgress
 
         val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
-        context.registerReceiver(downloadReceiver, filter)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.registerReceiver(downloadReceiver, filter, Context.RECEIVER_EXPORTED)
+        } else {
+            context.registerReceiver(downloadReceiver, filter)
+        }
     }
 
     fun unregisterReceiver(context: Context) {

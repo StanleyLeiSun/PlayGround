@@ -13,6 +13,7 @@ backend/*.db
 backend/uploads/**
 !backend/uploads/apk/
 !backend/uploads/apk/**
+*.apk
 backend/.env.prod
 
 # IDE

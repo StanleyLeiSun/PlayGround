@@ -34,8 +34,7 @@ class MainActivity : ComponentActivity() {
             onComplete = { localUri ->
                 isDownloading = false
                 if (localUri.isNotEmpty()) {
-                    // 下载完成，安装APK
-                    val file = java.io.File(localUri)
+                    val file = java.io.File(android.net.Uri.parse(localUri).path ?: "")
                     if (file.exists()) {
                         com.kidscheck.app.util.ApkInstaller.installApk(this, file)
                     }

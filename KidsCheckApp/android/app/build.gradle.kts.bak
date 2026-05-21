@@ -21,24 +21,14 @@ android {
         applicationId = "com.kidscheck.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 10102
-        versionName = "1.1.2"
-    }
-
-    signingConfigs {
-        create("release") {
-            storeFile = file("../keystore/release.jks")
-            storePassword = "kidscheck123"
-            keyAlias = "kidscheck"
-            keyPassword = "kidscheck123"
-        }
+        versionCode = 1
+        versionName = "1.0.0"
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs.getByName("release")
         }
     }
 
