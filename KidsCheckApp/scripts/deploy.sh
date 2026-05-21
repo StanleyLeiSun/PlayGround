@@ -98,6 +98,10 @@ copy_backend_code() {
         --exclude='*.pyc' \
         --exclude='.pytest_cache' \
         --exclude='kidscheck.db' \
+        --include='uploads/' \
+        --include='uploads/apk/' \
+        --include='uploads/apk/**' \
+        --exclude='uploads/*' \
         "${SOURCE_BACKEND}/" "${BACKEND_DIR}/"
     log "代码拷贝完成"
 }

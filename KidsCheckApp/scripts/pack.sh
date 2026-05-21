@@ -18,7 +18,7 @@ tar -czf "${OUTPUT_DIR}/${ARCHIVE_NAME}" \
     --exclude='.pytest_cache' \
     --exclude='.venv' \
     --exclude='*.db' \
-    --exclude='uploads' \
+    --exclude='uploads/photos' \
     --exclude='.env.prod' \
     --exclude='test_*.db' \
     backend/ scripts/

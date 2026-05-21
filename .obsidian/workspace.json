@@ -1,0 +1,231 @@
+{
+  "main": {
+    "id": "7879b5892d68918e",
+    "type": "split",
+    "children": [
+      {
+        "id": "e7b404c3bf710eaf",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "21ae8f6e2308c180",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "KidsCheckApp/docs/superpowers/specs/2026-05-21-android-auto-update-design.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "2026-05-21-android-auto-update-design"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "69eaf1daed0459c6",
+    "type": "split",
+    "children": [
+      {
+        "id": "379c28c91d82b769",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "5d556e27bb38c6fb",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "a8c48391921c9cc2",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "248ed402a0340723",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 391.5
+  },
+  "right": {
+    "id": "80b1ad89ba28149c",
+    "type": "split",
+    "children": [
+      {
+        "id": "c7195ccb40870b0e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "0efba36f912c923c",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "KidsCheckApp/docs/superpowers/specs/2026-05-21-android-auto-update-design.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "2026-05-21-android-auto-update-design 的反向链接列表"
+            }
+          },
+          {
+            "id": "a78927ccbb210d24",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "KidsCheckApp/docs/superpowers/specs/2026-05-21-android-auto-update-design.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "2026-05-21-android-auto-update-design 的出链列表"
+            }
+          },
+          {
+            "id": "0cd15978e3880c19",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "d7a3b4a28987c694",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "b5101cc2182edf6b",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "KidsCheckApp/docs/superpowers/specs/2026-05-21-android-auto-update-design.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "2026-05-21-android-auto-update-design 的大纲"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false
+    }
+  },
+  "active": "21ae8f6e2308c180",
+  "lastOpenFiles": [
+    "KidsCheckApp/scripts/deploy_prod.sh.tmp.1456.17fac520cdea",
+    "KidsCheckApp/scripts/deploy.sh.tmp.1456.0250b04fee9f",
+    "KidsCheckApp/scripts/pack.sh.tmp.1456.c790f653f20e",
+    "KidsCheckApp/scripts/release-apk.sh.tmp.1456.fcd592fbd6b7",
+    "KidsCheckApp/scripts/release-apk.sh",
+    "KidsCheckApp/scripts/release-apk.sh.tmp.1456.ef8a1ec49f49",
+    "KidsCheckApp/backend/alembic/versions/f55af99b0057_add_is_adhoc_description_created_by_to_.py",
+    "KidsCheckApp/docs/superpowers/specs/2026-05-19-multi-environment-design.md",
+    "KidsCheckApp/android/app/build/intermediates/incremental/debug/mergeDebugResources/merged.dir/values-es/values-es.xml",
+    "KidsCheckApp/android/app/build/intermediates/incremental/debug/mergeDebugResources/merged.dir/values-es",
+    "KidsCheckApp/android/app/build/intermediates/incremental/debug/mergeDebugResources/merged.dir/values-en-rGB/values-en-rGB.xml",
+    "KidsCheckApp/android/app/build/intermediates/incremental/debug/mergeDebugResources/merged.dir/values-en-rGB",
+    "KidsCheckApp/backend/uploads/photos/1/2026-05-18/6ce0ff4ccd0048999890ba63796d5256.jpg",
+    "KidsCheckApp/backend/uploads/photos/1/2026-05-18/578147bd48c9457ab43c8196c3819434.jpg",
+    "KidsCheckApp/docs/superpowers/plans/2026-05-21-android-auto-update.md",
+    "KidsCheckApp/docs/superpowers/specs/2026-05-19-deployment-script-design.md",
+    "KidsCheckApp/docs/superpowers/specs/2026-05-21-android-auto-update-design.md",
+    "KidsCheckApp/ba-kg/logs/lint-reports/2026-05-18.md",
+    "KidsCheckApp/ba-kg/logs/log.md",
+    "KidsCheckApp/ba-kg/logs/flow-import-2026-05-19.md",
+    "KidsCheckApp/ba-kg/knowledge-catalog.md",
+    "KidsCheckApp/ba-kg/installer/skills/ba-kg/SKILL.md",
+    "KidsCheckApp/ba-kg/general-kb/external/papers/catalog.md",
+    "KidsCheckApp/ba-kg/general-kb/external/benchmarks/catalog.md",
+    "KidsCheckApp/ba-kg/general-kb/rerank/GK-RERANK-G002.md",
+    "KidsCheckApp/ba-kg/general-kb/rerank/catalog.md",
+    "KidsCheckApp/ba-kg/general-kb/serving/GK-SERVING-R002.md",
+    "KidsCheckApp/ba-kg/general-kb/serving/GK-SERVING-P003.md",
+    "KidsCheckApp/ba-kg/general-kb/serving/GK-SERVING-M005.md",
+    "KidsCheckApp/ba-kg/general-kb/serving/GK-SERVING-M004.md",
+    "KidsCheckApp/ba-kg/general-kb/serving/GK-SERVING-M003.md",
+    "KidsCheckApp/ba-kg/general-kb/serving/GK-SERVING-D002.md",
+    "KidsCheckApp/ba-kg/general-kb/serving/catalog.md",
+    "KidsCheckApp/ba-kg/general-kb/recall/GK-RECALL-M004.md",
+    "KidsCheckApp/ba-kg/general-kb/recall/GK-RECALL-P013.md",
+    "KidsCheckApp/ba-kg/general-kb/recall/GK-RECALL-M003.md",
+    "KidsCheckApp/ba-kg/general-kb/recall/GK-RECALL-M002.md",
+    "KidsCheckApp/ba-kg/general-kb/recall/GK-RECALL-D002.md",
+    "KidsCheckApp/backend/uploads/photos/1/2026-05-18/302e7973cad24812a6642e4eab758313.jpg",
+    "KidsCheckApp/backend/uploads/photos/1/2026-05-18/02acd4369a8e4050af348b3fe1f403b3.jpg",
+    "KidsCheckApp/backend/uploads/photos/1/2026-05-18/02dff3caf90541c5867210a4a09a2385.jpg",
+    "KidsCheckApp/backend/uploads/photos/1/2026-05-18/4d923c5fa88a48d1b80593565db62066.jpg"
+  ]
+}
