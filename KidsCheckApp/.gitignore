@@ -10,7 +10,9 @@ backend/__pycache__/
 backend/app/__pycache__/
 backend/**/__pycache__/
 backend/*.db
-backend/uploads/
+backend/uploads/*
+!backend/uploads/apk/
+!backend/uploads/apk/version.json
 backend/.env.prod
 
 # IDE
