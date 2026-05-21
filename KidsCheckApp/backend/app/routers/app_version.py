@@ -10,7 +10,7 @@ VERSION_FILE = Path("uploads/apk/version.json")
 
 
 @router.get("/version")
-async def check_version():
+def check_version():
     """检查应用版本"""
     if not VERSION_FILE.exists():
         raise HTTPException(status_code=404, detail="Version info not found")
@@ -31,7 +31,7 @@ async def check_version():
 
 
 @router.get("/download/{version_name}")
-async def download_apk(version_name: str):
+def download_apk(version_name: str):
     """下载APK文件"""
     if not VERSION_FILE.exists():
         raise HTTPException(status_code=404, detail="Version info not found")

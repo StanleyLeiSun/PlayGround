@@ -2,6 +2,8 @@
   "version_code": 1,
   "version_name": "1.0.0",
   "apk_filename": "kidscheck-1.0.0.apk",
+  "apk_size": 0,
+  "apk_md5": "",
   "release_notes": "1. 初始版本\n2. 基础打卡功能",
   "force_update": false,
   "min_supported_version": 1,
