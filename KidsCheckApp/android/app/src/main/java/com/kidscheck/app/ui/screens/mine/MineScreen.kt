@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kidscheck.app.BuildConfig
 import com.kidscheck.app.data.api.RetrofitInstance
 import com.kidscheck.app.data.model.Child
 import com.kidscheck.app.data.model.PointBalance
@@ -106,6 +107,46 @@ fun MineScreen(
                     Icon(Icons.Default.Logout, contentDescription = null, tint = Danger, modifier = Modifier.size(24.dp))
                     Spacer(modifier = Modifier.width(14.dp))
                     Text("退出登录 ($username)", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Danger)
+                }
+            }
+        }
+
+        // 关于区域
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                color = MaterialTheme.colorScheme.surface,
+                border = androidx.compose.foundation.BorderStroke(2.dp, Border)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "关于",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "版本：${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                            fontSize = 14.sp,
+                            color = TextSecondary
+                        )
+                        TextButton(
+                            onClick = { /* 检查更新逻辑 */ }
+                        ) {
+                            Text(
+                                text = "检查更新",
+                                fontSize = 14.sp,
+                                color = Primary
+                            )
+                        }
+                    }
                 }
             }
         }
