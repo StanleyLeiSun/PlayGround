@@ -79,6 +79,15 @@ class ConditionalTaskCreate(BaseModel):
     type: str  # "written" or "reading"
     description: Optional[str] = None
     points: int = 5
+    weekdays: Optional[str] = None
+
+
+class ConditionalTaskUpdate(BaseModel):
+    title: Optional[str] = None
+    type: Optional[str] = None
+    description: Optional[str] = None
+    points: Optional[int] = None
+    weekdays: Optional[str] = None
 
 
 class ConditionalTaskResponse(BaseModel):
@@ -89,6 +98,7 @@ class ConditionalTaskResponse(BaseModel):
     type: str
     description: Optional[str]
     points: int
+    weekdays: Optional[str] = None
 
 
 # Daily Task

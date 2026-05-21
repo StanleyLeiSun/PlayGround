@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.models import TaskTemplate, ConditionalTask
-from app.schemas.schemas import TaskTemplateCreate, TaskTemplateBatchCreate, TaskTemplateUpdate, ConditionalTaskCreate
+from app.schemas.schemas import TaskTemplateCreate, TaskTemplateBatchCreate, TaskTemplateUpdate, ConditionalTaskCreate, ConditionalTaskUpdate
 
 WEEKDAY_NAMES = {1: "周一", 2: "周二", 3: "周三", 4: "周四", 5: "周五", 6: "周六", 7: "周日"}
 
@@ -109,8 +109,21 @@ async def create_conditional_task(db: AsyncSession, child_id: int, data: Conditi
         type=data.type,
         description=data.description,
         points=data.points,
+        weekdays=data.weekdays,
     )
     db.add(task)
+    await db.flush()
+    await db.refresh(task)
+    return task
+
+
+async def update_conditional_task(db: AsyncSession, task_id: int, data: ConditionalTaskUpdate) -> ConditionalTask | None:
+    result = await db.execute(select(ConditionalTask).where(ConditionalTask.id == task_id))
+    task = result.scalar_one_or_none()
+    if not task:
+        return None
+    for field, value in data.model_dump(exclude_unset=True).items():
+        setattr(task, field, value)
     await db.flush()
     await db.refresh(task)
     return task

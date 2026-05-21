@@ -49,6 +49,12 @@ interface ApiService {
         @Body data: ConditionalTaskCreate
     ): Response<ConditionalTask>
 
+    @PUT("/api/conditional-tasks/{id}")
+    suspend fun updateConditionalTask(
+        @Path("id") id: Int,
+        @Body data: ConditionalTaskUpdate
+    ): Response<ConditionalTask>
+
     @DELETE("/api/conditional-tasks/{id}")
     suspend fun deleteConditionalTask(@Path("id") id: Int): Response<Unit>
 

@@ -91,7 +91,12 @@ async def check_and_insert_conditional_tasks(db: AsyncSession, child_id: int, ta
     )
     cond_templates = cond_result.scalars().all()
 
+    weekday = target_date.isoweekday()
     for ct in cond_templates:
+        if ct.weekdays:
+            allowed = [int(d) for d in ct.weekdays.split(",") if d.strip()]
+            if weekday not in allowed:
+                continue
         task = DailyTask(
             child_id=child_id,
             date=datetime.combine(target_date, datetime.min.time()),

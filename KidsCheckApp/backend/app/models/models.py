@@ -81,6 +81,7 @@ class ConditionalTask(Base):
     type = Column(Enum(TaskType), nullable=False)
     description = Column(String(255), nullable=True)
     points = Column(Integer, nullable=False, default=5)
+    weekdays = Column(String(50), nullable=True)
 
     child = relationship("Child", back_populates="conditional_tasks")
 

@@ -50,7 +50,8 @@ data class ConditionalTask(
     val title: String,
     val type: String,
     val description: String?,
-    val points: Int
+    val points: Int,
+    val weekdays: String? = null
 )
 
 data class DailyTask(
@@ -151,7 +152,16 @@ data class ConditionalTaskCreate(
     val title: String,
     val type: String,
     val description: String? = null,
-    val points: Int = 5
+    val points: Int = 5,
+    val weekdays: String? = null
+)
+
+data class ConditionalTaskUpdate(
+    val title: String? = null,
+    val type: String? = null,
+    val description: String? = null,
+    val points: Int? = null,
+    val weekdays: String? = null
 )
 
 data class RewardCreate(

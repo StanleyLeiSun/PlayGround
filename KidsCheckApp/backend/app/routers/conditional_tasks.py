@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.middleware.auth import get_current_user, require_parent
 from app.models.models import User
-from app.schemas.schemas import ConditionalTaskCreate, ConditionalTaskResponse
+from app.schemas.schemas import ConditionalTaskCreate, ConditionalTaskUpdate, ConditionalTaskResponse
 from app.services import template_service
 from app.services.action_log_service import log_action
 
@@ -21,7 +21,8 @@ async def get_conditional_tasks(
     return [
         ConditionalTaskResponse(
             id=t.id, child_id=t.child_id, trigger_condition=t.trigger_condition,
-            title=t.title, type=t.type.value, description=t.description, points=t.points,
+            title=t.title, type=t.type.value, description=t.description,
+            points=t.points, weekdays=t.weekdays,
         )
         for t in tasks
     ]
@@ -38,7 +39,26 @@ async def create_conditional_task(
     await log_action(db, user.id, "create_conditional_task", "conditional_task", task.id)
     return ConditionalTaskResponse(
         id=task.id, child_id=task.child_id, trigger_condition=task.trigger_condition,
-        title=task.title, type=task.type.value, description=task.description, points=task.points,
+        title=task.title, type=task.type.value, description=task.description,
+        points=task.points, weekdays=task.weekdays,
+    )
+
+
+@router.put("/{task_id}", response_model=ConditionalTaskResponse)
+async def update_conditional_task(
+    task_id: int,
+    data: ConditionalTaskUpdate,
+    user: User = Depends(require_parent),
+    db: AsyncSession = Depends(get_db),
+):
+    task = await template_service.update_conditional_task(db, task_id, data)
+    if not task:
+        raise HTTPException(status_code=404, detail="Conditional task not found")
+    await log_action(db, user.id, "update_conditional_task", "conditional_task", task_id)
+    return ConditionalTaskResponse(
+        id=task.id, child_id=task.child_id, trigger_condition=task.trigger_condition,
+        title=task.title, type=task.type.value, description=task.description,
+        points=task.points, weekdays=task.weekdays,
     )
 
 

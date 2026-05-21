@@ -8,7 +8,7 @@ import android.speech.RecognizerIntent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,6 +41,7 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
     var templates by remember { mutableStateOf<List<TemplatesByWeekday>>(emptyList()) }
     var conditionals by remember { mutableStateOf<List<ConditionalTask>>(emptyList()) }
     var showAddDialog by remember { mutableStateOf(false) }
+    var editingTemplate by remember { mutableStateOf<EditTemplateData?>(null) }
     var voiceResult by remember { mutableStateOf<VoiceParsedIntent?>(null) }
     var showVoiceConfirm by remember { mutableStateOf(false) }
     var reloadJob by remember { mutableStateOf<Job?>(null) }
@@ -147,7 +148,21 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                 }
                 items(group.templates) { template ->
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                            .clickable {
+                                val allSameTitle = templates.flatMap { it.templates }.filter { it.title == template.title }
+                                val days = allSameTitle.map { it.weekday }.toSet()
+                                editingTemplate = EditTemplateData(
+                                    isConditional = false,
+                                    templateIds = allSameTitle.map { it.id },
+                                    title = template.title,
+                                    description = template.description ?: "",
+                                    weekdays = days,
+                                    points = template.points,
+                                    requirePhoto = template.type == "written",
+                                    conditionalTaskId = null
+                                )
+                            },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(template.title, fontSize = 16.sp, modifier = Modifier.weight(1f))
@@ -179,7 +194,22 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                         color = Purple, modifier = Modifier.padding(vertical = 4.dp))
                 }
                 items(conditionals) { task ->
-                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                        .clickable {
+                            val days = task.weekdays?.split(",")?.mapNotNull { it.trim().toIntOrNull() }?.toSet() ?: (1..7).toSet()
+                            editingTemplate = EditTemplateData(
+                                isConditional = true,
+                                templateIds = emptyList(),
+                                title = task.title,
+                                description = task.description ?: "",
+                                weekdays = days,
+                                points = task.points,
+                                requirePhoto = task.type == "written",
+                                conditionalTaskId = task.id
+                            )
+                        },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(task.title, fontSize = 16.sp, modifier = Modifier.weight(1f))
                         Surface(shape = RoundedCornerShape(8.dp), color = PurpleLight) {
                             Text("条件", modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
@@ -210,7 +240,8 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                     try {
                         val api = RetrofitInstance.getApi(context)
                         val resp = if (isConditional && selectedChild != null) {
-                            api.createConditionalTask(selectedChild!!.id, ConditionalTaskCreate(data.title, data.type, data.description, data.points))
+                            val weekdaysStr = data.weekdays.joinToString(",")
+                            api.createConditionalTask(selectedChild!!.id, ConditionalTaskCreate(data.title, data.type, data.description, data.points, weekdaysStr.ifEmpty { null }))
                         } else if (selectedChild != null) {
                             api.createTemplateBatch(selectedChild!!.id, data)
                         } else null
@@ -268,6 +299,93 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
             dismissButton = { TextButton(onClick = { showVoiceConfirm = false }) { Text("取消") } }
         )
     }
+
+    // Edit template dialog
+    editingTemplate?.let { editData ->
+        EditTemplateDialog(
+            data = editData,
+            onDismiss = { editingTemplate = null },
+            onSave = { newData ->
+                scope.launch {
+                    try {
+                        val api = RetrofitInstance.getApi(context)
+                        val childId = selectedChild?.id ?: return@launch
+                        val type = if (newData.requirePhoto) "written" else "reading"
+                        val wasConditional = editData.isConditional
+                        val nowConditional = newData.isConditional
+
+                        if (wasConditional && nowConditional) {
+                            // Conditional -> Conditional: update in place
+                            editData.conditionalTaskId?.let { id ->
+                                api.updateConditionalTask(id, ConditionalTaskUpdate(
+                                    title = newData.title, type = type,
+                                    description = newData.description.ifBlank { null },
+                                    points = newData.points,
+                                    weekdays = newData.weekdays.sorted().joinToString(",")
+                                ))
+                            }
+                        } else if (!wasConditional && !nowConditional) {
+                            // Template -> Template: diff weekdays
+                            val oldDays = editData.weekdays
+                            val newDays = newData.weekdays
+                            val removedDays = oldDays - newDays
+                            val addedDays = newDays - oldDays
+                            val keptDays = oldDays.intersect(newDays)
+
+                            // Delete removed weekday templates
+                            val allTemplates = templates.flatMap { it.templates }.filter { it.title == editData.title }
+                            for (t in allTemplates) {
+                                if (t.weekday in removedDays) {
+                                    api.deleteTemplate(t.id)
+                                }
+                            }
+                            // Update kept weekday templates
+                            for (t in allTemplates) {
+                                if (t.weekday in keptDays) {
+                                    api.updateTemplate(t.id, mapOf(
+                                        "title" to newData.title,
+                                        "type" to type,
+                                        "description" to (newData.description.ifBlank { null } as Any? ?: ""),
+                                        "points" to newData.points
+                                    ))
+                                }
+                            }
+                            // Create new weekday templates
+                            if (addedDays.isNotEmpty()) {
+                                api.createTemplateBatch(childId, TaskTemplateBatchCreate(
+                                    addedDays.sorted(), newData.title, type,
+                                    description = newData.description.ifBlank { null },
+                                    points = newData.points
+                                ))
+                            }
+                        } else if (wasConditional && !nowConditional) {
+                            // Conditional -> Template: delete conditional, create templates
+                            editData.conditionalTaskId?.let { api.deleteConditionalTask(it) }
+                            api.createTemplateBatch(childId, TaskTemplateBatchCreate(
+                                newData.weekdays.sorted(), newData.title, type,
+                                description = newData.description.ifBlank { null },
+                                points = newData.points
+                            ))
+                        } else {
+                            // Template -> Conditional: delete all templates, create conditional
+                            val allTemplates = templates.flatMap { it.templates }.filter { it.title == editData.title }
+                            for (t in allTemplates) { api.deleteTemplate(t.id) }
+                            api.createConditionalTask(childId, ConditionalTaskCreate(
+                                newData.title, type,
+                                description = newData.description.ifBlank { null },
+                                points = newData.points,
+                                weekdays = newData.weekdays.sorted().joinToString(",")
+                            ))
+                        }
+                        editingTemplate = null
+                        reload()
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "保存失败: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -286,18 +404,16 @@ fun AddTemplateDialog(onDismiss: () -> Unit, onConfirm: (TaskTemplateBatchCreate
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("任务名称") }, singleLine = true)
                 OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("备注（可选）") }, singleLine = true)
-                if (!isConditional) {
-                    Text("周几（可多选）:", fontSize = 14.sp)
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        (1..7).forEach { d ->
-                            FilterChip(
-                                selected = d in selectedDays,
-                                onClick = {
-                                    selectedDays = if (d in selectedDays) selectedDays - d else selectedDays + d
-                                },
-                                label = { Text(listOf("一","二","三","四","五","六","日")[d-1], fontSize = 12.sp) }
-                            )
-                        }
+                Text("周几（可多选）:", fontSize = 14.sp)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    (1..7).forEach { d ->
+                        FilterChip(
+                            selected = d in selectedDays,
+                            onClick = {
+                                selectedDays = if (d in selectedDays) selectedDays - d else selectedDays + d
+                            },
+                            label = { Text(listOf("一","二","三","四","五","六","日")[d-1], fontSize = 12.sp) }
+                        )
                     }
                 }
                 OutlinedTextField(value = points, onValueChange = { points = it }, label = { Text("积分") }, singleLine = true)
@@ -314,13 +430,90 @@ fun AddTemplateDialog(onDismiss: () -> Unit, onConfirm: (TaskTemplateBatchCreate
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (title.isNotBlank() && (isConditional || selectedDays.isNotEmpty())) {
+                    if (title.isNotBlank() && selectedDays.isNotEmpty()) {
                         val type = if (requirePhoto) "written" else "reading"
                         onConfirm(TaskTemplateBatchCreate(selectedDays.sorted(), title, type, description = description.ifBlank { null }, points = points.toIntOrNull() ?: 5), isConditional)
                     }
                 },
-                enabled = title.isNotBlank() && (isConditional || selectedDays.isNotEmpty())
+                enabled = title.isNotBlank() && selectedDays.isNotEmpty()
             ) { Text("添加") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } }
+    )
+}
+
+data class EditTemplateData(
+    val isConditional: Boolean,
+    val templateIds: List<Int>,
+    val title: String,
+    val description: String,
+    val weekdays: Set<Int>,
+    val points: Int,
+    val requirePhoto: Boolean,
+    val conditionalTaskId: Int?
+)
+
+@Composable
+fun EditTemplateDialog(
+    data: EditTemplateData,
+    onDismiss: () -> Unit,
+    onSave: (EditTemplateData) -> Unit
+) {
+    var title by remember { mutableStateOf(data.title) }
+    var description by remember { mutableStateOf(data.description) }
+    var selectedDays by remember { mutableStateOf(data.weekdays) }
+    var requirePhoto by remember { mutableStateOf(data.requirePhoto) }
+    var points by remember { mutableStateOf(data.points.toString()) }
+    var isConditional by remember { mutableStateOf(data.isConditional) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("编辑任务") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("任务名称") }, singleLine = true)
+                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("备注（可选）") }, singleLine = true)
+                Text("周几（可多选）:", fontSize = 14.sp)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    (1..7).forEach { d ->
+                        FilterChip(
+                            selected = d in selectedDays,
+                            onClick = {
+                                selectedDays = if (d in selectedDays) selectedDays - d else selectedDays + d
+                            },
+                            label = { Text(listOf("一","二","三","四","五","六","日")[d-1], fontSize = 12.sp) }
+                        )
+                    }
+                }
+                OutlinedTextField(value = points, onValueChange = { points = it }, label = { Text("积分") }, singleLine = true)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = requirePhoto, onCheckedChange = { requirePhoto = it })
+                    Text("要求拍照", fontSize = 14.sp)
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = isConditional, onCheckedChange = { isConditional = it })
+                    Text("条件任务", fontSize = 14.sp)
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (title.isNotBlank() && selectedDays.isNotEmpty()) {
+                        onSave(EditTemplateData(
+                            isConditional = isConditional,
+                            templateIds = data.templateIds,
+                            title = title,
+                            description = description,
+                            weekdays = selectedDays,
+                            points = points.toIntOrNull() ?: 5,
+                            requirePhoto = requirePhoto,
+                            conditionalTaskId = data.conditionalTaskId
+                        ))
+                    }
+                },
+                enabled = title.isNotBlank() && selectedDays.isNotEmpty()
+            ) { Text("保存") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } }
     )
