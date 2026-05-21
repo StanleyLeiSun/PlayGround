@@ -1,4 +1,4 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 
 package com.kidscheck.app.ui.screens.template
 
@@ -10,6 +10,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -211,7 +212,7 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                         val resp = if (isConditional && selectedChild != null) {
                             api.createConditionalTask(selectedChild!!.id, ConditionalTaskCreate(data.title, data.type, data.description, data.points))
                         } else if (selectedChild != null) {
-                            api.createTemplate(selectedChild!!.id, data)
+                            api.createTemplateBatch(selectedChild!!.id, data)
                         } else null
                         if (resp != null && resp.isSuccessful) {
                             showAddDialog = false
@@ -270,9 +271,10 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
 }
 
 @Composable
-fun AddTemplateDialog(onDismiss: () -> Unit, onConfirm: (TaskTemplateCreate, Boolean) -> Unit) {
+fun AddTemplateDialog(onDismiss: () -> Unit, onConfirm: (TaskTemplateBatchCreate, Boolean) -> Unit) {
     var title by remember { mutableStateOf("") }
-    var weekday by remember { mutableIntStateOf(1) }
+    var description by remember { mutableStateOf("") }
+    var selectedDays by remember { mutableStateOf(setOf(1)) }
     var requirePhoto by remember { mutableStateOf(false) }
     var points by remember { mutableStateOf("5") }
     var isConditional by remember { mutableStateOf(false) }
@@ -283,12 +285,18 @@ fun AddTemplateDialog(onDismiss: () -> Unit, onConfirm: (TaskTemplateCreate, Boo
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("任务名称") }, singleLine = true)
+                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("备注（可选）") }, singleLine = true)
                 if (!isConditional) {
-                    Text("周几:", fontSize = 14.sp)
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("周几（可多选）:", fontSize = 14.sp)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         (1..7).forEach { d ->
-                            FilterChip(selected = weekday == d, onClick = { weekday = d },
-                                label = { Text(listOf("一","二","三","四","五","六","七")[d-1], fontSize = 12.sp) })
+                            FilterChip(
+                                selected = d in selectedDays,
+                                onClick = {
+                                    selectedDays = if (d in selectedDays) selectedDays - d else selectedDays + d
+                                },
+                                label = { Text(listOf("一","二","三","四","五","六","日")[d-1], fontSize = 12.sp) }
+                            )
                         }
                     }
                 }
@@ -304,12 +312,15 @@ fun AddTemplateDialog(onDismiss: () -> Unit, onConfirm: (TaskTemplateCreate, Boo
             }
         },
         confirmButton = {
-            TextButton(onClick = {
-                if (title.isNotBlank()) {
-                    val type = if (requirePhoto) "written" else "reading"
-                    onConfirm(TaskTemplateCreate(weekday, title, type, points = points.toIntOrNull() ?: 5), isConditional)
-                }
-            }) { Text("添加") }
+            TextButton(
+                onClick = {
+                    if (title.isNotBlank() && (isConditional || selectedDays.isNotEmpty())) {
+                        val type = if (requirePhoto) "written" else "reading"
+                        onConfirm(TaskTemplateBatchCreate(selectedDays.sorted(), title, type, description = description.ifBlank { null }, points = points.toIntOrNull() ?: 5), isConditional)
+                    }
+                },
+                enabled = title.isNotBlank() && (isConditional || selectedDays.isNotEmpty())
+            ) { Text("添加") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } }
     )

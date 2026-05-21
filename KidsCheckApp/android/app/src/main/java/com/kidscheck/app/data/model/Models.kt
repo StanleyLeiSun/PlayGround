@@ -65,7 +65,16 @@ data class DailyTask(
     @SerializedName("completed_by") val completedBy: Int?,
     @SerializedName("completed_by_username") val completedByUsername: String? = null,
     @SerializedName("is_conditional") val isConditional: Boolean,
+    @SerializedName("is_adhoc") val isAdhoc: Boolean = false,
+    val description: String? = null,
     val photos: List<CheckInPhoto> = emptyList()
+)
+
+data class AdhocTaskCreate(
+    val title: String,
+    val type: String = "reading",
+    val description: String? = null,
+    val points: Int = 5
 )
 
 data class CheckInPhoto(
@@ -129,6 +138,15 @@ data class TaskTemplateCreate(
     @SerializedName("sort_order") val sortOrder: Int = 0
 )
 
+data class TaskTemplateBatchCreate(
+    val weekdays: List<Int>,
+    val title: String,
+    val type: String,
+    val description: String? = null,
+    val points: Int = 5,
+    @SerializedName("sort_order") val sortOrder: Int = 0
+)
+
 data class ConditionalTaskCreate(
     val title: String,
     val type: String,
@@ -144,3 +162,22 @@ data class RewardCreate(
 )
 
 data class VoiceRequest(val text: String)
+
+data class DailyStatItem(
+    val date: String,
+    val total: Int,
+    val completed: Int,
+    val points: Int
+)
+
+data class InsightsResponse(
+    @SerializedName("child_id") val childId: Int,
+    val period: String,
+    @SerializedName("total_tasks") val totalTasks: Int,
+    @SerializedName("completed_tasks") val completedTasks: Int,
+    @SerializedName("completion_rate") val completionRate: Float,
+    @SerializedName("total_points_earned") val totalPointsEarned: Int,
+    @SerializedName("daily_stats") val dailyStats: List<DailyStatItem>,
+    @SerializedName("completions_by_type") val completionsByType: Map<String, Int>,
+    val streak: Int
+)

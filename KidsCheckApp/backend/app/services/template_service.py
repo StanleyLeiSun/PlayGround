@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.models import TaskTemplate, ConditionalTask
-from app.schemas.schemas import TaskTemplateCreate, TaskTemplateUpdate, ConditionalTaskCreate
+from app.schemas.schemas import TaskTemplateCreate, TaskTemplateBatchCreate, TaskTemplateUpdate, ConditionalTaskCreate
 
 WEEKDAY_NAMES = {1: "周一", 2: "周二", 3: "周三", 4: "周四", 5: "周五", 6: "周六", 7: "周日"}
 
@@ -51,6 +51,26 @@ async def create_template(db: AsyncSession, child_id: int, data: TaskTemplateCre
     await db.flush()
     await db.refresh(template)
     return template
+
+
+async def create_templates_batch(db: AsyncSession, child_id: int, data: TaskTemplateBatchCreate) -> list[TaskTemplate]:
+    templates = []
+    for weekday in data.weekdays:
+        template = TaskTemplate(
+            child_id=child_id,
+            weekday=weekday,
+            title=data.title,
+            type=data.type,
+            description=data.description,
+            points=data.points,
+            sort_order=data.sort_order,
+        )
+        db.add(template)
+        templates.append(template)
+    await db.flush()
+    for t in templates:
+        await db.refresh(t)
+    return templates
 
 
 async def update_template(db: AsyncSession, template_id: int, data: TaskTemplateUpdate) -> TaskTemplate | None:

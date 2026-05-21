@@ -99,6 +99,9 @@ class DailyTask(Base):
     completed_at = Column(DateTime, nullable=True)
     completed_by = Column(Integer, ForeignKey("user.id"), nullable=True)
     is_conditional = Column(Boolean, nullable=False, default=False)
+    is_adhoc = Column(Boolean, nullable=False, default=False)
+    description = Column(String(500), nullable=True)
+    created_by = Column(Integer, ForeignKey("user.id"), nullable=True)
 
     child = relationship("Child", back_populates="daily_tasks")
     photos = relationship("CheckInPhoto", back_populates="daily_task", lazy="selectin")

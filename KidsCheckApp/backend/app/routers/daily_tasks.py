@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.middleware.auth import get_current_user
-from app.models.models import User, TaskType
-from app.schemas.schemas import DailyTaskResponse, CheckInPhotoResponse
+from app.models.models import User, DailyTask, TaskType, TaskStatus
+from app.schemas.schemas import DailyTaskResponse, CheckInPhotoResponse, AdhocTaskCreate
 from app.services import daily_task_service, photo_service
 from app.services.action_log_service import log_action
 
@@ -27,6 +27,8 @@ def _task_to_response(task, completed_by_username: str | None = None) -> DailyTa
         completed_by=task.completed_by,
         completed_by_username=completed_by_username,
         is_conditional=task.is_conditional,
+        is_adhoc=task.is_adhoc,
+        description=task.description,
         photos=[
             CheckInPhotoResponse(
                 id=p.id, photo_url=p.photo_url, uploaded_by=p.uploaded_by,
@@ -87,3 +89,30 @@ async def check_in(
                      {"child_id": task.child_id, "photo_uploaded": has_photo})
 
     return _task_to_response(task, user.username if task.completed_by == user.id else None)
+
+
+@router.post("/{child_id}/adhoc", response_model=DailyTaskResponse)
+async def create_adhoc_task(
+    child_id: int,
+    data: AdhocTaskCreate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    task = DailyTask(
+        child_id=child_id,
+        date=datetime.combine(date.today(), datetime.min.time()),
+        title=data.title,
+        type=data.type,
+        points=data.points,
+        description=data.description,
+        status=TaskStatus.pending,
+        is_adhoc=True,
+        is_conditional=False,
+        created_by=user.id,
+    )
+    db.add(task)
+    await db.flush()
+    await db.refresh(task)
+    await log_action(db, user.id, "create_adhoc_task", "daily_task", task.id,
+                     {"child_id": child_id, "title": data.title})
+    return _task_to_response(task)

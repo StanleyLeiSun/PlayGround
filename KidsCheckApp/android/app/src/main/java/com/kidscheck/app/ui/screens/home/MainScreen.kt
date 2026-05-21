@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.sp
 import com.kidscheck.app.data.model.Child
 import com.kidscheck.app.data.api.RetrofitInstance
 import com.kidscheck.app.ui.screens.progress.ProgressScreen
+import com.kidscheck.app.ui.screens.insights.DataInsightsScreen
 import com.kidscheck.app.ui.screens.mine.MineScreen
 import com.kidscheck.app.ui.theme.Primary
 import com.kidscheck.app.ui.theme.TextSecondary
@@ -44,8 +45,8 @@ fun MainScreen(
         }
     }
 
-    val tabs = listOf("今日任务", "进度", "我的")
-    val icons = listOf(Icons.Default.CheckCircle, Icons.Default.BarChart, Icons.Default.Person)
+    val tabs = if (isParent) listOf("今日任务", "进度", "洞察", "我的") else listOf("今日任务", "进度", "我的")
+    val icons = if (isParent) listOf(Icons.Default.CheckCircle, Icons.Default.BarChart, Icons.Default.Star, Icons.Default.Person) else listOf(Icons.Default.CheckCircle, Icons.Default.BarChart, Icons.Default.Person)
 
     Scaffold(
         topBar = {
@@ -86,19 +87,39 @@ fun MainScreen(
         }
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
-            when (currentTab) {
-                0 -> selectedChild?.let {
-                    TaskListScreen(childId = it.id, childName = it.nickname)
+            if (isParent) {
+                when (currentTab) {
+                    0 -> selectedChild?.let {
+                        TaskListScreen(childId = it.id, childName = it.nickname)
+                    }
+                    1 -> selectedChild?.let {
+                        ProgressScreen(childId = it.id)
+                    }
+                    2 -> selectedChild?.let {
+                        DataInsightsScreen(childId = it.id)
+                    }
+                    3 -> MineScreen(
+                        isParent = isParent,
+                        onNavigateToTemplates = onNavigateToTemplates,
+                        onNavigateToRewards = onNavigateToRewards,
+                        onLogout = onLogout
+                    )
                 }
-                1 -> selectedChild?.let {
-                    ProgressScreen(childId = it.id)
+            } else {
+                when (currentTab) {
+                    0 -> selectedChild?.let {
+                        TaskListScreen(childId = it.id, childName = it.nickname)
+                    }
+                    1 -> selectedChild?.let {
+                        ProgressScreen(childId = it.id)
+                    }
+                    2 -> MineScreen(
+                        isParent = isParent,
+                        onNavigateToTemplates = onNavigateToTemplates,
+                        onNavigateToRewards = onNavigateToRewards,
+                        onLogout = onLogout
+                    )
                 }
-                2 -> MineScreen(
-                    isParent = isParent,
-                    onNavigateToTemplates = onNavigateToTemplates,
-                    onNavigateToRewards = onNavigateToRewards,
-                    onLogout = onLogout
-                )
             }
         }
     }

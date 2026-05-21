@@ -41,6 +41,7 @@ async def generate_daily_tasks(db: AsyncSession, child_id: int, target_date: dat
             title=t.title,
             type=TaskType(t.type.value) if hasattr(t.type, 'value') else TaskType(t.type),
             points=t.points,
+            description=t.description,
             status=TaskStatus.pending,
             is_conditional=False,
         )

@@ -38,6 +38,15 @@ class TaskTemplateCreate(BaseModel):
     sort_order: int = 0
 
 
+class TaskTemplateBatchCreate(BaseModel):
+    weekdays: list[int]  # e.g. [1, 2, 3]
+    title: str
+    type: str  # "written" or "reading"
+    description: Optional[str] = None
+    points: int = 5
+    sort_order: int = 0
+
+
 class TaskTemplateUpdate(BaseModel):
     weekday: Optional[int] = None
     title: Optional[str] = None
@@ -83,6 +92,13 @@ class ConditionalTaskResponse(BaseModel):
 
 
 # Daily Task
+class AdhocTaskCreate(BaseModel):
+    title: str
+    type: str = "reading"  # "written" or "reading"
+    description: Optional[str] = None
+    points: int = 5
+
+
 class DailyTaskResponse(BaseModel):
     id: int
     child_id: int
@@ -95,6 +111,8 @@ class DailyTaskResponse(BaseModel):
     completed_by: Optional[int]
     completed_by_username: Optional[str] = None
     is_conditional: bool
+    is_adhoc: bool = False
+    description: Optional[str] = None
     photos: list["CheckInPhotoResponse"] = []
 
 
@@ -199,3 +217,23 @@ class ActionLogResponse(BaseModel):
     target_id: Optional[int]
     metadata: Optional[dict]
     created_at: datetime
+
+
+# Insights
+class DailyStatItem(BaseModel):
+    date: str
+    total: int
+    completed: int
+    points: int
+
+
+class InsightsResponse(BaseModel):
+    child_id: int
+    period: str
+    total_tasks: int
+    completed_tasks: int
+    completion_rate: float
+    total_points_earned: int
+    daily_stats: list[DailyStatItem]
+    completions_by_type: dict[str, int]
+    streak: int

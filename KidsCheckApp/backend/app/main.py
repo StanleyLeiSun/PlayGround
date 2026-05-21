@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from app.config import UPLOAD_DIR
-from app.routers import auth, children, templates, conditional_tasks, daily_tasks, progress, points, rewards, action_logs
+from app.routers import auth, children, templates, conditional_tasks, daily_tasks, progress, points, rewards, action_logs, insights
 from app.services.daily_task_service import generate_daily_tasks
 from app.database import async_session
 
@@ -59,6 +59,7 @@ app.include_router(progress.router)
 app.include_router(points.router)
 app.include_router(rewards.router)
 app.include_router(action_logs.router)
+app.include_router(insights.router)
 
 
 @app.get("/")

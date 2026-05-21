@@ -57,6 +57,7 @@ fun TaskListScreen(childId: Int, childName: String) {
     var showCheckinSheet by remember { mutableStateOf(false) }
     var selectedTask by remember { mutableStateOf<DailyTask?>(null) }
     var showCelebration by remember { mutableStateOf(false) }
+    var showAdhocDialog by remember { mutableStateOf(false) }
     var photoUri by remember { mutableStateOf<Uri?>(null) }
     var photoFile by remember { mutableStateOf<File?>(null) }
 
@@ -170,6 +171,15 @@ fun TaskListScreen(childId: Int, childName: String) {
             }
         }
 
+        // FAB for adhoc task
+        FloatingActionButton(
+            onClick = { showAdhocDialog = true },
+            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+            containerColor = Primary
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "添加临时任务", tint = Color.White)
+        }
+
         // Celebration overlay
         if (showCelebration) {
             Box(
@@ -178,6 +188,29 @@ fun TaskListScreen(childId: Int, childName: String) {
             ) {
                 Text("⭐", fontSize = 64.sp)
             }
+        }
+
+        // Adhoc task dialog
+        if (showAdhocDialog) {
+            AddAdhocTaskDialog(
+                onDismiss = { showAdhocDialog = false },
+                onConfirm = { data ->
+                    scope.launch {
+                        try {
+                            val api = RetrofitInstance.getApi(context)
+                            val resp = api.createAdhocTask(childId, data)
+                            if (resp.isSuccessful) {
+                                showAdhocDialog = false
+                                loadTasks(context, childId, today, db) { tasks = it; loading = false }
+                            } else {
+                                Toast.makeText(context, "添加失败", Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "添加失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            )
         }
 
         // Check-in bottom sheet
@@ -287,10 +320,21 @@ fun TaskCard(task: DailyTask, onClick: () -> Unit) {
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(task.title, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                if (task.type == "written") {
-                    Surface(shape = RoundedCornerShape(10.dp), color = PrimaryLight) {
-                        Text("📷 拍照", modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                            fontSize = 12.sp, color = Primary)
+                if (!task.description.isNullOrBlank()) {
+                    Text(task.description, fontSize = 13.sp, color = Gray, maxLines = 2)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (task.type == "written") {
+                        Surface(shape = RoundedCornerShape(10.dp), color = PrimaryLight) {
+                            Text("📷 拍照", modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                fontSize = 12.sp, color = Primary)
+                        }
+                    }
+                    if (task.isAdhoc) {
+                        Surface(shape = RoundedCornerShape(10.dp), color = WarningLight) {
+                            Text("临时", modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                fontSize = 12.sp, color = Warning)
+                        }
                     }
                 }
             }
@@ -344,3 +388,39 @@ private fun DailyTask.toCached(childId: Int, date: String) = CachedDailyTask(
     completedBy = completedBy,
     isConditional = isConditional
 )
+
+@Composable
+fun AddAdhocTaskDialog(onDismiss: () -> Unit, onConfirm: (com.kidscheck.app.data.model.AdhocTaskCreate) -> Unit) {
+    var title by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var requirePhoto by remember { mutableStateOf(false) }
+    var points by remember { mutableStateOf("5") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("添加临时任务") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("任务名称") }, singleLine = true)
+                OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("备注（可选）") }, singleLine = true)
+                OutlinedTextField(value = points, onValueChange = { points = it }, label = { Text("积分") }, singleLine = true)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = requirePhoto, onCheckedChange = { requirePhoto = it })
+                    Text("要求拍照", fontSize = 14.sp)
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (title.isNotBlank()) {
+                        val type = if (requirePhoto) "written" else "reading"
+                        onConfirm(com.kidscheck.app.data.model.AdhocTaskCreate(title, type, description.ifBlank { null }, points.toIntOrNull() ?: 5))
+                    }
+                },
+                enabled = title.isNotBlank()
+            ) { Text("添加") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } }
+    )
+}

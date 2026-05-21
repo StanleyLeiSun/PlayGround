@@ -5,7 +5,7 @@ from app.database import get_db
 from app.middleware.auth import get_current_user, require_parent
 from app.models.models import User
 from app.schemas.schemas import (
-    TaskTemplateCreate, TaskTemplateUpdate, TaskTemplateResponse,
+    TaskTemplateCreate, TaskTemplateBatchCreate, TaskTemplateUpdate, TaskTemplateResponse,
     ConditionalTaskCreate, ConditionalTaskResponse, VoiceRequest, VoiceParsedIntent,
 )
 from app.services import template_service
@@ -50,6 +50,26 @@ async def create_template(
         title=template.title, type=template.type.value,
         description=template.description, points=template.points, sort_order=template.sort_order,
     )
+
+
+@router.post("/{child_id}/batch", response_model=list[TaskTemplateResponse])
+async def create_templates_batch(
+    child_id: int,
+    data: TaskTemplateBatchCreate,
+    user: User = Depends(require_parent),
+    db: AsyncSession = Depends(get_db),
+):
+    templates = await template_service.create_templates_batch(db, child_id, data)
+    await log_action(db, user.id, "create_template_batch", "task_template", None,
+                     {"child_id": child_id, "weekdays": data.weekdays, "title": data.title})
+    return [
+        TaskTemplateResponse(
+            id=t.id, child_id=t.child_id, weekday=t.weekday,
+            title=t.title, type=t.type.value,
+            description=t.description, points=t.points, sort_order=t.sort_order,
+        )
+        for t in templates
+    ]
 
 
 @router.put("/{template_id}", response_model=TaskTemplateResponse)

@@ -25,6 +25,12 @@ interface ApiService {
         @Body data: TaskTemplateCreate
     ): Response<TaskTemplate>
 
+    @POST("/api/templates/{childId}/batch")
+    suspend fun createTemplateBatch(
+        @Path("childId") childId: Int,
+        @Body data: TaskTemplateBatchCreate
+    ): Response<List<TaskTemplate>>
+
     @PUT("/api/templates/{id}")
     suspend fun updateTemplate(
         @Path("id") id: Int,
@@ -49,6 +55,12 @@ interface ApiService {
     @POST("/api/templates/voice")
     suspend fun voiceInput(@Body data: VoiceRequest): Response<VoiceParsedIntent>
 
+    @POST("/api/daily-tasks/{childId}/adhoc")
+    suspend fun createAdhocTask(
+        @Path("childId") childId: Int,
+        @Body data: AdhocTaskCreate
+    ): Response<DailyTask>
+
     @GET("/api/daily-tasks/{childId}/{date}")
     suspend fun getDailyTasks(
         @Path("childId") childId: Int,
@@ -72,6 +84,12 @@ interface ApiService {
         @Path("childId") childId: Int,
         @Path("date") date: String
     ): Response<ProgressResponse>
+
+    @GET("/api/insights/{childId}")
+    suspend fun getInsights(
+        @Path("childId") childId: Int,
+        @Query("period") period: String
+    ): Response<InsightsResponse>
 
     @GET("/api/points/{childId}")
     suspend fun getPoints(@Path("childId") childId: Int): Response<PointBalance>
