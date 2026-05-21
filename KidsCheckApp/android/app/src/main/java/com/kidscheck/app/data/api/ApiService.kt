@@ -118,4 +118,7 @@ interface ApiService {
         @Path("photoId") photoId: Int,
         @Body data: Map<String, Any>
     ): Response<Unit>
+
+    @GET("/api/app/version")
+    suspend fun checkVersion(): Response<AppVersion>
 }
