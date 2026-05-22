@@ -26,6 +26,10 @@ LLM_API_KEY = os.getenv("LLM_API_KEY", "")
 LLM_API_URL = os.getenv("LLM_API_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions")
 LLM_MODEL = os.getenv("LLM_MODEL", "qwen-plus")
 
+# WeChat Mini-Program
+WX_APP_ID = os.getenv("WX_APP_ID", "")
+WX_APP_SECRET = os.getenv("WX_APP_SECRET", "")
+
 # Scheduler
 SCHEDULER_HOUR = 0
 SCHEDULER_MINUTE = 0

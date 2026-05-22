@@ -36,6 +36,7 @@ class User(Base):
     username = Column(String(50), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
     role = Column(Enum(UserRole), nullable=False)
+    wechat_openid = Column(String(128), unique=True, nullable=True)
 
 
 class Child(Base):
