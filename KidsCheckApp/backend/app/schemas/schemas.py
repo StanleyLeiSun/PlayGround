@@ -9,6 +9,15 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class WechatLoginRequest(BaseModel):
+    code: str
+
+class WechatBindRequest(BaseModel):
+    openid: str
+    username: str
+    password: str
+
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
