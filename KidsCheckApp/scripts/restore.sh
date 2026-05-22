@@ -15,8 +15,8 @@ APP_DIR="${APP_DIR:-/opt/kidscheck}"
 # ---------------------------------------------------------------------------
 # 内部路径
 # ---------------------------------------------------------------------------
-DB_FILE="${APP_DIR}/kidscheck.db"
-PHOTOS_DIR="${APP_DIR}/uploads/photos"
+DB_FILE="${APP_DIR}/backend/kidscheck_dev.db"
+PHOTOS_DIR="${APP_DIR}/backend/uploads/photos"
 
 STAGING_DIR=""   # 将在 main 中初始化，用于 trap 清理
 

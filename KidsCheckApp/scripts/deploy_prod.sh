@@ -20,8 +20,8 @@ NGINX_SERVER_NAME="${NGINX_SERVER_NAME:-_}"
 # ---------------------------------------------------------------------------
 BACKEND_DIR="${APP_DIR}/backend"
 VENV_DIR="${APP_DIR}/venv"
-DB_FILE="${APP_DIR}/kidscheck.db"
-PHOTOS_DIR="${APP_DIR}/uploads/photos"
+DB_FILE="${APP_DIR}/backend/kidscheck_dev.db"
+PHOTOS_DIR="${APP_DIR}/backend/uploads/photos"
 LOG_DIR="${APP_DIR}/logs"
 SERVICE_FILE="/etc/systemd/system/kidscheck.service"
 NGINX_CONF="/etc/nginx/conf.d/kidscheck.conf"
@@ -175,7 +175,7 @@ server {
 
     # 照片静态文件
     location /photos/ {
-        alias ${APP_DIR}/uploads/photos/;
+        alias ${APP_DIR}/backend/uploads/photos/;
     }
 
     # API 反向代理

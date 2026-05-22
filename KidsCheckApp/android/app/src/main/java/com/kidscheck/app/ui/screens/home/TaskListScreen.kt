@@ -63,30 +63,49 @@ fun TaskListScreen(childId: Int, childName: String) {
 
     val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
 
+    fun uploadPhotoAndCheckIn(bytes: ByteArray, fileName: String) {
+        scope.launch {
+            try {
+                val api = RetrofitInstance.getApi(context)
+                val part = MultipartBody.Part.createFormData(
+                    "photo", fileName,
+                    bytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                )
+                val resp = api.checkInWithPhoto(selectedTask!!.id, part)
+                if (resp.isSuccessful) {
+                    showCheckinSheet = false
+                    showCelebration = true
+                    loadTasks(context, childId, today, db) { tasks = it; loading = false }
+                    kotlinx.coroutines.delay(1500)
+                    showCelebration = false
+                } else {
+                    Toast.makeText(context, "打卡失败", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, "上传失败: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success && photoFile != null) {
-            scope.launch {
-                try {
-                    val api = RetrofitInstance.getApi(context)
-                    val bytes = PhotoCompressor.compressFile(photoFile!!)
-                    val part = MultipartBody.Part.createFormData(
-                        "photo", photoFile!!.name,
-                        bytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
-                    )
-                    val resp = api.checkInWithPhoto(selectedTask!!.id, part)
-                    if (resp.isSuccessful) {
-                        showCheckinSheet = false
-                        showCelebration = true
-                        loadTasks(context, childId, today, db) { tasks = it; loading = false }
-                        kotlinx.coroutines.delay(1500)
-                        showCelebration = false
-                    } else {
-                        Toast.makeText(context, "打卡失败", Toast.LENGTH_SHORT).show()
-                    }
-                } catch (e: Exception) {
-                    Toast.makeText(context, "上传失败: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
+            val bytes = PhotoCompressor.compressFile(photoFile!!)
+            uploadPhotoAndCheckIn(bytes, photoFile!!.name)
+        }
+    }
+
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            val bytes = PhotoCompressor.compressPhoto(context, uri)
+            uploadPhotoAndCheckIn(bytes, "gallery_${System.currentTimeMillis()}.jpg")
+        }
+    }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) {
+            photoUri?.let { cameraLauncher.launch(it) }
+        } else {
+            Toast.makeText(context, "需要相机权限才能拍照", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -234,6 +253,8 @@ fun TaskListScreen(childId: Int, childName: String) {
                                 photoUri = uri
                                 if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                                     cameraLauncher.launch(uri)
+                                } else {
+                                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                                 }
                             },
                             modifier = Modifier.fillMaxWidth().height(52.dp),
@@ -242,7 +263,17 @@ fun TaskListScreen(childId: Int, childName: String) {
                         ) {
                             Icon(Icons.Default.CameraAlt, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("📷 拍照存证并完成", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                            Text("拍照存证并完成", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        OutlinedButton(
+                            onClick = { galleryLauncher.launch("image/*") },
+                            modifier = Modifier.fillMaxWidth().height(52.dp),
+                            shape = RoundedCornerShape(14.dp)
+                        ) {
+                            Icon(Icons.Default.PhotoLibrary, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("从相册选择并完成", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                         }
                     } else {
                         Button(
@@ -277,6 +308,7 @@ fun TaskListScreen(childId: Int, childName: String) {
                 }
             }
         }
+
     }
 }
 

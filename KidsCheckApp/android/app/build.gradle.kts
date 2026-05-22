@@ -21,8 +21,8 @@ android {
         applicationId = "com.kidscheck.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 10103
-        versionName = "1.1.3"
+        versionCode = 10104
+        versionName = "1.1.4"
     }
 
     signingConfigs {

@@ -34,7 +34,7 @@ interface ApiService {
     @PUT("/api/templates/{id}")
     suspend fun updateTemplate(
         @Path("id") id: Int,
-        @Body data: Map<String, Any>
+        @Body data: Map<String, @JvmSuppressWildcards Any>
     ): Response<TaskTemplate>
 
     @DELETE("/api/templates/{id}")

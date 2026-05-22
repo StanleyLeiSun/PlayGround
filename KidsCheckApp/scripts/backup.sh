@@ -17,8 +17,8 @@ WEEKLY_RETENTION_DAYS="${WEEKLY_RETENTION_DAYS:-84}"
 # ---------------------------------------------------------------------------
 # 内部路径
 # ---------------------------------------------------------------------------
-DB_FILE="${APP_DIR}/kidscheck.db"
-PHOTOS_DIR="${APP_DIR}/uploads/photos"
+DB_FILE="${APP_DIR}/backend/kidscheck_dev.db"
+PHOTOS_DIR="${APP_DIR}/backend/uploads/photos"
 
 TIMESTAMP="$(date +%Y-%m-%d_%H-%M)"
 CURRENT_YEAR_MONTH="$(date +%Y-%m)"

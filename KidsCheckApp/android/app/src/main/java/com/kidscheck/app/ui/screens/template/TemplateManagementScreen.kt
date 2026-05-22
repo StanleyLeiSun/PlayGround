@@ -228,6 +228,9 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                     }
                 }
             }
+
+            // FAB 底部留白
+            item { Spacer(modifier = Modifier.height(72.dp)) }
         }
     }
 
