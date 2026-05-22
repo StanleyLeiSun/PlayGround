@@ -1,0 +1,59 @@
+.child-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16rpx 24rpx;
+  background: #fff;
+  border-radius: 32rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.06);
+}
+
+.child-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.arrow {
+  margin-left: 8rpx;
+  font-size: 24rpx;
+  color: var(--gray);
+}
+
+.picker-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.picker-content {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  width: 60%;
+}
+
+.picker-item {
+  padding: 24rpx;
+  border-radius: 12rpx;
+  font-size: 30rpx;
+  text-align: center;
+}
+
+.picker-item.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.nickname {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+}

@@ -1,0 +1,35 @@
+{
+  "pages": [
+    "pages/tasks/tasks",
+    "pages/progress/progress",
+    "pages/login/login"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#FF9800",
+    "navigationBarTitleText": "KidsCheck",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F5F5F5"
+  },
+  "tabBar": {
+    "color": "#666666",
+    "selectedColor": "#FF9800",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/tasks/tasks",
+        "text": "今日任务",
+        "iconPath": "assets/tab-tasks.png",
+        "selectedIconPath": "assets/tab-tasks-active.png"
+      },
+      {
+        "pagePath": "pages/progress/progress",
+        "text": "进度",
+        "iconPath": "assets/tab-progress.png",
+        "selectedIconPath": "assets/tab-progress-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

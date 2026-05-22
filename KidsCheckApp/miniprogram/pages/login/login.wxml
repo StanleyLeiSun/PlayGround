@@ -1,0 +1,18 @@
+<view class="login-page">
+  <view class="logo-section">
+    <text class="logo-text">KidsCheck</text>
+    <text class="subtitle">家庭学习打卡</text>
+  </view>
+
+  <view class="form-section" wx:if="{{showBindForm}}">
+    <view class="hint">首次使用，请绑定已有账号</view>
+    <input class="input" placeholder="用户名" value="{{username}}" bindinput="onUsernameInput" />
+    <input class="input" placeholder="密码" password="{{true}}" value="{{password}}" bindinput="onPasswordInput" />
+    <button class="btn-primary" bindtap="onBind" loading="{{loading}}">绑定并登录</button>
+    <view class="error" wx:if="{{errorMsg}}">{{errorMsg}}</view>
+  </view>
+
+  <view class="loading-section" wx:else>
+    <view class="loading-text">正在登录...</view>
+  </view>
+</view>

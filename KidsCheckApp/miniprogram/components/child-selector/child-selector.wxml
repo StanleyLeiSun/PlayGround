@@ -1,0 +1,19 @@
+<view class="child-selector" bindtap="onTap">
+  <text class="child-name">{{currentChild.name || '选择孩子'}}</text>
+  <text class="arrow">▾</text>
+</view>
+
+<view class="picker-mask" wx:if="{{showPicker}}" bindtap="closePicker">
+  <view class="picker-content" catchtap>
+    <view
+      class="picker-item {{item.id === currentChild.id ? 'active' : ''}}"
+      wx:for="{{children}}"
+      wx:key="id"
+      bindtap="onSelect"
+      data-child="{{item}}"
+    >
+      <text>{{item.name}}</text>
+      <text wx:if="{{item.nickname}}" class="nickname">（{{item.nickname}}）</text>
+    </view>
+  </view>
+</view>

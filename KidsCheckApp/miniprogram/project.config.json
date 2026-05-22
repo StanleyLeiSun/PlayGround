@@ -1,0 +1,14 @@
+{
+  "description": "KidsCheck WeChat Mini-Program",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "postcss": true,
+    "minified": true,
+    "enhance": true
+  },
+  "compileType": "miniprogram",
+  "appid": "",
+  "projectname": "kidscheck-miniprogram",
+  "libVersion": "3.3.4"
+}
