@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "进度",
+  "usingComponents": {
+    "child-selector": "/components/child-selector/child-selector"
+  }
+}

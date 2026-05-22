@@ -1,0 +1,62 @@
+<view class="container">
+  <view class="header">
+    <child-selector bindchange="onChildChange" />
+  </view>
+
+  <view wx:if="{{loading}}" class="loading">
+    <text>加载中...</text>
+  </view>
+
+  <view wx:elif="{{tasks.length === 0}}" class="empty">
+    <text class="empty-text">今天没有任务</text>
+    <text class="empty-hint">请家长在模板管理中添加任务</text>
+  </view>
+
+  <view wx:else>
+    <view class="section-title">📋 必做任务</view>
+    <view
+      class="task-card {{item.status === 'done' ? 'done' : ''}}"
+      wx:for="{{requiredTasks}}"
+      wx:key="id"
+      bindtap="onTaskTap"
+      data-task="{{item}}"
+    >
+      <view class="task-status">
+        <view class="circle {{item.status === 'done' ? 'circle-done' : ''}}">
+          <text wx:if="{{item.status === 'done'}}" class="check">✓</text>
+        </view>
+      </view>
+      <view class="task-info">
+        <text class="task-title">{{item.title}}</text>
+        <text wx:if="{{item.description}}" class="task-desc">{{item.description}}</text>
+        <view class="task-tags">
+          <text wx:if="{{item.type === 'written'}}" class="tag tag-photo">📷 拍照</text>
+        </view>
+      </view>
+      <text class="task-points">+{{item.points}}分</text>
+    </view>
+
+    <view class="section-title">🌟 条件任务{{hasUncompletedRequired ? '（完成后解锁）' : ''}}</view>
+    <view
+      class="task-card {{item.status === 'done' ? 'done' : ''}}"
+      wx:for="{{conditionalTasks}}"
+      wx:key="id"
+      bindtap="onTaskTap"
+      data-task="{{item}}"
+    >
+      <view class="task-status">
+        <view class="circle {{item.status === 'done' ? 'circle-done' : ''}}">
+          <text wx:if="{{item.status === 'done'}}" class="check">✓</text>
+        </view>
+      </view>
+      <view class="task-info">
+        <text class="task-title">{{item.title}}</text>
+        <text wx:if="{{item.description}}" class="task-desc">{{item.description}}</text>
+        <view class="task-tags">
+          <text wx:if="{{item.type === 'written'}}" class="tag tag-photo">📷 拍照</text>
+        </view>
+      </view>
+      <text class="task-points">+{{item.points}}分</text>
+    </view>
+  </view>
+</view>

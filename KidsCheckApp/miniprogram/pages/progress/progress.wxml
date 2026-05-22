@@ -1,0 +1,63 @@
+<view class="container">
+  <view class="header">
+    <child-selector bindchange="onChildChange" />
+  </view>
+
+  <view class="date-nav">
+    <view class="nav-btn" bindtap="prevDay">◀</view>
+    <text class="date-text">{{displayDate}}</text>
+    <view class="nav-btn" bindtap="nextDay">▶</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading">
+    <text>加载中...</text>
+  </view>
+
+  <view wx:elif="{{progress}}">
+    <view class="card">
+      <view class="progress-header">
+        <text class="progress-label">完成进度</text>
+        <text class="progress-count">{{progress.completed_tasks}}/{{progress.total_tasks}}</text>
+      </view>
+      <view class="progress-bar-bg">
+        <view class="progress-bar-fill" style="width: {{progressPercent}}%"></view>
+      </view>
+    </view>
+
+    <view class="section-title">📅 时间线</view>
+
+    <view wx:if="{{sortedTasks.length === 0}}" class="empty">
+      <text class="empty-text">当天没有任务</text>
+    </view>
+
+    <view wx:else class="timeline">
+      <view class="timeline-item" wx:for="{{sortedTasks}}" wx:key="id">
+        <view class="timeline-dot {{item.status === 'done' ? 'dot-done' : ''}}"></view>
+        <view class="timeline-line" wx:if="{{index < sortedTasks.length - 1}}"></view>
+        <view class="timeline-content">
+          <text class="timeline-time">{{item.timeText}}</text>
+          <text class="timeline-title {{item.status === 'done' ? '' : 'text-gray'}}">{{item.title}}</text>
+          <view
+            wx:if="{{item.photoUrls.length > 0}}"
+            class="photo-chip"
+            bindtap="viewPhotos"
+            data-photos="{{item.photoUrls}}"
+          >
+            <text>📷 查看照片</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="points-card">
+      <view class="points-col">
+        <text class="points-label">今日获得</text>
+        <text class="points-value">+{{progress.today_points}} 分</text>
+      </view>
+      <view class="points-col points-right">
+        <text class="points-label">累计积分</text>
+        <text class="points-value">{{progress.cumulative_points}} 分</text>
+      </view>
+    </view>
+  </view>
+</view>

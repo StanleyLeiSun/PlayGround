@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "今日任务",
+  "usingComponents": {
+    "child-selector": "/components/child-selector/child-selector"
+  }
+}
