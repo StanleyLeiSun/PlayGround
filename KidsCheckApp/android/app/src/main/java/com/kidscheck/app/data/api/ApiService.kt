@@ -78,6 +78,11 @@ interface ApiService {
         @Path("id") taskId: Int
     ): Response<DailyTask>
 
+    @POST("/api/daily-tasks/{id}/undo")
+    suspend fun undoCheckIn(
+        @Path("id") taskId: Int
+    ): Response<DailyTask>
+
     @Multipart
     @POST("/api/daily-tasks/{id}/check-in")
     suspend fun checkInWithPhoto(

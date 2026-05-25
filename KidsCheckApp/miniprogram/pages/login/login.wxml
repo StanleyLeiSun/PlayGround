@@ -5,10 +5,30 @@
   </view>
 
   <view class="form-section" wx:if="{{showBindForm}}">
-    <view class="hint">首次使用，请绑定已有账号</view>
-    <input class="input" placeholder="用户名" value="{{username}}" bindinput="onUsernameInput" />
-    <input class="input" placeholder="密码" password="{{true}}" value="{{password}}" bindinput="onPasswordInput" />
-    <button class="btn-primary" bindtap="onBind" loading="{{loading}}">绑定并登录</button>
+    <view class="hint">请选择你的身份</view>
+    <view class="user-list">
+      <view
+        class="user-item {{selectedUser === item.username ? 'selected' : ''}}"
+        wx:for="{{users}}"
+        wx:key="username"
+        bindtap="onSelectUser"
+        data-user="{{item}}"
+      >
+        <text class="user-icon">{{item.icon}}</text>
+        <text class="user-name">{{item.label}}</text>
+      </view>
+    </view>
+    <input
+      wx:if="{{selectedUser}}"
+      class="input"
+      type="password"
+      placeholder="请输入密码"
+      value="{{password}}"
+      bindinput="onPasswordInput"
+    />
+    <button class="btn-primary" bindtap="onBind" loading="{{loading}}" disabled="{{!selectedUser || !password}}">
+      确认绑定
+    </button>
     <view class="error" wx:if="{{errorMsg}}">{{errorMsg}}</view>
   </view>
 

@@ -1,7 +1,9 @@
-from sqlalchemy import select
+from datetime import date, datetime
+
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.models import TaskTemplate, ConditionalTask
+from app.models.models import TaskTemplate, ConditionalTask, DailyTask, TaskStatus
 from app.schemas.schemas import TaskTemplateCreate, TaskTemplateBatchCreate, TaskTemplateUpdate, ConditionalTaskCreate, ConditionalTaskUpdate
 
 WEEKDAY_NAMES = {1: "周一", 2: "周二", 3: "周三", 4: "周四", 5: "周五", 6: "周六", 7: "周日"}
@@ -78,10 +80,33 @@ async def update_template(db: AsyncSession, template_id: int, data: TaskTemplate
     template = result.scalar_one_or_none()
     if not template:
         return None
-    for field, value in data.model_dump(exclude_unset=True).items():
+    update_fields = data.model_dump(exclude_unset=True)
+    for field, value in update_fields.items():
         setattr(template, field, value)
     await db.flush()
     await db.refresh(template)
+
+    today_start = datetime.combine(date.today(), datetime.min.time())
+    sync_fields = {}
+    if "points" in update_fields:
+        sync_fields["points"] = update_fields["points"]
+    if "title" in update_fields:
+        sync_fields["title"] = update_fields["title"]
+    if "description" in update_fields:
+        sync_fields["description"] = update_fields["description"]
+    if "type" in update_fields:
+        sync_fields["type"] = update_fields["type"]
+    if sync_fields:
+        await db.execute(
+            update(DailyTask)
+            .where(
+                DailyTask.source_template_id == template_id,
+                DailyTask.date == today_start,
+                DailyTask.status == TaskStatus.pending,
+            )
+            .values(**sync_fields)
+        )
+
     return template
 
 

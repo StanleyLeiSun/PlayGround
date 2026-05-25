@@ -91,6 +91,25 @@ async def check_in(
     return _task_to_response(task, user.username if task.completed_by == user.id else None)
 
 
+@router.post("/{task_id}/undo")
+async def undo_check_in(
+    task_id: int,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    try:
+        task = await daily_task_service.undo_task(db, task_id)
+    except ValueError as e:
+        msg = str(e)
+        if msg == "Task not found":
+            raise HTTPException(status_code=404, detail=msg)
+        raise HTTPException(status_code=400, detail=msg)
+
+    await log_action(db, user.id, "undo_check_in", "daily_task", task_id,
+                     {"child_id": task.child_id})
+    return _task_to_response(task)
+
+
 @router.post("/{child_id}/adhoc", response_model=DailyTaskResponse)
 async def create_adhoc_task(
     child_id: int,

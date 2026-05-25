@@ -55,6 +55,7 @@ fun TaskListScreen(childId: Int, childName: String) {
     var tasks by remember { mutableStateOf<List<DailyTask>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
     var showCheckinSheet by remember { mutableStateOf(false) }
+    var showUndoDialog by remember { mutableStateOf(false) }
     var selectedTask by remember { mutableStateOf<DailyTask?>(null) }
     var showCelebration by remember { mutableStateOf(false) }
     var showAdhocDialog by remember { mutableStateOf(false) }
@@ -168,7 +169,8 @@ fun TaskListScreen(childId: Int, childName: String) {
                 items(tasks.filter { !it.isConditional }) { task ->
                     TaskCard(task) {
                         selectedTask = task
-                        showCheckinSheet = true
+                        if (task.status == "done") showUndoDialog = true
+                        else showCheckinSheet = true
                     }
                 }
 
@@ -184,7 +186,8 @@ fun TaskListScreen(childId: Int, childName: String) {
                 items(tasks.filter { it.isConditional }) { task ->
                     TaskCard(task) {
                         selectedTask = task
-                        showCheckinSheet = true
+                        if (task.status == "done") showUndoDialog = true
+                        else showCheckinSheet = true
                     }
                 }
             }
@@ -229,6 +232,34 @@ fun TaskListScreen(childId: Int, childName: String) {
                         }
                     }
                 }
+            )
+        }
+
+        // Undo dialog
+        if (showUndoDialog && selectedTask != null) {
+            AlertDialog(
+                onDismissRequest = { showUndoDialog = false },
+                title = { Text("撤销完成") },
+                text = { Text("确定要撤销「${selectedTask!!.title}」的完成状态吗？积分将被扣回。") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        scope.launch {
+                            try {
+                                val resp = RetrofitInstance.getApi(context).undoCheckIn(selectedTask!!.id)
+                                if (resp.isSuccessful) {
+                                    showUndoDialog = false
+                                    loadTasks(context, childId, today, db) { tasks = it; loading = false }
+                                    Toast.makeText(context, "已撤销", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, "撤销失败", Toast.LENGTH_SHORT).show()
+                                }
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "撤销失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }) { Text("确认撤销", color = Warning) }
+                },
+                dismissButton = { TextButton(onClick = { showUndoDialog = false }) { Text("取消") } }
             )
         }
 
@@ -325,7 +356,7 @@ fun TaskCard(task: DailyTask, onClick: () -> Unit) {
     }
 
     Surface(
-        modifier = Modifier.fillMaxWidth().clickable(enabled = !isDone, onClick = onClick),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         color = bgColor,
         border = androidx.compose.foundation.BorderStroke(2.dp, borderColor)

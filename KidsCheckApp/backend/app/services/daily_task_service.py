@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.models import (
     DailyTask, TaskTemplate, ConditionalTask, TaskStatus, TaskType,
+    CheckInPhoto, PointAccount, PointTransaction,
 )
 from app.services import points_service
 
@@ -158,5 +159,48 @@ async def check_in_task(
     target_date = task.date.date() if hasattr(task.date, 'date') else task.date
     await check_and_insert_conditional_tasks(db, task.child_id, target_date)
 
+    await db.refresh(task)
+    return task
+
+
+async def undo_task(db: AsyncSession, task_id: int) -> DailyTask:
+    """Undo a completed task: reset status, remove photos, revert points."""
+    result = await db.execute(select(DailyTask).where(DailyTask.id == task_id))
+    task = result.scalar_one_or_none()
+    if not task:
+        raise ValueError("Task not found")
+    if task.status != TaskStatus.done:
+        raise ValueError("Task is not completed")
+
+    # Remove associated photos
+    photos_result = await db.execute(
+        select(CheckInPhoto).where(CheckInPhoto.daily_task_id == task_id)
+    )
+    for photo in photos_result.scalars().all():
+        await db.delete(photo)
+
+    # Revert points
+    tx_result = await db.execute(
+        select(PointTransaction).where(
+            PointTransaction.child_id == task.child_id,
+            PointTransaction.related_task_id == task_id,
+            PointTransaction.reason == "task_completed",
+        )
+    )
+    tx = tx_result.scalar_one_or_none()
+    if tx:
+        acct_result = await db.execute(
+            select(PointAccount).where(PointAccount.child_id == task.child_id)
+        )
+        account = acct_result.scalar_one_or_none()
+        if account:
+            account.balance -= tx.amount
+        await db.delete(tx)
+
+    # Reset task status
+    task.status = TaskStatus.pending
+    task.completed_at = None
+    task.completed_by = None
+    await db.flush()
     await db.refresh(task)
     return task
