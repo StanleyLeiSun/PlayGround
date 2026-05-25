@@ -1,0 +1,70 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60rpx 30rpx;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 64rpx;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 10rpx;
+  text-shadow: 2rpx 2rpx 4rpx rgba(0,0,0,0.3);
+}
+
+.subtitle {
+  font-size: 32rpx;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 50rpx;
+}
+
+.levels {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+  width: 100%;
+  max-width: 600rpx;
+}
+
+.level-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 30rpx 40rpx;
+  background: rgba(255,255,255,0.95);
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+}
+
+.level-card.locked {
+  opacity: 0.5;
+}
+
+.level-num {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.level-desc {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 6rpx;
+}
+
+.level-grid {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.lock-icon {
+  position: absolute;
+  right: 40rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 44rpx;
+}

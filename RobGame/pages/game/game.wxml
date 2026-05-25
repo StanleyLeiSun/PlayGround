@@ -1,0 +1,63 @@
+<view class="container">
+  <!-- 顶部状态栏 -->
+  <view class="status-bar">
+    <view class="score">🐹 {{hitCount}}/{{targetScore}}</view>
+    <view class="level-info">第{{level}}关</view>
+    <view class="timer">{{timeLeft}}s</view>
+  </view>
+
+  <!-- 游戏区域 -->
+  <view class="game-board" style="grid-template-columns: repeat({{cols}}, 1fr); grid-template-rows: repeat({{rows}}, 1fr);">
+    <view
+      class="hole"
+      wx:for="{{moles}}"
+      wx:key="index"
+      bindtap="hitHole"
+      data-index="{{index}}"
+    >
+      <view class="hole-bg"></view>
+      <!-- 地鼠/炸弹/金色地鼠 -->
+      <view class="mole {{item ? 'mole-up' : ''}} {{hitMoles[index] ? 'mole-hit' : ''}} {{movingMoles[index] ? 'mole-moving' : ''}}">
+        <text class="mole-emoji" wx:if="{{!hitMoles[index]}}">{{moleTypes[index] === 'bomb' ? '💣' : moleTypes[index] === 'gold' ? '🌟' : '🐹'}}</text>
+        <text class="mole-emoji" wx:if="{{hitMoles[index]}}">{{moleTypes[index] === 'bomb' ? '💥' : '⭐'}}</text>
+      </view>
+      <!-- 锤子动画 -->
+      <view class="hammer {{hammerAnim[index] ? 'hammer-hit' : ''}}">
+        <text class="hammer-emoji">🔨</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 成绩细节 -->
+  <view class="stats" wx:if="{{gameActive || gameOver}}">
+    <view class="stat-item">
+      <text class="stat-icon">🐹</text>
+      <text class="stat-value">{{hitCount}}</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-icon">💣</text>
+      <text class="stat-value">{{bombCount}}</text>
+    </view>
+    <view class="stat-item" wx:if="{{level >= 3}}">
+      <text class="stat-icon">🌟</text>
+      <text class="stat-value">{{goldCount}}</text>
+    </view>
+  </view>
+
+  <!-- 游戏结束弹窗 -->
+  <view class="overlay" wx:if="{{gameOver}}">
+    <view class="result-card">
+      <text class="result-title">{{passed ? '过关!' : '未过关'}}</text>
+      <text class="result-score">得分: {{score}}</text>
+      <button class="btn-restart" bindtap="startGame">再试一次</button>
+      <button class="btn-back" bindtap="goBack">返回选关</button>
+    </view>
+  </view>
+
+  <!-- 背景树 -->
+  <text class="tree tree-1">🌳</text>
+  <text class="tree tree-2">🌲</text>
+  <text class="tree tree-3">🌳</text>
+  <text class="tree tree-4">🌲</text>
+  <text class="tree tree-5">🌳</text>
+</view>

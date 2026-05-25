@@ -1,0 +1,19 @@
+<view class="container">
+  <text class="title">打地鼠</text>
+  <text class="subtitle">选择关卡</text>
+
+  <view class="levels">
+    <view
+      class="level-card {{item.unlocked ? '' : 'locked'}}"
+      wx:for="{{levels}}"
+      wx:key="id"
+      bindtap="selectLevel"
+      data-id="{{item.id}}"
+    >
+      <text class="level-num">第{{item.id}}关</text>
+      <text class="level-desc">{{item.desc}}</text>
+      <text class="level-grid">{{item.cols}}×{{item.rows}}</text>
+      <view class="lock-icon" wx:if="{{!item.unlocked}}">🔒</view>
+    </view>
+  </view>
+</view>
