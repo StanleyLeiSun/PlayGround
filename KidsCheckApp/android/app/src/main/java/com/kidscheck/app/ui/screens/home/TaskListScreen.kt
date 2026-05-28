@@ -22,6 +22,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -44,7 +46,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun TaskListScreen(childId: Int, childName: String) {
@@ -80,10 +84,10 @@ fun TaskListScreen(childId: Int, childName: String) {
                     kotlinx.coroutines.delay(1500)
                     showCelebration = false
                 } else {
-                    Toast.makeText(context, "打卡失败", Toast.LENGTH_SHORT).show()
+                    withContext(Dispatchers.Main) { Toast.makeText(context, "打卡失败", Toast.LENGTH_SHORT).show() }
                 }
             } catch (e: Exception) {
-                Toast.makeText(context, "上传失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                withContext(Dispatchers.Main) { Toast.makeText(context, "上传失败: ${e.message}", Toast.LENGTH_SHORT).show() }
             }
         }
     }
@@ -134,7 +138,7 @@ fun TaskListScreen(childId: Int, childName: String) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (loading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Primary)
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center).semantics { contentDescription = "task_list_loading" }, color = Primary)
         } else if (tasks.isEmpty()) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(32.dp),
@@ -153,7 +157,7 @@ fun TaskListScreen(childId: Int, childName: String) {
                     modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray)
                 )
                 Spacer(modifier = Modifier.height(24.dp))
-                Text("今天没有任务", fontSize = 18.sp, fontWeight = FontWeight.Medium, color = Gray)
+                Text("今天没有任务", fontSize = 18.sp, fontWeight = FontWeight.Medium, color = Gray, modifier = Modifier.semantics { contentDescription = "task_list_empty" })
                 Spacer(modifier = Modifier.height(8.dp))
                 Text("请家长在模板管理中添加任务", fontSize = 14.sp, color = TextSecondary)
             }
@@ -196,7 +200,7 @@ fun TaskListScreen(childId: Int, childName: String) {
         // FAB for adhoc task
         FloatingActionButton(
             onClick = { showAdhocDialog = true },
-            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp).semantics { contentDescription = "task_adhoc_fab" },
             containerColor = Primary
         ) {
             Icon(Icons.Default.Add, contentDescription = "添加临时任务", tint = Color.White)
@@ -205,7 +209,7 @@ fun TaskListScreen(childId: Int, childName: String) {
         // Celebration overlay
         if (showCelebration) {
             Box(
-                modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)),
+                modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)).semantics { contentDescription = "task_celebration" },
                 contentAlignment = Alignment.Center
             ) {
                 Text("⭐", fontSize = 64.sp)
@@ -225,10 +229,10 @@ fun TaskListScreen(childId: Int, childName: String) {
                                 showAdhocDialog = false
                                 loadTasks(context, childId, today, db) { tasks = it; loading = false }
                             } else {
-                                Toast.makeText(context, "添加失败", Toast.LENGTH_SHORT).show()
+                                withContext(Dispatchers.Main) { Toast.makeText(context, "添加失败", Toast.LENGTH_SHORT).show() }
                             }
                         } catch (e: Exception) {
-                            Toast.makeText(context, "添加失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                            withContext(Dispatchers.Main) { Toast.makeText(context, "添加失败: ${e.message}", Toast.LENGTH_SHORT).show() }
                         }
                     }
                 }
@@ -249,15 +253,15 @@ fun TaskListScreen(childId: Int, childName: String) {
                                 if (resp.isSuccessful) {
                                     showUndoDialog = false
                                     loadTasks(context, childId, today, db) { tasks = it; loading = false }
-                                    Toast.makeText(context, "已撤销", Toast.LENGTH_SHORT).show()
+                                    withContext(Dispatchers.Main) { Toast.makeText(context, "已撤销", Toast.LENGTH_SHORT).show() }
                                 } else {
-                                    Toast.makeText(context, "撤销失败", Toast.LENGTH_SHORT).show()
+                                    withContext(Dispatchers.Main) { Toast.makeText(context, "撤销失败", Toast.LENGTH_SHORT).show() }
                                 }
                             } catch (e: Exception) {
-                                Toast.makeText(context, "撤销失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                                withContext(Dispatchers.Main) { Toast.makeText(context, "撤销失败: ${e.message}", Toast.LENGTH_SHORT).show() }
                             }
                         }
-                    }) { Text("确认撤销", color = Warning) }
+                    }) { Text("确认撤销", color = Warning, modifier = Modifier.semantics { contentDescription = "task_undo_confirm" }) }
                 },
                 dismissButton = { TextButton(onClick = { showUndoDialog = false }) { Text("取消") } }
             )
@@ -320,11 +324,11 @@ fun TaskListScreen(childId: Int, childName: String) {
                                             showCelebration = false
                                         }
                                     } catch (e: Exception) {
-                                        Toast.makeText(context, "打卡失败", Toast.LENGTH_SHORT).show()
+                                        withContext(Dispatchers.Main) { Toast.makeText(context, "打卡失败", Toast.LENGTH_SHORT).show() }
                                     }
                                 }
                             },
-                            modifier = Modifier.fillMaxWidth().height(52.dp),
+                            modifier = Modifier.fillMaxWidth().height(52.dp).semantics { contentDescription = "task_checkin_confirm" },
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Success)
                         ) {
@@ -356,7 +360,7 @@ fun TaskCard(task: DailyTask, onClick: () -> Unit) {
     }
 
     Surface(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).semantics { contentDescription = "task_card_${task.id}" },
         shape = RoundedCornerShape(16.dp),
         color = bgColor,
         border = androidx.compose.foundation.BorderStroke(2.dp, borderColor)
@@ -464,7 +468,7 @@ fun AddAdhocTaskDialog(onDismiss: () -> Unit, onConfirm: (com.kidscheck.app.data
         title = { Text("添加临时任务") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("任务名称") }, singleLine = true)
+                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("任务名称") }, singleLine = true, modifier = Modifier.semantics { contentDescription = "task_adhoc_title" })
                 OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("备注（可选）") }, singleLine = true)
                 OutlinedTextField(value = points, onValueChange = { points = it }, label = { Text("积分") }, singleLine = true)
                 Row(verticalAlignment = Alignment.CenterVertically) {

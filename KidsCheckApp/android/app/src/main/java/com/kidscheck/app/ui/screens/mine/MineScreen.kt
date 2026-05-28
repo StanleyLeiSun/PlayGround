@@ -11,6 +11,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -98,7 +100,7 @@ fun MineScreen(
         item { MenuItem(Icons.Default.Settings, "设置") {} }
         item {
             Surface(
-                modifier = Modifier.fillMaxWidth().clickable { onLogout() },
+                modifier = Modifier.fillMaxWidth().clickable { onLogout() }.semantics { contentDescription = "mine_logout" },
                 shape = RoundedCornerShape(14.dp),
                 border = androidx.compose.foundation.BorderStroke(2.dp, Danger.copy(alpha = 0.3f)),
                 color = Danger.copy(alpha = 0.05f)
@@ -156,7 +158,7 @@ fun MineScreen(
 @Composable
 fun MenuItem(icon: ImageVector, text: String, badge: String? = null, onClick: () -> Unit) {
     Surface(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).semantics { contentDescription = "mine_menu_$text" },
         shape = RoundedCornerShape(14.dp),
         color = MaterialTheme.colorScheme.surface,
         border = androidx.compose.foundation.BorderStroke(2.dp, Border)

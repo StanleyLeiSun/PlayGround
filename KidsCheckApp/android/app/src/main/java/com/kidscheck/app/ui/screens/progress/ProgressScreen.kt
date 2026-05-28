@@ -13,6 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -59,7 +61,7 @@ fun ProgressScreen(childId: Int) {
 
     if (loading) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = Primary)
+            CircularProgressIndicator(color = Primary, modifier = Modifier.semantics { contentDescription = "progress_loading" })
         }
         return
     }
@@ -120,14 +122,14 @@ fun ProgressScreen(childId: Int) {
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = { currentDate = currentDate.minusDays(1) }) {
+                IconButton(onClick = { currentDate = currentDate.minusDays(1) }, modifier = Modifier.semantics { contentDescription = "progress_prev_day" }) {
                     Icon(Icons.Default.ChevronLeft, "上一天")
                 }
                 Text(
                     "${currentDate.monthValue}月${currentDate.dayOfMonth}日",
                     fontSize = 16.sp, fontWeight = FontWeight.SemiBold
                 )
-                IconButton(onClick = { currentDate = currentDate.plusDays(1) }) {
+                IconButton(onClick = { currentDate = currentDate.plusDays(1) }, modifier = Modifier.semantics { contentDescription = "progress_next_day" }) {
                     Icon(Icons.Default.ChevronRight, "下一天")
                 }
             }
@@ -167,7 +169,7 @@ fun ProgressScreen(childId: Int) {
                     Box(modifier = Modifier.width(3.dp).height(32.dp).background(Border))
                     Box(modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray))
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("当天没有任务", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Gray)
+                    Text("当天没有任务", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Gray, modifier = Modifier.semantics { contentDescription = "progress_empty" })
                 }
             }
         } else {
@@ -236,7 +238,7 @@ fun ProgressScreen(childId: Int) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Column {
                             Text("今日获得", fontSize = 14.sp, color = Color.White.copy(alpha = 0.9f))
-                            Text("+${p.todayPoints} 分", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("+${p.todayPoints} 分", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White, modifier = Modifier.semantics { contentDescription = "progress_points_today" })
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text("累计积分", fontSize = 14.sp, color = Color.White.copy(alpha = 0.9f))

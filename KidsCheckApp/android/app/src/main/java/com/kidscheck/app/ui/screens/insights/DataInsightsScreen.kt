@@ -11,6 +11,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -70,12 +72,14 @@ fun DataInsightsScreen(childId: Int) {
                 FilterChip(
                     selected = period == "week",
                     onClick = { period = "week" },
-                    label = { Text("近7天") }
+                    label = { Text("近7天") },
+                    modifier = Modifier.semantics { contentDescription = "insights_period_week" }
                 )
                 FilterChip(
                     selected = period == "month",
                     onClick = { period = "month" },
-                    label = { Text("近30天") }
+                    label = { Text("近30天") },
+                    modifier = Modifier.semantics { contentDescription = "insights_period_month" }
                 )
             }
         }

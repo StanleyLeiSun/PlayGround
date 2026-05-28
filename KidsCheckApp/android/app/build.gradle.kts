@@ -21,8 +21,9 @@ android {
         applicationId = "com.kidscheck.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 10104
-        versionName = "1.1.4"
+        versionCode = 10105
+        versionName = "1.1.5"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -136,4 +137,15 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.8.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation("app.cash.turbine:turbine:1.0.0")
+
+    // Instrumented (androidTest) Testing
+    androidTestImplementation(composeBom)
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation("androidx.test:runner:1.5.0")
+    androidTestImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test:core:1.5.0")
+    androidTestImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    androidTestImplementation("com.google.code.gson:gson:2.10.1")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

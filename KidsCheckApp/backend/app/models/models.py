@@ -171,6 +171,7 @@ class RewardRedemption(Base):
     points_spent = Column(Integer, nullable=False)
     redeemed_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     status = Column(Enum(RedemptionStatus), nullable=False, default=RedemptionStatus.pending)
+    photo_url = Column(String(500), nullable=True)
 
 
 class ActionLog(Base):

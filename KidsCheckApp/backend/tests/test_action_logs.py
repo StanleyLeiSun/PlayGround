@@ -103,7 +103,8 @@ async def test_reward_redemption_logged(client: AsyncClient, parent_token, seed_
     reward_id = reward_resp.json()["id"]
 
     await client.post(
-        f"/api/rewards/{reward_id}/redeem?child_id={child_id}",
+        f"/api/rewards/{reward_id}/redeem",
+        data={"child_id": str(child_id)},
         headers=auth_header(parent_token),
     )
 

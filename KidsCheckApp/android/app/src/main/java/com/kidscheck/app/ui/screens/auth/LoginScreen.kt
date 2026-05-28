@@ -8,6 +8,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -74,11 +76,11 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             label = { Text("密码") },
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().semantics { contentDescription = "login_password_field" }
         )
 
         if (error != null) {
-            Text(error!!, color = Danger, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
+            Text(error!!, color = Danger, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp).semantics { contentDescription = "login_error_text" })
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -110,11 +112,11 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                 }
             },
             enabled = !loading && selectedUser.isNotEmpty(),
-            modifier = Modifier.fillMaxWidth().height(52.dp),
+            modifier = Modifier.fillMaxWidth().height(52.dp).semantics { contentDescription = "login_button" },
             shape = RoundedCornerShape(14.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Primary)
         ) {
-            if (loading) CircularProgressIndicator(modifier = Modifier.size(24.dp), color = androidx.compose.ui.graphics.Color.White, strokeWidth = 2.dp)
+            if (loading) CircularProgressIndicator(modifier = Modifier.size(24.dp).semantics { contentDescription = "login_loading_indicator" }, color = androidx.compose.ui.graphics.Color.White, strokeWidth = 2.dp)
             else Text("登录", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
         }
     }
@@ -124,6 +126,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
 fun UserChip(name: String, selected: Boolean, onClick: () -> Unit) {
     Surface(
         modifier = Modifier
+            .semantics { contentDescription = "login_user_chip_$name" }
             .clickable(onClick = onClick)
             .width(100.dp),
         shape = RoundedCornerShape(12.dp),

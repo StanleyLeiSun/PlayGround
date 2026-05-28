@@ -108,7 +108,8 @@ async def test_successful_redemption(client: AsyncClient, parent_token, seed_dat
     reward_id = reward_resp.json()["id"]
 
     resp = await client.post(
-        f"/api/rewards/{reward_id}/redeem?child_id={child_id}",
+        f"/api/rewards/{reward_id}/redeem",
+        data={"child_id": str(child_id)},
         headers=auth_header(parent_token),
     )
     assert resp.status_code == 200
@@ -133,7 +134,8 @@ async def test_insufficient_points_redemption(client: AsyncClient, parent_token,
     reward_id = reward_resp.json()["id"]
 
     resp = await client.post(
-        f"/api/rewards/{reward_id}/redeem?child_id={child_id}",
+        f"/api/rewards/{reward_id}/redeem",
+        data={"child_id": str(child_id)},
         headers=auth_header(parent_token),
     )
     assert resp.status_code == 400
@@ -153,22 +155,19 @@ async def test_fulfillment_by_parent(client: AsyncClient, parent_token, seed_dat
     reward_id = reward_resp.json()["id"]
 
     await client.post(
-        f"/api/rewards/{reward_id}/redeem?child_id={child_id}",
+        f"/api/rewards/{reward_id}/redeem",
+        data={"child_id": str(child_id)},
         headers=auth_header(parent_token),
     )
 
-    # Get redemption ID from API or DB
+    # Verify redemption is auto-fulfilled on creation
     async with AsyncSession(bind=committed_db.bind) as check_db:
         result = await check_db.execute(
             select(RewardRedemption).where(RewardRedemption.child_id == child_id)
         )
         redemption = result.scalars().first()
-
-    resp = await client.put(
-        f"/api/rewards/redemptions/{redemption.id}/fulfill",
-        headers=auth_header(parent_token),
-    )
-    assert resp.status_code == 200
+    assert redemption is not None
+    assert redemption.status.value == "fulfilled"
 
 
 @pytest.mark.asyncio

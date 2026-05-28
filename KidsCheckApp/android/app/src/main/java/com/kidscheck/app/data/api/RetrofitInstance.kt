@@ -13,6 +13,11 @@ import java.util.concurrent.TimeUnit
 object RetrofitInstance {
     const val BASE_URL = BuildConfig.BASE_URL
 
+    @Volatile
+    var testBaseUrl: String? = null
+
+    fun effectiveBaseUrl(): String = testBaseUrl ?: BASE_URL
+
     private fun createClient(context: Context): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
@@ -39,7 +44,7 @@ object RetrofitInstance {
 
     fun getApi(context: Context): ApiService {
         return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(effectiveBaseUrl())
             .client(createClient(context))
             .addConverterFactory(GsonConverterFactory.create())
             .build()

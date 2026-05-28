@@ -105,7 +105,7 @@ async def test_redeem_reward_success(db: AsyncSession, seed_data):
     assert redemption.child_id == child.id
     assert redemption.reward_id == reward.id
     assert redemption.points_spent == 50
-    assert redemption.status == RedemptionStatus.pending
+    assert redemption.status == RedemptionStatus.fulfilled
 
 
 @pytest.mark.asyncio
@@ -134,7 +134,7 @@ async def test_redeem_reward_not_found(db: AsyncSession, seed_data):
 
 @pytest.mark.asyncio
 async def test_fulfill_redemption(db: AsyncSession, seed_data):
-    """Test fulfilling a redemption."""
+    """Test that redemption is auto-fulfilled on creation."""
     child = seed_data["luobo"]
 
     # Award points and create reward
@@ -143,14 +143,10 @@ async def test_fulfill_redemption(db: AsyncSession, seed_data):
     reward = await reward_service.create_reward(db, data)
     await db.commit()
 
-    # Redeem
+    # Redeem — now auto-fulfilled
     redemption = await reward_service.redeem_reward(db, child.id, reward.id)
     await db.commit()
-
-    # Fulfill
-    fulfilled = await reward_service.fulfill_redemption(db, redemption.id)
-    assert fulfilled is not None
-    assert fulfilled.status == RedemptionStatus.fulfilled
+    assert redemption.status == RedemptionStatus.fulfilled
 
 
 @pytest.mark.asyncio

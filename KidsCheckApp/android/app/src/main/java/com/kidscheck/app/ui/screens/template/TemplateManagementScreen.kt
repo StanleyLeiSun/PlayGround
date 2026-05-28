@@ -21,14 +21,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kidscheck.app.data.api.RetrofitInstance
 import com.kidscheck.app.data.model.*
 import com.kidscheck.app.ui.theme.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -117,7 +121,7 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }, containerColor = Primary) {
+            FloatingActionButton(onClick = { showAddDialog = true }, containerColor = Primary, modifier = Modifier.semantics { contentDescription = "template_add_fab" }) {
                 Icon(Icons.Default.Add, "添加", tint = androidx.compose.ui.graphics.Color.White)
             }
         }
@@ -133,7 +137,8 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                         FilterChip(
                             selected = selectedChild?.id == child.id,
                             onClick = { selectedChild = child },
-                            label = { Text(child.nickname) }
+                            label = { Text(child.nickname) },
+                            modifier = Modifier.semantics { contentDescription = "template_child_chip_${child.nickname}" }
                         )
                     }
                 }
@@ -254,10 +259,10 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                         } else {
                             val code = resp?.code() ?: -1
                             val errBody = resp?.errorBody()?.string() ?: ""
-                            Toast.makeText(context, "添加失败 (HTTP $code): $errBody", Toast.LENGTH_LONG).show()
+                            withContext(Dispatchers.Main) { Toast.makeText(context, "添加失败 (HTTP $code): $errBody", Toast.LENGTH_LONG).show() }
                         }
                     } catch (e: Exception) {
-                        Toast.makeText(context, "添加失败: ${e.message}", Toast.LENGTH_LONG).show()
+                        withContext(Dispatchers.Main) { Toast.makeText(context, "添加失败: ${e.message}", Toast.LENGTH_LONG).show() }
                     }
                 }
             }
@@ -383,7 +388,7 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                         editingTemplate = null
                         reload()
                     } catch (e: Exception) {
-                        Toast.makeText(context, "保存失败: ${e.message}", Toast.LENGTH_LONG).show()
+                        withContext(Dispatchers.Main) { Toast.makeText(context, "保存失败: ${e.message}", Toast.LENGTH_LONG).show() }
                     }
                 }
             }
@@ -405,7 +410,7 @@ fun AddTemplateDialog(onDismiss: () -> Unit, onConfirm: (TaskTemplateBatchCreate
         title = { Text("添加任务") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("任务名称") }, singleLine = true)
+                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("任务名称") }, singleLine = true, modifier = Modifier.semantics { contentDescription = "template_add_title" })
                 OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("备注（可选）") }, singleLine = true)
                 Text("周几（可多选）:", fontSize = 14.sp)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -474,7 +479,7 @@ fun EditTemplateDialog(
         title = { Text("编辑任务") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("任务名称") }, singleLine = true)
+                OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("任务名称") }, singleLine = true, modifier = Modifier.semantics { contentDescription = "template_edit_title" })
                 OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("备注（可选）") }, singleLine = true)
                 Text("周几（可多选）:", fontSize = 14.sp)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {

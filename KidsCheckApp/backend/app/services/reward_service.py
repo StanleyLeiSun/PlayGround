@@ -48,7 +48,7 @@ async def delete_reward(db: AsyncSession, reward_id: int) -> bool:
     return True
 
 
-async def redeem_reward(db: AsyncSession, child_id: int, reward_id: int) -> RewardRedemption:
+async def redeem_reward(db: AsyncSession, child_id: int, reward_id: int, photo_url: str | None = None) -> RewardRedemption:
     result = await db.execute(select(Reward).where(Reward.id == reward_id))
     reward = result.scalar_one_or_none()
     if not reward:
@@ -63,7 +63,8 @@ async def redeem_reward(db: AsyncSession, child_id: int, reward_id: int) -> Rewa
         reward_id=reward_id,
         points_spent=reward.cost_points,
         redeemed_at=datetime.utcnow(),
-        status=RedemptionStatus.pending,
+        status=RedemptionStatus.fulfilled,
+        photo_url=photo_url,
     )
     db.add(redemption)
     await db.flush()

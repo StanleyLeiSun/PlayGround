@@ -114,11 +114,18 @@ interface ApiService {
     @DELETE("/api/rewards/{id}")
     suspend fun deleteReward(@Path("id") id: Int): Response<Unit>
 
+    @Multipart
     @POST("/api/rewards/{rewardId}/redeem")
     suspend fun redeemReward(
         @Path("rewardId") rewardId: Int,
-        @Query("child_id") childId: Int
-    ): Response<Unit>
+        @Part("child_id") childId: okhttp3.RequestBody,
+        @Part photo: MultipartBody.Part? = null
+    ): Response<RewardRedemption>
+
+    @GET("/api/rewards/redemptions")
+    suspend fun getRedemptions(
+        @Query("child_id") childId: Int? = null
+    ): Response<List<RewardRedemption>>
 
     @PUT("/api/rewards/redemptions/{id}/fulfill")
     suspend fun fulfillRedemption(@Path("id") id: Int): Response<Unit>

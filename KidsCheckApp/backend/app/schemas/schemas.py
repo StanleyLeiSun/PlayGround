@@ -206,10 +206,13 @@ class RewardResponse(BaseModel):
 class RewardRedemptionResponse(BaseModel):
     id: int
     child_id: int
+    child_name: Optional[str] = None
     reward_id: int
+    reward_title: Optional[str] = None
     points_spent: int
     redeemed_at: datetime
     status: str
+    photo_url: Optional[str] = None
 
 
 # Voice

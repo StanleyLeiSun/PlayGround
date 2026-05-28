@@ -171,6 +171,18 @@ data class RewardCreate(
     @SerializedName("image_url") val imageUrl: String? = null
 )
 
+data class RewardRedemption(
+    val id: Int,
+    @SerializedName("child_id") val childId: Int,
+    @SerializedName("child_name") val childName: String?,
+    @SerializedName("reward_id") val rewardId: Int,
+    @SerializedName("reward_title") val rewardTitle: String?,
+    @SerializedName("points_spent") val pointsSpent: Int,
+    @SerializedName("redeemed_at") val redeemedAt: String,
+    val status: String,
+    @SerializedName("photo_url") val photoUrl: String?
+)
+
 data class VoiceRequest(val text: String)
 
 data class DailyStatItem(
