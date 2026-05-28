@@ -105,7 +105,18 @@ class TaskListScreenTest {
     @Test
     fun taskList_doneTask_showsUndoDialog() {
         setupCommonMocks()
+        // Wait for initial task load (pending, from pre-registered mocks)
+        composeRule.waitUntil(timeoutMillis = 5000) {
+            composeRule.onAllNodesWithText("📋 必做任务").fetchSemanticsNodes().isNotEmpty()
+        }
+        // Override with done tasks, then navigate away and back to trigger reload
         dispatcher.register("GET", "/api/daily-tasks/.*", TestData.dailyTasksWithDoneJson())
+        dispatcher.register("GET", "/api/progress/.*", TestData.progressResponseJson())
+        composeRule.onNodeWithText("进度").performClick()
+        composeRule.waitUntil(timeoutMillis = 5000) {
+            composeRule.onAllNodesWithContentDescription("progress_prev_day").fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onAllNodesWithText("今日任务").onFirst().performClick()
         composeRule.waitUntilNodeWithText("阅读课文")
         composeRule.onNodeWithText("阅读课文").performClick()
 
@@ -117,7 +128,17 @@ class TaskListScreenTest {
     @Test
     fun taskList_undoCheckIn_confirmsAndReloads() {
         setupCommonMocks()
+        composeRule.waitUntil(timeoutMillis = 5000) {
+            composeRule.onAllNodesWithText("📋 必做任务").fetchSemanticsNodes().isNotEmpty()
+        }
+        // Override with done tasks, then navigate away and back to trigger reload
         dispatcher.register("GET", "/api/daily-tasks/.*", TestData.dailyTasksWithDoneJson())
+        dispatcher.register("GET", "/api/progress/.*", TestData.progressResponseJson())
+        composeRule.onNodeWithText("进度").performClick()
+        composeRule.waitUntil(timeoutMillis = 5000) {
+            composeRule.onAllNodesWithContentDescription("progress_prev_day").fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onAllNodesWithText("今日任务").onFirst().performClick()
         composeRule.waitUntilNodeWithText("阅读课文")
         composeRule.onNodeWithText("阅读课文").performClick()
 
