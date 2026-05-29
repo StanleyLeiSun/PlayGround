@@ -192,6 +192,13 @@ data class DailyStatItem(
     val points: Int
 )
 
+data class TaskStatItem(
+    val title: String,
+    val completed: Int,
+    val total: Int,
+    val ratio: Float
+)
+
 data class InsightsResponse(
     @SerializedName("child_id") val childId: Int,
     val period: String,
@@ -200,6 +207,6 @@ data class InsightsResponse(
     @SerializedName("completion_rate") val completionRate: Float,
     @SerializedName("total_points_earned") val totalPointsEarned: Int,
     @SerializedName("daily_stats") val dailyStats: List<DailyStatItem>,
-    @SerializedName("completions_by_type") val completionsByType: Map<String, Int>,
+    @SerializedName("task_stats") val taskStats: List<TaskStatItem>,
     val streak: Int
 )

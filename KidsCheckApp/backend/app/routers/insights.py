@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.middleware.auth import get_current_user, require_parent
 from app.models.models import User, DailyTask, TaskStatus, TaskType
-from app.schemas.schemas import InsightsResponse, DailyStatItem
+from app.schemas.schemas import InsightsResponse, DailyStatItem, TaskStatItem
 
 router = APIRouter(prefix="/api/insights", tags=["insights"])
 
@@ -15,18 +15,23 @@ router = APIRouter(prefix="/api/insights", tags=["insights"])
 @router.get("/{child_id}", response_model=InsightsResponse)
 async def get_insights(
     child_id: int,
-    period: str = Query("week", regex="^(week|month)$"),
+    period: str = Query("week", pattern="^(week|last_week|month)$"),
     user: User = Depends(require_parent),
     db: AsyncSession = Depends(get_db),
 ):
     today = date.today()
     if period == "week":
-        start_date = today - timedelta(days=6)
-    else:
-        start_date = today - timedelta(days=29)
+        start_date = today - timedelta(days=today.weekday())
+        end_date = today
+    elif period == "last_week":
+        start_date = today - timedelta(days=today.weekday() + 7)
+        end_date = start_date + timedelta(days=6)
+    else:  # month
+        start_date = today.replace(day=1)
+        end_date = today
 
     start_dt = datetime.combine(start_date, datetime.min.time())
-    end_dt = datetime.combine(today, datetime.max.time())
+    end_dt = datetime.combine(end_date, datetime.max.time())
 
     result = await db.execute(
         select(
@@ -61,24 +66,28 @@ async def get_insights(
 
     completion_rate = (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0.0
 
-    # Completions by type
-    type_result = await db.execute(
+    # Task stats: group by title, count completed days and total days
+    task_result = await db.execute(
         select(
-            DailyTask.type,
-            func.count(DailyTask.id),
+            DailyTask.title,
+            func.count(DailyTask.id).label("total"),
+            func.sum(case((DailyTask.status == TaskStatus.done, 1), else_=0)).label("completed"),
         )
         .where(
             DailyTask.child_id == child_id,
             DailyTask.date >= start_dt,
             DailyTask.date <= end_dt,
-            DailyTask.status == TaskStatus.done,
         )
-        .group_by(DailyTask.type)
+        .group_by(DailyTask.title)
+        .order_by(func.sum(case((DailyTask.status == TaskStatus.done, 1), else_=0)).desc())
     )
-    completions_by_type = {}
-    for row in type_result.all():
-        type_name = row[0].value if hasattr(row[0], 'value') else str(row[0])
-        completions_by_type[type_name] = int(row[1])
+    task_stats = []
+    for row in task_result.all():
+        title = row[0]
+        total = int(row[1])
+        completed = int(row[2])
+        ratio = round(completed / total, 3) if total > 0 else 0.0
+        task_stats.append(TaskStatItem(title=title, completed=completed, total=total, ratio=ratio))
 
     # Streak: consecutive days with all tasks completed (from today backwards)
     streak = 0
@@ -114,6 +123,6 @@ async def get_insights(
         completion_rate=round(completion_rate, 1),
         total_points_earned=total_points,
         daily_stats=daily_stats,
-        completions_by_type=completions_by_type,
+        task_stats=task_stats,
         streak=streak,
     )

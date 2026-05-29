@@ -249,6 +249,13 @@ class DailyStatItem(BaseModel):
     points: int
 
 
+class TaskStatItem(BaseModel):
+    title: str
+    completed: int
+    total: int
+    ratio: float
+
+
 class InsightsResponse(BaseModel):
     child_id: int
     period: str
@@ -257,5 +264,5 @@ class InsightsResponse(BaseModel):
     completion_rate: float
     total_points_earned: int
     daily_stats: list[DailyStatItem]
-    completions_by_type: dict[str, int]
+    task_stats: list[TaskStatItem]
     streak: int

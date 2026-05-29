@@ -41,6 +41,7 @@ class DataInsightsScreenTest {
     fun insights_showsPeriodSelector() {
         navigateToInsights()
         composeRule.onNodeWithContentDescription("insights_period_week").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("insights_period_last_week").assertIsDisplayed()
         composeRule.onNodeWithContentDescription("insights_period_month").assertIsDisplayed()
     }
 
@@ -78,12 +79,12 @@ class DataInsightsScreenTest {
     }
 
     @Test
-    fun insights_showsTypeBreakdown() {
+    fun insights_showsTaskStats() {
         navigateToInsights()
-        composeRule.waitUntilNodeWithText("任务类型分布")
-        composeRule.onNodeWithText("任务类型分布").assertExists()
-        // Type bars are in a LazyColumn — scroll to them
-        composeRule.onNodeWithText("任务类型分布").performScrollTo()
-        composeRule.onNodeWithText("任务类型分布").assertIsDisplayed()
+        composeRule.waitUntilNodeWithText("任务完成明细")
+        composeRule.onNodeWithText("任务完成明细").assertExists()
+        // Task stats are in a LazyColumn — scroll to them
+        composeRule.onNodeWithText("任务完成明细").performScrollTo()
+        composeRule.onNodeWithText("任务完成明细").assertIsDisplayed()
     }
 }
