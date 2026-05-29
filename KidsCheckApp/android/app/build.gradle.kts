@@ -21,8 +21,8 @@ android {
         applicationId = "com.kidscheck.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 10105
-        versionName = "1.1.5"
+        versionCode = 10106
+        versionName = "1.1.6"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

@@ -1,11 +1,11 @@
 {
-  "version_code": 10104,
-  "version_name": "1.1.4",
-  "apk_filename": "kidscheck-1.1.4.apk",
-  "apk_size": 13237511,
-  "apk_md5": "16ff2b3022ea10b999d092306d84df9e",
-  "release_notes": "修复模板编辑保存、照片查看、优化拍照交互",
+  "version_code": 10106,
+  "version_name": "1.1.6",
+  "apk_filename": "kidscheck-1.1.6.apk",
+  "apk_size": 13262087,
+  "apk_md5": "31d817cef6642962bd109537ef69da28",
+  "release_notes": "洞察页面过滤改为自然周月、任务完成明细、奖励优化",
   "force_update": false,
-  "min_supported_version": 1,
-  "created_at": "2026-05-22T11:05:00Z"
+  "min_supported_version": 10106,
+  "created_at": "2026-05-29T12:27:14Z"
 }

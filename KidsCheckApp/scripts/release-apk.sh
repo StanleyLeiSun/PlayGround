@@ -38,14 +38,15 @@ VERSION_NAME=""
 RELEASE_NOTES=""
 FORCE_UPDATE=false
 DRY_RUN=false
+BUMP_TYPE="patch"
 
 usage() {
-    echo "用法: bash scripts/release-apk.sh --version <X.Y.Z> [选项]"
-    echo ""
-    echo "必填参数:"
-    echo "  --version <X.Y.Z>    新版本号"
+    echo "用法: bash scripts/release-apk.sh [选项]"
     echo ""
     echo "可选参数:"
+    echo "  --version <X.Y.Z>    指定版本号（不指定则自动递增 patch）"
+    echo "  --minor              递增 minor 版本（如 1.1.5 -> 1.2.0）"
+    echo "  --major              递增 major 版本（如 1.1.5 -> 2.0.0）"
     echo "  --notes <text>       更新说明（默认: 自动生成）"
     echo "  --force              标记为强制更新"
     echo "  --dry-run            仅预览，不执行构建"
@@ -56,6 +57,8 @@ usage() {
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --version)  VERSION_NAME="$2"; shift 2 ;;
+        --minor)    BUMP_TYPE="minor"; shift ;;
+        --major)    BUMP_TYPE="major"; shift ;;
         --notes)    RELEASE_NOTES="$2"; shift 2 ;;
         --force)    FORCE_UPDATE=true; shift ;;
         --dry-run)  DRY_RUN=true; shift ;;
@@ -64,9 +67,22 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# 如果未指定版本号，从 build.gradle.kts 自动读取并递增
 if [[ -z "$VERSION_NAME" ]]; then
-    error "必须指定 --version 参数"
-    usage
+    CURRENT_VERSION=$(grep 'versionName' "$GRADLE_FILE" | sed 's/.*"\(.*\)".*/\1/')
+    if [[ -z "$CURRENT_VERSION" ]]; then
+        error "无法从 build.gradle.kts 中读取当前版本号"
+        exit 1
+    fi
+
+    IFS='.' read -r CUR_MAJOR CUR_MINOR CUR_PATCH <<< "$CURRENT_VERSION"
+    case "$BUMP_TYPE" in
+        patch) VERSION_NAME="${CUR_MAJOR}.${CUR_MINOR}.$((CUR_PATCH + 1))" ;;
+        minor) VERSION_NAME="${CUR_MAJOR}.$((CUR_MINOR + 1)).0" ;;
+        major) VERSION_NAME="$((CUR_MAJOR + 1)).0.0" ;;
+    esac
+
+    log "当前版本: ${CURRENT_VERSION} -> 新版本: ${VERSION_NAME}（${BUMP_TYPE}）"
 fi
 
 # 校验版本号格式
@@ -121,12 +137,12 @@ fi
 cp "$GRADLE_FILE" "${GRADLE_FILE}.bak"
 
 # 替换 versionCode 和 versionName
-if [[ "$(uname -s)" == MINGW* ]] || [[ "$(uname -s)" == MSYS* ]]; then
-    # Windows (Git Bash)
-    sed -i "s/versionCode = [0-9]*/versionCode = ${VERSION_CODE}/" "$GRADLE_FILE"
-    sed -i "s/versionName = \"[^\"]*\"/versionName = \"${VERSION_NAME}\"/" "$GRADLE_FILE"
+if [[ "$(uname -s)" == "Darwin" ]]; then
+    # macOS
+    sed -i '' "s/versionCode = [0-9]*/versionCode = ${VERSION_CODE}/" "$GRADLE_FILE"
+    sed -i '' "s/versionName = \"[^\"]*\"/versionName = \"${VERSION_NAME}\"/" "$GRADLE_FILE"
 else
-    # Linux / macOS
+    # Linux / Windows (Git Bash)
     sed -i "s/versionCode = [0-9]*/versionCode = ${VERSION_CODE}/" "$GRADLE_FILE"
     sed -i "s/versionName = \"[^\"]*\"/versionName = \"${VERSION_NAME}\"/" "$GRADLE_FILE"
 fi
