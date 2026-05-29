@@ -53,7 +53,7 @@ async def test_insights_week_period(client, parent_token, seed_data, seed_tasks)
     assert data["completed_tasks"] > 0
     assert "completion_rate" in data
     assert "daily_stats" in data
-    assert "completions_by_type" in data
+    assert "task_stats" in data
     assert "streak" in data
 
 
@@ -70,6 +70,45 @@ async def test_insights_month_period(client, parent_token, seed_data, seed_tasks
     data = resp.json()
     assert data["child_id"] == luobo.id
     assert data["period"] == "month"
+
+
+@pytest.mark.asyncio
+async def test_insights_last_week_period(client, parent_token, seed_data, committed_db):
+    """Test insights with last_week period returns full Mon-Sun range."""
+    luobo = seed_data["luobo"]
+    today = date.today()
+    last_monday = today - timedelta(days=today.weekday() + 7)
+
+    # Create tasks for last week (Mon, Wed, Fri)
+    for i in range(3):
+        task_date = datetime.combine(last_monday + timedelta(days=i * 2), datetime.min.time())
+        task = DailyTask(
+            child_id=luobo.id,
+            title=f"Last week task {i}",
+            type=TaskType.reading,
+            status=TaskStatus.done,
+            points=10,
+            date=task_date,
+            source_template_id=None,
+        )
+        committed_db.add(task)
+    await committed_db.commit()
+
+    resp = await client.get(
+        f"/api/insights/{luobo.id}",
+        params={"period": "last_week"},
+        headers=auth_header(parent_token),
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["period"] == "last_week"
+    assert data["total_tasks"] == 3
+    assert data["completed_tasks"] == 3
+    # Verify daily stats are within last week range
+    for stat in data["daily_stats"]:
+        stat_date = date.fromisoformat(stat["date"])
+        assert stat_date >= last_monday
+        assert stat_date <= last_monday + timedelta(days=6)
 
 
 @pytest.mark.asyncio
@@ -99,14 +138,20 @@ async def test_insights_no_tasks(client, parent_token, seed_data):
     assert data["completed_tasks"] == 0
     assert data["completion_rate"] == 0.0
     assert data["daily_stats"] == []
-    assert data["completions_by_type"] == {}
+    assert data["task_stats"] == []
     assert data["streak"] == 0
 
 
 @pytest.mark.asyncio
 async def test_insights_completion_rate_calculation(client, parent_token, seed_data, seed_tasks):
-    """Test that completion rate is calculated correctly."""
+    """Test that completion rate is calculated correctly for this week."""
     luobo = seed_data["luobo"]
+    today = date.today()
+    # seed_tasks creates 7 tasks for today-0..today-6, first 5 completed.
+    # This week (Mon..today) includes weekday()+1 tasks.
+    days_in_week = today.weekday() + 1
+    completed_in_week = min(5, days_in_week)  # first 5 are completed
+
     resp = await client.get(
         f"/api/insights/{luobo.id}",
         params={"period": "week"},
@@ -114,16 +159,15 @@ async def test_insights_completion_rate_calculation(client, parent_token, seed_d
     )
     assert resp.status_code == 200
     data = resp.json()
-    # We created 7 tasks, 5 completed
-    assert data["total_tasks"] == 7
-    assert data["completed_tasks"] == 5
-    expected_rate = round(5 / 7 * 100, 1)
+    assert data["total_tasks"] == days_in_week
+    assert data["completed_tasks"] == completed_in_week
+    expected_rate = round(completed_in_week / days_in_week * 100, 1)
     assert data["completion_rate"] == expected_rate
 
 
 @pytest.mark.asyncio
-async def test_insights_completions_by_type(client, parent_token, seed_data, seed_tasks):
-    """Test that completions_by_type is populated correctly."""
+async def test_insights_task_stats(client, parent_token, seed_data, seed_tasks):
+    """Test that task_stats is populated correctly with per-task breakdown."""
     luobo = seed_data["luobo"]
     resp = await client.get(
         f"/api/insights/{luobo.id}",
@@ -132,9 +176,15 @@ async def test_insights_completions_by_type(client, parent_token, seed_data, see
     )
     assert resp.status_code == 200
     data = resp.json()
-    # We have reading and written tasks, 5 completed total
-    completions = data["completions_by_type"]
-    assert "reading" in completions or "written" in completions
+    task_stats = data["task_stats"]
+    assert len(task_stats) > 0
+    for stat in task_stats:
+        assert "title" in stat
+        assert "completed" in stat
+        assert "total" in stat
+        assert "ratio" in stat
+        assert 0 <= stat["ratio"] <= 1
+        assert stat["completed"] <= stat["total"]
 
 
 @pytest.mark.asyncio
@@ -219,6 +269,10 @@ async def test_insights_daily_stats_fields(client, parent_token, seed_data, seed
 async def test_insights_points_earned(client, parent_token, seed_data, seed_tasks):
     """Test that total_points_earned is calculated correctly."""
     luobo = seed_data["luobo"]
+    today = date.today()
+    days_in_week = today.weekday() + 1
+    completed_in_week = min(5, days_in_week)
+
     resp = await client.get(
         f"/api/insights/{luobo.id}",
         params={"period": "week"},
@@ -226,5 +280,4 @@ async def test_insights_points_earned(client, parent_token, seed_data, seed_task
     )
     assert resp.status_code == 200
     data = resp.json()
-    # 5 completed tasks * 10 points each
-    assert data["total_points_earned"] == 50
+    assert data["total_points_earned"] == completed_in_week * 10

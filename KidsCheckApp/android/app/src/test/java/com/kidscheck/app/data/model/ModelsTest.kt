@@ -285,7 +285,10 @@ class ModelsTest {
             "completion_rate": 75.0,
             "total_points_earned": 150,
             "daily_stats": [],
-            "completions_by_type": {"reading": 10, "written": 5},
+            "task_stats": [
+                {"title": "阅读课文", "completed": 5, "total": 7, "ratio": 0.714},
+                {"title": "写字练习", "completed": 4, "total": 5, "ratio": 0.8}
+            ],
             "streak": 3
         }"""
         val insights = gson.fromJson(json, InsightsResponse::class.java)
@@ -296,8 +299,10 @@ class ModelsTest {
         assertEquals(75.0f, insights.completionRate, 0.01f)
         assertEquals(150, insights.totalPointsEarned)
         assertEquals(3, insights.streak)
-        assertEquals(10, insights.completionsByType["reading"])
-        assertEquals(5, insights.completionsByType["written"])
+        assertEquals(2, insights.taskStats.size)
+        assertEquals("阅读课文", insights.taskStats[0].title)
+        assertEquals(5, insights.taskStats[0].completed)
+        assertEquals(7, insights.taskStats[0].total)
     }
 
     // DailyStatItem Tests

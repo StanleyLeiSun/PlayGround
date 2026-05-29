@@ -15,8 +15,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
@@ -25,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kidscheck.app.data.api.RetrofitInstance
 import com.kidscheck.app.data.model.InsightsResponse
+import com.kidscheck.app.data.model.TaskStatItem
 import com.kidscheck.app.ui.theme.*
 import kotlinx.coroutines.launch
 
@@ -46,7 +45,7 @@ fun DataInsightsScreen(childId: Int) {
                 } else {
                     Toast.makeText(context, "加载失败", Toast.LENGTH_SHORT).show()
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 Toast.makeText(context, "网络错误", Toast.LENGTH_SHORT).show()
             }
             loading = false
@@ -72,13 +71,19 @@ fun DataInsightsScreen(childId: Int) {
                 FilterChip(
                     selected = period == "week",
                     onClick = { period = "week" },
-                    label = { Text("近7天") },
+                    label = { Text("本周") },
                     modifier = Modifier.semantics { contentDescription = "insights_period_week" }
+                )
+                FilterChip(
+                    selected = period == "last_week",
+                    onClick = { period = "last_week" },
+                    label = { Text("上一周") },
+                    modifier = Modifier.semantics { contentDescription = "insights_period_last_week" }
                 )
                 FilterChip(
                     selected = period == "month",
                     onClick = { period = "month" },
-                    label = { Text("近30天") },
+                    label = { Text("本月") },
                     modifier = Modifier.semantics { contentDescription = "insights_period_month" }
                 )
             }
@@ -158,7 +163,7 @@ fun DataInsightsScreen(childId: Int) {
                 }
             }
 
-            // Type breakdown
+            // Task completion stats
             item {
                 Surface(
                     shape = RoundedCornerShape(16.dp),
@@ -166,30 +171,13 @@ fun DataInsightsScreen(childId: Int) {
                     tonalElevation = 1.dp
                 ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                        Text("任务类型分布", fontSize = 14.sp, color = TextSecondary)
+                        Text("任务完成明细", fontSize = 14.sp, color = TextSecondary)
                         Spacer(Modifier.height(12.dp))
-                        val written = insights.completionsByType["written"] ?: 0
-                        val reading = insights.completionsByType["reading"] ?: 0
-                        val total = written + reading
-                        if (total > 0) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                TypeBar(
-                                    modifier = Modifier.weight(1f),
-                                    label = "拍照",
-                                    count = written,
-                                    ratio = written.toFloat() / total,
-                                    color = Primary
-                                )
-                                TypeBar(
-                                    modifier = Modifier.weight(1f),
-                                    label = "阅读",
-                                    count = reading,
-                                    ratio = reading.toFloat() / total,
-                                    color = Success
-                                )
+                        if (insights.taskStats.isNotEmpty()) {
+                            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                insights.taskStats.forEach { stat ->
+                                    TaskStatRow(stat)
+                                }
                             }
                         } else {
                             Text("暂无数据", color = Gray, fontSize = 14.sp)
@@ -262,17 +250,29 @@ private fun DailyBarChart(rates: List<Float>) {
 }
 
 @Composable
-private fun TypeBar(modifier: Modifier, label: String, count: Int, ratio: Float, color: Color) {
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("$count 次", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = color)
-        Spacer(Modifier.height(4.dp))
+private fun TaskStatRow(stat: TaskStatItem) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            stat.title,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = TextPrimary,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            "${stat.completed}/${stat.total}天",
+            fontSize = 13.sp,
+            color = TextSecondary,
+            modifier = Modifier.padding(end = 12.dp)
+        )
         LinearProgressIndicator(
-            progress = ratio,
-            modifier = Modifier.fillMaxWidth().height(8.dp),
-            color = color,
+            progress = stat.ratio,
+            modifier = Modifier.width(80.dp).height(8.dp).clip(RoundedCornerShape(4.dp)),
+            color = if (stat.ratio >= 0.8f) Success else Primary,
             trackColor = Border
         )
-        Spacer(Modifier.height(4.dp))
-        Text(label, fontSize = 12.sp, color = TextSecondary)
     }
 }

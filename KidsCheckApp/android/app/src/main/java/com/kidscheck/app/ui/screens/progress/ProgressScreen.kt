@@ -126,7 +126,7 @@ fun ProgressScreen(childId: Int) {
                     Icon(Icons.Default.ChevronLeft, "上一天")
                 }
                 Text(
-                    "${currentDate.monthValue}月${currentDate.dayOfMonth}日",
+                    "${currentDate.monthValue}月${currentDate.dayOfMonth}日 ${weekdayOf(currentDate)}",
                     fontSize = 16.sp, fontWeight = FontWeight.SemiBold
                 )
                 IconButton(onClick = { currentDate = currentDate.plusDays(1) }, modifier = Modifier.semantics { contentDescription = "progress_next_day" }) {
@@ -271,4 +271,9 @@ private fun resolvePhotoUrl(photoUrl: String): String {
     if (photoUrl.startsWith("http://") || photoUrl.startsWith("https://")) return photoUrl
     val base = RetrofitInstance.BASE_URL.trimEnd('/')
     return if (photoUrl.startsWith("/")) base + photoUrl else "$base/$photoUrl"
+}
+
+private fun weekdayOf(date: LocalDate): String {
+    val weekdays = arrayOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
+    return weekdays[date.dayOfWeek.value - 1]
 }

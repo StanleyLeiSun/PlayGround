@@ -120,7 +120,10 @@ object TestData {
         dailyStats = (1..7).map { i ->
             DailyStatItem(date = "2026-05-${20 + i}", total = 5, completed = 4, points = 30)
         },
-        completionsByType = mapOf("written" to 15, "reading" to 13),
+        taskStats = listOf(
+            TaskStatItem(title = "阅读课文", completed = 5, total = 7, ratio = 0.714f),
+            TaskStatItem(title = "写字练习", completed = 4, total = 5, ratio = 0.8f)
+        ),
         streak = 5
     )
 
