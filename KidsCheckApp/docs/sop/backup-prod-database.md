@@ -29,13 +29,13 @@ ssh admin@47.94.167.238 "sqlite3 /opt/kidscheck/backend/kidscheck_dev.db '.backu
 ### 2. 拉取备份到本地
 
 ```bash
-scp admin@47.94.167.238:/tmp/kidscheck_backup.db db_bak/kidscheck_prod_backup_$(date +%Y%m%d).db
+scp admin@47.94.167.238:/tmp/kidscheck_backup.db db_bak/kidscheck_$(date +%Y%m%d).db
 ```
 
 ### 3. 验证备份完整性
 
 ```bash
-sqlite3 db_bak/kidscheck_prod_backup_$(date +%Y%m%d).db "PRAGMA integrity_check;"
+sqlite3 db_bak/kidscheck_$(date +%Y%m%d).db "PRAGMA integrity_check;"
 ```
 
 预期输出：`ok`
@@ -56,7 +56,7 @@ SERVER="admin@47.94.167.238"
 REMOTE_DB="/opt/kidscheck/backend/kidscheck_dev.db"
 REMOTE_TMP="/tmp/kidscheck_backup.db"
 LOCAL_DIR="db_bak"
-LOCAL_FILE="${LOCAL_DIR}/kidscheck_prod_backup_$(date +%Y%m%d).db"
+LOCAL_FILE="${LOCAL_DIR}/kidscheck_$(date +%Y%m%d).db"
 
 mkdir -p "$LOCAL_DIR"
 
@@ -84,5 +84,5 @@ echo "完成"
 ## 注意事项
 
 - `sqlite3 .backup` 是在线热备份，利用 SQLite 的 WAL 机制保证一致性
-- 备份文件命名格式：`kidscheck_prod_backup_YYYYMMDD.db`
+- 备份文件命名格式：`kidscheck_YYYYMMDD.db`
 - 项目还配有自动周备份（cron 每周一凌晨 3 点），可用 `scripts/pull_backup.py` 拉取历史备份
