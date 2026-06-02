@@ -51,7 +51,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun TaskListScreen(childId: Int, childName: String) {
+fun TaskListScreen(childId: Int, childName: String, onOralPracticeChanged: (Boolean) -> Unit = {}) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
@@ -63,6 +63,12 @@ fun TaskListScreen(childId: Int, childName: String) {
     var selectedTask by remember { mutableStateOf<DailyTask?>(null) }
     var showCelebration by remember { mutableStateOf(false) }
     var showAdhocDialog by remember { mutableStateOf(false) }
+    var showOralPractice by remember { mutableStateOf(false) }
+
+    // Notify MainScreen to lock child switching when oral practice is active
+    LaunchedEffect(showOralPractice) {
+        onOralPracticeChanged(showOralPractice)
+    }
     var photoUri by remember { mutableStateOf<Uri?>(null) }
     var photoFile by remember { mutableStateOf<File?>(null) }
 
@@ -136,214 +142,242 @@ fun TaskListScreen(childId: Int, childName: String) {
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        if (loading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center).semantics { contentDescription = "task_list_loading" }, color = Primary)
-        } else if (tasks.isEmpty()) {
-            Column(
-                modifier = Modifier.fillMaxSize().padding(32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Box(
-                    modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray)
-                )
-                Box(modifier = Modifier.width(3.dp).height(32.dp).background(Border))
-                Box(
-                    modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray)
-                )
-                Box(modifier = Modifier.width(3.dp).height(32.dp).background(Border))
-                Box(
-                    modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray)
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                Text("今天没有任务", fontSize = 18.sp, fontWeight = FontWeight.Medium, color = Gray, modifier = Modifier.semantics { contentDescription = "task_list_empty" })
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("请家长在模板管理中添加任务", fontSize = 14.sp, color = TextSecondary)
+    // Oral practice screen — full-screen overlay, rendered outside Box to avoid Compose group mismatch
+    if (showOralPractice && selectedTask != null) {
+        OralPracticeScreen(
+            task = selectedTask!!,
+            baseUrl = RetrofitInstance.effectiveBaseUrl(),
+            onBack = {
+                showOralPractice = false
+                scope.launch {
+                    loadTasks(context, childId, today, db) { tasks = it; loading = false }
+                }
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                item {
-                    Text("📋 必做任务", fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
-                        color = TextSecondary, modifier = Modifier.padding(bottom = 4.dp))
-                }
-                items(tasks.filter { !it.isConditional }) { task ->
-                    TaskCard(task) {
-                        selectedTask = task
-                        if (task.status == "done") showUndoDialog = true
-                        else showCheckinSheet = true
-                    }
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    val hasUncompleted = tasks.any { !it.isConditional && it.status == "pending" }
-                    Text(
-                        "🌟 条件任务${if (hasUncompleted) "（完成后解锁）" else ""}",
-                        fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
-                        color = TextSecondary, modifier = Modifier.padding(bottom = 4.dp)
+        )
+    } else {
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (loading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center).semantics { contentDescription = "task_list_loading" }, color = Primary)
+            } else if (tasks.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Box(
+                        modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray)
                     )
+                    Box(modifier = Modifier.width(3.dp).height(32.dp).background(Border))
+                    Box(
+                        modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray)
+                    )
+                    Box(modifier = Modifier.width(3.dp).height(32.dp).background(Border))
+                    Box(
+                        modifier = Modifier.size(14.dp).clip(CircleShape).background(Gray)
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Text("今天没有任务", fontSize = 18.sp, fontWeight = FontWeight.Medium, color = Gray, modifier = Modifier.semantics { contentDescription = "task_list_empty" })
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("请家长在模板管理中添加任务", fontSize = 14.sp, color = TextSecondary)
                 }
-                items(tasks.filter { it.isConditional }) { task ->
-                    TaskCard(task) {
-                        selectedTask = task
-                        if (task.status == "done") showUndoDialog = true
-                        else showCheckinSheet = true
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    item {
+                        Text("📋 必做任务", fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
+                            color = TextSecondary, modifier = Modifier.padding(bottom = 4.dp))
                     }
-                }
-            }
-        }
-
-        // FAB for adhoc task
-        FloatingActionButton(
-            onClick = { showAdhocDialog = true },
-            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp).semantics { contentDescription = "task_adhoc_fab" },
-            containerColor = Primary
-        ) {
-            Icon(Icons.Default.Add, contentDescription = "添加临时任务", tint = Color.White)
-        }
-
-        // Celebration overlay
-        if (showCelebration) {
-            Box(
-                modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)).semantics { contentDescription = "task_celebration" },
-                contentAlignment = Alignment.Center
-            ) {
-                Text("⭐", fontSize = 64.sp)
-            }
-        }
-
-        // Adhoc task dialog
-        if (showAdhocDialog) {
-            AddAdhocTaskDialog(
-                onDismiss = { showAdhocDialog = false },
-                onConfirm = { data ->
-                    scope.launch {
-                        try {
-                            val api = RetrofitInstance.getApi(context)
-                            val resp = api.createAdhocTask(childId, data)
-                            if (resp.isSuccessful) {
-                                showAdhocDialog = false
-                                loadTasks(context, childId, today, db) { tasks = it; loading = false }
+                    items(tasks.filter { !it.isConditional }) { task ->
+                        TaskCard(task) {
+                            if (task.type == "oral" && task.status == "pending") {
+                                selectedTask = task
+                                showOralPractice = true
+                            } else if (task.status == "done") {
+                                selectedTask = task
+                                showUndoDialog = true
                             } else {
-                                withContext(Dispatchers.Main) { Toast.makeText(context, "添加失败", Toast.LENGTH_SHORT).show() }
+                                selectedTask = task
+                                showCheckinSheet = true
                             }
-                        } catch (e: Exception) {
-                            withContext(Dispatchers.Main) { Toast.makeText(context, "添加失败: ${e.message}", Toast.LENGTH_SHORT).show() }
+                        }
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        val hasUncompleted = tasks.any { !it.isConditional && it.status == "pending" }
+                        Text(
+                            "🌟 条件任务${if (hasUncompleted) "（完成后解锁）" else ""}",
+                            fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
+                            color = TextSecondary, modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                    }
+                    items(tasks.filter { it.isConditional }) { task ->
+                        TaskCard(task) {
+                            if (task.type == "oral" && task.status == "pending") {
+                                selectedTask = task
+                                showOralPractice = true
+                            } else if (task.status == "done") {
+                                selectedTask = task
+                                showUndoDialog = true
+                            } else {
+                                selectedTask = task
+                                showCheckinSheet = true
+                            }
                         }
                     }
                 }
-            )
-        }
+            }
 
-        // Undo dialog
-        if (showUndoDialog && selectedTask != null) {
-            AlertDialog(
-                onDismissRequest = { showUndoDialog = false },
-                title = { Text("撤销完成") },
-                text = { Text("确定要撤销「${selectedTask!!.title}」的完成状态吗？积分将被扣回。") },
-                confirmButton = {
-                    TextButton(onClick = {
+            // FAB for adhoc task
+            FloatingActionButton(
+                onClick = { showAdhocDialog = true },
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp).semantics { contentDescription = "task_adhoc_fab" },
+                containerColor = Primary
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "添加临时任务", tint = Color.White)
+            }
+
+            // Celebration overlay
+            if (showCelebration) {
+                Box(
+                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.3f)).semantics { contentDescription = "task_celebration" },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("⭐", fontSize = 64.sp)
+                }
+            }
+
+            // Adhoc task dialog
+            if (showAdhocDialog) {
+                AddAdhocTaskDialog(
+                    onDismiss = { showAdhocDialog = false },
+                    onConfirm = { data ->
                         scope.launch {
                             try {
-                                val resp = RetrofitInstance.getApi(context).undoCheckIn(selectedTask!!.id)
+                                val api = RetrofitInstance.getApi(context)
+                                val resp = api.createAdhocTask(childId, data)
                                 if (resp.isSuccessful) {
-                                    showUndoDialog = false
+                                    showAdhocDialog = false
                                     loadTasks(context, childId, today, db) { tasks = it; loading = false }
-                                    withContext(Dispatchers.Main) { Toast.makeText(context, "已撤销", Toast.LENGTH_SHORT).show() }
                                 } else {
-                                    withContext(Dispatchers.Main) { Toast.makeText(context, "撤销失败", Toast.LENGTH_SHORT).show() }
+                                    withContext(Dispatchers.Main) { Toast.makeText(context, "添加失败", Toast.LENGTH_SHORT).show() }
                                 }
                             } catch (e: Exception) {
-                                withContext(Dispatchers.Main) { Toast.makeText(context, "撤销失败: ${e.message}", Toast.LENGTH_SHORT).show() }
+                                withContext(Dispatchers.Main) { Toast.makeText(context, "添加失败: ${e.message}", Toast.LENGTH_SHORT).show() }
                             }
                         }
-                    }) { Text("确认撤销", color = Warning, modifier = Modifier.semantics { contentDescription = "task_undo_confirm" }) }
-                },
-                dismissButton = { TextButton(onClick = { showUndoDialog = false }) { Text("取消") } }
-            )
-        }
-
-        // Check-in bottom sheet
-        if (showCheckinSheet && selectedTask != null) {
-            ModalBottomSheet(onDismissRequest = { showCheckinSheet = false }) {
-                Column(
-                    modifier = Modifier.padding(24.dp).fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("确认完成", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(selectedTask!!.title, fontSize = 18.sp, color = TextSecondary)
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    if (selectedTask!!.type == "written") {
-                        Button(
-                            onClick = {
-                                val file = File(context.externalCacheDir, "photo_${System.currentTimeMillis()}.jpg")
-                                photoFile = file
-                                val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-                                photoUri = uri
-                                if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                                    cameraLauncher.launch(uri)
-                                } else {
-                                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth().height(52.dp),
-                            shape = RoundedCornerShape(14.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Primary)
-                        ) {
-                            Icon(Icons.Default.CameraAlt, contentDescription = null)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("拍照存证并完成", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                        }
-                        Spacer(modifier = Modifier.height(10.dp))
-                        OutlinedButton(
-                            onClick = { galleryLauncher.launch("image/*") },
-                            modifier = Modifier.fillMaxWidth().height(52.dp),
-                            shape = RoundedCornerShape(14.dp)
-                        ) {
-                            Icon(Icons.Default.PhotoLibrary, contentDescription = null)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("从相册选择并完成", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                        }
-                    } else {
-                        Button(
-                            onClick = {
-                                scope.launch {
-                                    try {
-                                        val resp = RetrofitInstance.getApi(context).checkIn(selectedTask!!.id)
-                                        if (resp.isSuccessful) {
-                                            showCheckinSheet = false
-                                            showCelebration = true
-                                            loadTasks(context, childId, today, db) { tasks = it; loading = false }
-                                            kotlinx.coroutines.delay(1500)
-                                            showCelebration = false
-                                        }
-                                    } catch (e: Exception) {
-                                        withContext(Dispatchers.Main) { Toast.makeText(context, "打卡失败", Toast.LENGTH_SHORT).show() }
-                                    }
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth().height(52.dp).semantics { contentDescription = "task_checkin_confirm" },
-                            shape = RoundedCornerShape(14.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Success)
-                        ) {
-                            Text("✓ 确认完成", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
-                        }
                     }
+                )
+            }
 
-                    Spacer(modifier = Modifier.height(12.dp))
-                    TextButton(onClick = { showCheckinSheet = false }) {
-                        Text("取消", color = Gray, fontSize = 16.sp)
+            // Undo dialog
+            if (showUndoDialog && selectedTask != null) {
+                AlertDialog(
+                    onDismissRequest = { showUndoDialog = false },
+                    title = { Text("撤销完成") },
+                    text = { Text("确定要撤销「${selectedTask!!.title}」的完成状态吗？积分将被扣回。") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            scope.launch {
+                                try {
+                                    val resp = RetrofitInstance.getApi(context).undoCheckIn(selectedTask!!.id)
+                                    if (resp.isSuccessful) {
+                                        showUndoDialog = false
+                                        loadTasks(context, childId, today, db) { tasks = it; loading = false }
+                                        withContext(Dispatchers.Main) { Toast.makeText(context, "已撤销", Toast.LENGTH_SHORT).show() }
+                                    } else {
+                                        withContext(Dispatchers.Main) { Toast.makeText(context, "撤销失败", Toast.LENGTH_SHORT).show() }
+                                    }
+                                } catch (e: Exception) {
+                                    withContext(Dispatchers.Main) { Toast.makeText(context, "撤销失败: ${e.message}", Toast.LENGTH_SHORT).show() }
+                                }
+                            }
+                        }) { Text("确认撤销", color = Warning, modifier = Modifier.semantics { contentDescription = "task_undo_confirm" }) }
+                    },
+                    dismissButton = { TextButton(onClick = { showUndoDialog = false }) { Text("取消") } }
+                )
+            }
+
+            // Check-in bottom sheet
+            if (showCheckinSheet && selectedTask != null) {
+                ModalBottomSheet(onDismissRequest = { showCheckinSheet = false }) {
+                    Column(
+                        modifier = Modifier.padding(24.dp).fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("确认完成", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(selectedTask!!.title, fontSize = 18.sp, color = TextSecondary)
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        if (selectedTask!!.type == "written") {
+                            Button(
+                                onClick = {
+                                    val file = File(context.externalCacheDir, "photo_${System.currentTimeMillis()}.jpg")
+                                    photoFile = file
+                                    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+                                    photoUri = uri
+                                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                                        cameraLauncher.launch(uri)
+                                    } else {
+                                        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                            ) {
+                                Icon(Icons.Default.CameraAlt, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("拍照存证并完成", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            OutlinedButton(
+                                onClick = { galleryLauncher.launch("image/*") },
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
+                                shape = RoundedCornerShape(14.dp)
+                            ) {
+                                Icon(Icons.Default.PhotoLibrary, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("从相册选择并完成", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                            }
+                        } else {
+                            Button(
+                                onClick = {
+                                    scope.launch {
+                                        try {
+                                            val resp = RetrofitInstance.getApi(context).checkIn(selectedTask!!.id)
+                                            if (resp.isSuccessful) {
+                                                showCheckinSheet = false
+                                                showCelebration = true
+                                                loadTasks(context, childId, today, db) { tasks = it; loading = false }
+                                                kotlinx.coroutines.delay(1500)
+                                                showCelebration = false
+                                            }
+                                        } catch (e: Exception) {
+                                            withContext(Dispatchers.Main) { Toast.makeText(context, "打卡失败", Toast.LENGTH_SHORT).show() }
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth().height(52.dp).semantics { contentDescription = "task_checkin_confirm" },
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Success)
+                            ) {
+                                Text("✓ 确认完成", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+                        TextButton(onClick = { showCheckinSheet = false }) {
+                            Text("取消", color = Gray, fontSize = 16.sp)
+                        }
                     }
                 }
             }
-        }
 
+        } // end Box
     }
 }
 
@@ -397,6 +431,12 @@ fun TaskCard(task: DailyTask, onClick: () -> Unit) {
                                 fontSize = 12.sp, color = Primary)
                         }
                     }
+                    if (task.type == "oral") {
+                        Surface(shape = RoundedCornerShape(10.dp), color = PrimaryLight) {
+                            Text("🎤 口语", modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                fontSize = 12.sp, color = Primary)
+                        }
+                    }
                     if (task.isAdhoc) {
                         Surface(shape = RoundedCornerShape(10.dp), color = WarningLight) {
                             Text("临时", modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
@@ -440,6 +480,7 @@ private fun CachedDailyTask.toDailyTask() = DailyTask(
     completedAt = completedAt,
     completedBy = completedBy,
     isConditional = isConditional,
+    oralImageUrl = oralImageUrl,
     photos = emptyList()
 )
 
@@ -453,14 +494,15 @@ private fun DailyTask.toCached(childId: Int, date: String) = CachedDailyTask(
     status = status,
     completedAt = completedAt,
     completedBy = completedBy,
-    isConditional = isConditional
+    isConditional = isConditional,
+    oralImageUrl = oralImageUrl
 )
 
 @Composable
 fun AddAdhocTaskDialog(onDismiss: () -> Unit, onConfirm: (com.kidscheck.app.data.model.AdhocTaskCreate) -> Unit) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var requirePhoto by remember { mutableStateOf(false) }
+    var taskType by remember { mutableStateOf("reading") }
     var points by remember { mutableStateOf("5") }
 
     AlertDialog(
@@ -471,9 +513,10 @@ fun AddAdhocTaskDialog(onDismiss: () -> Unit, onConfirm: (com.kidscheck.app.data
                 OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("任务名称") }, singleLine = true, modifier = Modifier.semantics { contentDescription = "task_adhoc_title" })
                 OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("备注（可选）") }, singleLine = true)
                 OutlinedTextField(value = points, onValueChange = { points = it }, label = { Text("积分") }, singleLine = true)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = requirePhoto, onCheckedChange = { requirePhoto = it })
-                    Text("要求拍照", fontSize = 14.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = taskType == "reading", onClick = { taskType = "reading" }, label = { Text("阅读") })
+                    FilterChip(selected = taskType == "written", onClick = { taskType = "written" }, label = { Text("📷 拍照") })
+                    FilterChip(selected = taskType == "oral", onClick = { taskType = "oral" }, label = { Text("🎤 口语") })
                 }
             }
         },
@@ -481,8 +524,7 @@ fun AddAdhocTaskDialog(onDismiss: () -> Unit, onConfirm: (com.kidscheck.app.data
             TextButton(
                 onClick = {
                     if (title.isNotBlank()) {
-                        val type = if (requirePhoto) "written" else "reading"
-                        onConfirm(com.kidscheck.app.data.model.AdhocTaskCreate(title, type, description.ifBlank { null }, points.toIntOrNull() ?: 5))
+                        onConfirm(com.kidscheck.app.data.model.AdhocTaskCreate(title, taskType, description.ifBlank { null }, points.toIntOrNull() ?: 5))
                     }
                 },
                 enabled = title.isNotBlank()

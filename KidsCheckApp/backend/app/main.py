@@ -31,6 +31,7 @@ async def scheduled_daily_generation():
 async def lifespan(app: FastAPI):
     # Startup: create upload dir and start scheduler
     Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
+    RECORDINGS_DIR.mkdir(parents=True, exist_ok=True)
 
     scheduler.add_job(scheduled_daily_generation, "cron", hour=0, minute=0, timezone="Asia/Shanghai")
     scheduler.start()
@@ -48,6 +49,9 @@ app = FastAPI(
 
 # Mount static files for photo serving
 app.mount("/photos", StaticFiles(directory=str(UPLOAD_DIR)), name="photos")
+RECORDINGS_DIR = UPLOAD_DIR.parent / "recordings"
+RECORDINGS_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/recordings", StaticFiles(directory=str(RECORDINGS_DIR)), name="recordings")
 
 # Register routers
 app.include_router(auth.router)

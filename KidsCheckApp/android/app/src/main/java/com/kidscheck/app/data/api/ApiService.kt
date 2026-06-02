@@ -139,4 +139,24 @@ interface ApiService {
 
     @GET("/api/app/version")
     suspend fun checkVersion(): Response<AppVersion>
+
+    @Multipart
+    @PUT("/api/templates/{templateId}/oral-image")
+    suspend fun uploadOralImage(
+        @Path("templateId") templateId: Int,
+        @Part image: MultipartBody.Part
+    ): Response<Map<String, String>>
+
+    @Multipart
+    @POST("/api/daily-tasks/{taskId}/recording")
+    suspend fun uploadRecording(
+        @Path("taskId") taskId: Int,
+        @Part audio: MultipartBody.Part,
+        @Part("duration") duration: okhttp3.RequestBody
+    ): Response<OralRecordingSubmitResponse>
+
+    @GET("/api/daily-tasks/{taskId}/recordings")
+    suspend fun getRecordings(
+        @Path("taskId") taskId: Int
+    ): Response<List<OralRecording>>
 }

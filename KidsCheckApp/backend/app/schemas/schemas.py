@@ -74,6 +74,7 @@ class TaskTemplateResponse(BaseModel):
     description: Optional[str]
     points: int
     sort_order: int
+    oral_image_url: Optional[str] = None
 
 
 class TemplatesByWeekday(BaseModel):
@@ -132,7 +133,9 @@ class DailyTaskResponse(BaseModel):
     is_conditional: bool
     is_adhoc: bool = False
     description: Optional[str] = None
+    oral_image_url: Optional[str] = None
     photos: list["CheckInPhotoResponse"] = []
+    recordings: list["OralRecordingResponse"] = []
 
 
 class CheckInRequest(BaseModel):
@@ -146,6 +149,22 @@ class CheckInPhotoResponse(BaseModel):
     uploaded_at: datetime
     reviewed: bool
     review_note: Optional[str]
+
+
+class OralRecordingResponse(BaseModel):
+    id: int
+    audio_url: str
+    duration: float
+    recorded_by: int
+    recorded_at: datetime
+
+
+class OralRecordingResponse(BaseModel):
+    id: int
+    audio_url: str
+    duration: float
+    recorded_by: int
+    recorded_at: datetime
 
 
 # Progress
