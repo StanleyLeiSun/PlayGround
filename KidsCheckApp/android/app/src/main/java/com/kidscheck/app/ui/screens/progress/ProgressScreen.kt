@@ -1,5 +1,7 @@
 package com.kidscheck.app.ui.screens.progress
 
+import android.media.MediaPlayer
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.kidscheck.app.data.api.RetrofitInstance
 import com.kidscheck.app.data.model.DailyTask
+import com.kidscheck.app.data.model.OralRecording
 import com.kidscheck.app.data.model.ProgressResponse
 import com.kidscheck.app.ui.theme.*
 import java.time.LocalDate
@@ -34,7 +37,10 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeParseException
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun ProgressScreen(childId: Int) {
@@ -46,6 +52,54 @@ fun ProgressScreen(childId: Int) {
     var photoViewerUrls by remember { mutableStateOf<List<String>>(emptyList()) }
     var photoViewerIndex by remember { mutableIntStateOf(0) }
     var showPhotoViewer by remember { mutableStateOf(false) }
+
+    // Undo state
+    var showUndoDialog by remember { mutableStateOf(false) }
+    var undoTask by remember { mutableStateOf<DailyTask?>(null) }
+
+    // Audio playback state
+    var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
+    var playingRecordingId by remember { mutableStateOf<Int?>(null) }
+    var isPlaying by remember { mutableStateOf(false) }
+    var playbackPosition by remember { mutableIntStateOf(0) }
+    var playbackDuration by remember { mutableIntStateOf(0) }
+    // Map of taskId -> recordings (fetched separately for oral tasks)
+    var taskRecordings by remember { mutableStateOf<Map<Int, List<OralRecording>>>(emptyMap()) }
+
+    // Fetch recordings for oral tasks when progress loads
+    LaunchedEffect(progress) {
+        val p = progress ?: return@LaunchedEffect
+        val oralTasks = p.tasks.filter { it.type == "oral" && it.recordings.isEmpty() }
+        for (task in oralTasks) {
+            try {
+                val resp = RetrofitInstance.getApi(context).getRecordings(task.id)
+                if (resp.isSuccessful) {
+                    val recordings = resp.body() ?: emptyList()
+                    if (recordings.isNotEmpty()) {
+                        taskRecordings = taskRecordings + (task.id to recordings)
+                    }
+                }
+            } catch (_: Exception) {}
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            mediaPlayer?.release()
+            mediaPlayer = null
+        }
+    }
+
+    // Progress ticker for playback position
+    LaunchedEffect(isPlaying, playingRecordingId) {
+        while (isPlaying && mediaPlayer != null) {
+            try {
+                playbackPosition = mediaPlayer?.currentPosition ?: 0
+                playbackDuration = mediaPlayer?.duration ?: 0
+            } catch (_: Exception) {}
+            delay(200)
+        }
+    }
 
     LaunchedEffect(childId, currentDate) {
         loading = true
@@ -108,6 +162,41 @@ fun ProgressScreen(childId: Int) {
                     }
                 }
             }
+        )
+    }
+
+    // Undo dialog
+    if (showUndoDialog && undoTask != null) {
+        AlertDialog(
+            onDismissRequest = { showUndoDialog = false },
+            title = { Text("撤销完成") },
+            text = { Text("确定要撤销「${undoTask!!.title}」的完成状态吗？积分将被扣回。") },
+            confirmButton = {
+                TextButton(onClick = {
+                    scope.launch {
+                        try {
+                            val resp = RetrofitInstance.getApi(context).undoCheckIn(undoTask!!.id)
+                            if (resp.isSuccessful) {
+                                showUndoDialog = false
+                                // Refresh progress
+                                loading = true
+                                try {
+                                    val dateStr = currentDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
+                                    val refreshResp = RetrofitInstance.getApi(context).getProgress(childId, dateStr)
+                                    if (refreshResp.isSuccessful) progress = refreshResp.body()
+                                } catch (_: Exception) {}
+                                loading = false
+                                withContext(Dispatchers.Main) { Toast.makeText(context, "已撤销", Toast.LENGTH_SHORT).show() }
+                            } else {
+                                withContext(Dispatchers.Main) { Toast.makeText(context, "撤销失败", Toast.LENGTH_SHORT).show() }
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) { Toast.makeText(context, "撤销失败: ${e.message}", Toast.LENGTH_SHORT).show() }
+                        }
+                    }
+                }) { Text("确认撤销", color = Color(0xFFF59E0B)) }
+            },
+            dismissButton = { TextButton(onClick = { showUndoDialog = false }) { Text("取消") } }
         )
     }
 
@@ -217,6 +306,105 @@ fun ProgressScreen(childId: Int) {
                                 },
                                 modifier = Modifier.padding(top = 6.dp)
                             )
+                        }
+                        // Audio playback for oral tasks
+                        if (task.type == "oral") {
+                            val recordings = task.recordings.ifEmpty { taskRecordings[task.id] ?: emptyList() }
+                            if (recordings.isNotEmpty()) {
+                                Column(modifier = Modifier.padding(top = 8.dp)) {
+                                    recordings.forEach { rec ->
+                                        val isThisPlaying = playingRecordingId == rec.id && isPlaying
+                                        val durationSec = rec.duration.toInt()
+                                        val positionSec = if (playingRecordingId == rec.id) playbackPosition / 1000 else 0
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)
+                                        ) {
+                                            IconButton(
+                                                onClick = {
+                                                    if (isThisPlaying) {
+                                                        mediaPlayer?.pause()
+                                                        isPlaying = false
+                                                    } else {
+                                                        // Stop previous playback
+                                                        mediaPlayer?.release()
+                                                        mediaPlayer = null
+                                                        isPlaying = false
+                                                        playingRecordingId = null
+                                                        // Start new playback
+                                                        val audioUrl = resolvePhotoUrl(rec.audioUrl)
+                                                        val mp = MediaPlayer().apply {
+                                                            setDataSource(audioUrl)
+                                                            setOnPreparedListener {
+                                                                start()
+                                                                isPlaying = true
+                                                                playingRecordingId = rec.id
+                                                            }
+                                                            setOnCompletionListener {
+                                                                isPlaying = false
+                                                                playingRecordingId = null
+                                                                playbackPosition = 0
+                                                            }
+                                                            prepareAsync()
+                                                        }
+                                                        mediaPlayer = mp
+                                                    }
+                                                },
+                                                modifier = Modifier.size(32.dp)
+                                            ) {
+                                                Icon(
+                                                    imageVector = if (isThisPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                                                    contentDescription = if (isThisPlaying) "暂停" else "播放",
+                                                    tint = Primary,
+                                                    modifier = Modifier.size(24.dp)
+                                                )
+                                            }
+                                            if (isThisPlaying && playbackDuration > 0) {
+                                                LinearProgressIndicator(
+                                                    progress = playbackPosition.toFloat() / playbackDuration,
+                                                    modifier = Modifier.weight(1f).height(4.dp).clip(RoundedCornerShape(2.dp)),
+                                                    color = Primary,
+                                                    trackColor = Border,
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text(
+                                                    "${positionSec}s / ${durationSec}s",
+                                                    fontSize = 12.sp, color = TextSecondary
+                                                )
+                                            } else {
+                                                Text(
+                                                    "${durationSec}秒",
+                                                    fontSize = 12.sp, color = TextSecondary,
+                                                    modifier = Modifier.padding(start = 4.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // Undo button for completed tasks
+                        if (isDone) {
+                            TextButton(
+                                onClick = {
+                                    undoTask = task
+                                    showUndoDialog = true
+                                },
+                                modifier = Modifier.padding(top = 4.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Undo,
+                                    contentDescription = "撤销",
+                                    modifier = Modifier.size(14.dp),
+                                    tint = Color(0xFFF59E0B)
+                                )
+                                Spacer(modifier = Modifier.width(2.dp))
+                                Text(
+                                    "撤销",
+                                    fontSize = 12.sp,
+                                    color = Color(0xFFF59E0B)
+                                )
+                            }
                         }
                     }
                 }

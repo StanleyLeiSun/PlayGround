@@ -17,6 +17,7 @@ class UserRole(str, enum.Enum):
 class TaskType(str, enum.Enum):
     written = "written"
     reading = "reading"
+    oral = "oral"
 
 
 class TaskStatus(str, enum.Enum):
@@ -64,6 +65,7 @@ class TaskTemplate(Base):
     description = Column(String(255), nullable=True)
     points = Column(Integer, nullable=False, default=5)
     sort_order = Column(Integer, nullable=False, default=0)
+    oral_image_url = Column(String, nullable=True)
 
     child = relationship("Child", back_populates="task_templates")
 
@@ -104,9 +106,11 @@ class DailyTask(Base):
     is_adhoc = Column(Boolean, nullable=False, default=False)
     description = Column(String(500), nullable=True)
     created_by = Column(Integer, ForeignKey("user.id"), nullable=True)
+    oral_image_url = Column(String, nullable=True)
 
     child = relationship("Child", back_populates="daily_tasks")
     photos = relationship("CheckInPhoto", back_populates="daily_task", lazy="selectin")
+    recordings = relationship("OralRecording", back_populates="daily_task", lazy="selectin")
 
     __table_args__ = (
         Index("ix_daily_task_child_date", "child_id", "date"),
@@ -125,6 +129,19 @@ class CheckInPhoto(Base):
     review_note = Column(String(255), nullable=True)
 
     daily_task = relationship("DailyTask", back_populates="photos")
+
+
+class OralRecording(Base):
+    __tablename__ = "oral_recording"
+
+    id = Column(Integer, primary_key=True, index=True)
+    daily_task_id = Column(Integer, ForeignKey("daily_task.id"), nullable=False)
+    audio_url = Column(String(500), nullable=False)
+    duration = Column(Float, nullable=False)  # seconds
+    recorded_by = Column(Integer, ForeignKey("user.id"), nullable=False)
+    recorded_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    daily_task = relationship("DailyTask", back_populates="recordings")
 
 
 class PointAccount(Base):

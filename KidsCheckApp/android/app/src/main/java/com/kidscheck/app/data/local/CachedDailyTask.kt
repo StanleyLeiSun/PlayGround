@@ -15,5 +15,6 @@ data class CachedDailyTask(
     val completedAt: String?,
     val completedBy: Int?,
     val isConditional: Boolean,
+    val oralImageUrl: String? = null,
     val cachedAt: Long = System.currentTimeMillis()
 )

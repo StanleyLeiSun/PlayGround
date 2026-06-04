@@ -33,6 +33,7 @@ fun MainScreen(
     var currentTab by remember { mutableIntStateOf(0) }
     var children by remember { mutableStateOf<List<Child>>(emptyList()) }
     var selectedChild by remember { mutableStateOf<Child?>(null) }
+    var childSwitchLocked by remember { mutableStateOf(false) }
     val isParent = TokenManager.getRole(context) == "parent"
 
     LaunchedEffect(Unit) {
@@ -67,7 +68,8 @@ fun MainScreen(
                         children.forEach { child ->
                             Tab(
                                 selected = selectedChild?.id == child.id,
-                                onClick = { selectedChild = child },
+                                onClick = { if (!childSwitchLocked) selectedChild = child },
+                                enabled = !childSwitchLocked,
                                 modifier = Modifier.semantics { contentDescription = "main_child_tab_${child.nickname}" },
                                 text = { Text(child.nickname, fontSize = 16.sp, fontWeight = FontWeight.Medium) }
                             )
@@ -77,14 +79,16 @@ fun MainScreen(
             }
         },
         bottomBar = {
-            NavigationBar {
-                tabs.forEachIndexed { index, title ->
-                    NavigationBarItem(
-                        icon = { Icon(icons[index], contentDescription = title) },
-                        label = { Text(title) },
-                        selected = currentTab == index,
-                        onClick = { currentTab = index }
-                    )
+            if (!childSwitchLocked) {
+                NavigationBar {
+                    tabs.forEachIndexed { index, title ->
+                        NavigationBarItem(
+                            icon = { Icon(icons[index], contentDescription = title) },
+                            label = { Text(title) },
+                            selected = currentTab == index,
+                            onClick = { currentTab = index }
+                        )
+                    }
                 }
             }
         }
@@ -93,7 +97,7 @@ fun MainScreen(
             if (isParent) {
                 when (currentTab) {
                     0 -> selectedChild?.let {
-                        TaskListScreen(childId = it.id, childName = it.nickname)
+                        TaskListScreen(childId = it.id, childName = it.nickname, onOralPracticeChanged = { locked -> childSwitchLocked = locked })
                     }
                     1 -> selectedChild?.let {
                         ProgressScreen(childId = it.id)
@@ -111,7 +115,7 @@ fun MainScreen(
             } else {
                 when (currentTab) {
                     0 -> selectedChild?.let {
-                        TaskListScreen(childId = it.id, childName = it.nickname)
+                        TaskListScreen(childId = it.id, childName = it.nickname, onOralPracticeChanged = { locked -> childSwitchLocked = locked })
                     }
                     1 -> selectedChild?.let {
                         ProgressScreen(childId = it.id)

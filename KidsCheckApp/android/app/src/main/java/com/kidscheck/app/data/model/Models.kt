@@ -34,7 +34,8 @@ data class TaskTemplate(
     val type: String,
     val description: String?,
     val points: Int,
-    @SerializedName("sort_order") val sortOrder: Int
+    @SerializedName("sort_order") val sortOrder: Int,
+    @SerializedName("oral_image_url") val oralImageUrl: String? = null
 )
 
 data class TemplatesByWeekday(
@@ -68,7 +69,9 @@ data class DailyTask(
     @SerializedName("is_conditional") val isConditional: Boolean,
     @SerializedName("is_adhoc") val isAdhoc: Boolean = false,
     val description: String? = null,
-    val photos: List<CheckInPhoto> = emptyList()
+    @SerializedName("oral_image_url") val oralImageUrl: String? = null,
+    val photos: List<CheckInPhoto> = emptyList(),
+    val recordings: List<OralRecording> = emptyList()
 )
 
 data class AdhocTaskCreate(
@@ -85,6 +88,14 @@ data class CheckInPhoto(
     @SerializedName("uploaded_at") val uploadedAt: String,
     val reviewed: Boolean,
     @SerializedName("review_note") val reviewNote: String?
+)
+
+data class OralRecording(
+    val id: Int,
+    @SerializedName("audio_url") val audioUrl: String,
+    val duration: Double,
+    @SerializedName("recorded_by") val recordedBy: Int,
+    @SerializedName("recorded_at") val recordedAt: String
 )
 
 data class ProgressResponse(
@@ -184,6 +195,11 @@ data class RewardRedemption(
 )
 
 data class VoiceRequest(val text: String)
+
+data class OralRecordingSubmitResponse(
+    val recording: OralRecording,
+    val task: DailyTask
+)
 
 data class DailyStatItem(
     val date: String,

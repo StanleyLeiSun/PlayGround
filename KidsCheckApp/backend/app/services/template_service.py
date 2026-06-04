@@ -31,6 +31,7 @@ async def get_templates(db: AsyncSession, child_id: int) -> list[dict]:
                     "id": t.id, "child_id": t.child_id, "weekday": t.weekday,
                     "title": t.title, "type": t.type.value, "description": t.description,
                     "points": t.points, "sort_order": t.sort_order,
+                    "oral_image_url": t.oral_image_url,
                 }
                 for t in tpls
             ],

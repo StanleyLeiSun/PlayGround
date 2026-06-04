@@ -5,9 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.models import (
     DailyTask, TaskTemplate, ConditionalTask, TaskStatus, TaskType,
-    CheckInPhoto, PointAccount, PointTransaction,
+    CheckInPhoto, OralRecording, PointAccount, PointTransaction,
 )
 from app.services import points_service
+from app.services.oral_service import RECORDINGS_DIR
 
 
 async def generate_daily_tasks(db: AsyncSession, child_id: int, target_date: date) -> list[DailyTask]:
@@ -43,6 +44,7 @@ async def generate_daily_tasks(db: AsyncSession, child_id: int, target_date: dat
             type=TaskType(t.type.value) if hasattr(t.type, 'value') else TaskType(t.type),
             points=t.points,
             description=t.description,
+            oral_image_url=t.oral_image_url,
             status=TaskStatus.pending,
             is_conditional=False,
         )
@@ -178,6 +180,22 @@ async def undo_task(db: AsyncSession, task_id: int) -> DailyTask:
     )
     for photo in photos_result.scalars().all():
         await db.delete(photo)
+
+    # Remove associated oral recordings
+    recordings_result = await db.execute(
+        select(OralRecording).where(OralRecording.daily_task_id == task_id)
+    )
+    for recording in recordings_result.scalars().all():
+        # Delete audio file from disk
+        if recording.audio_url:
+            try:
+                rel_path = recording.audio_url.lstrip("/")
+                filepath = RECORDINGS_DIR.parent / rel_path
+                if filepath.exists():
+                    filepath.unlink()
+            except Exception:
+                pass  # Don't fail undo if file cleanup fails
+        await db.delete(recording)
 
     # Revert points
     tx_result = await db.execute(

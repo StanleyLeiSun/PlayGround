@@ -4,13 +4,13 @@ package com.kidscheck.app.ui.screens.template
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.speech.RecognizerIntent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,19 +20,25 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.kidscheck.app.data.api.RetrofitInstance
 import com.kidscheck.app.data.model.*
 import com.kidscheck.app.ui.theme.*
+import com.kidscheck.app.util.PhotoCompressor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -164,28 +170,35 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                                     description = template.description ?: "",
                                     weekdays = days,
                                     points = template.points,
-                                    requirePhoto = template.type == "written",
-                                    conditionalTaskId = null
+                                    type = template.type,
+                                    conditionalTaskId = null,
+                                    oralImageUrl = template.oralImageUrl
                                 )
                             },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(template.title, fontSize = 16.sp, modifier = Modifier.weight(1f))
+                        Text(template.title, fontSize = 16.sp, modifier = Modifier.weight(1f, fill = false))
+                        Spacer(modifier = Modifier.width(6.dp))
                         if (template.type == "written") {
                             Surface(shape = RoundedCornerShape(8.dp), color = PrimaryLight) {
-                                Text("📷 拍照", modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                                    fontSize = 12.sp, color = Primary)
+                                Text("📷", modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                    fontSize = 11.sp, color = Primary)
+                            }
+                        } else if (template.type == "oral") {
+                            Surface(shape = RoundedCornerShape(8.dp), color = PrimaryLight) {
+                                Text("🎤", modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                    fontSize = 11.sp, color = Primary)
                             }
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("${template.points}分", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Primary)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("${template.points}分", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Primary)
                         IconButton(onClick = {
                             scope.launch {
                                 RetrofitInstance.getApi(context).deleteTemplate(template.id)
                                 reload()
                             }
                         }) {
-                            Icon(Icons.Default.Delete, "删除", tint = Danger, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.Delete, "删除", tint = Danger, modifier = Modifier.size(18.dp))
                         }
                     }
                 }
@@ -199,36 +212,51 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                         color = Purple, modifier = Modifier.padding(vertical = 4.dp))
                 }
                 items(conditionals) { task ->
-                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
-                        .clickable {
-                            val days = task.weekdays?.split(",")?.mapNotNull { it.trim().toIntOrNull() }?.toSet() ?: (1..7).toSet()
-                            editingTemplate = EditTemplateData(
-                                isConditional = true,
-                                templateIds = emptyList(),
-                                title = task.title,
-                                description = task.description ?: "",
-                                weekdays = days,
-                                points = task.points,
-                                requirePhoto = task.type == "written",
-                                conditionalTaskId = task.id
-                            )
-                        },
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                            .clickable {
+                                val days = task.weekdays?.split(",")?.mapNotNull { it.trim().toIntOrNull() }?.toSet() ?: (1..7).toSet()
+                                editingTemplate = EditTemplateData(
+                                    isConditional = true,
+                                    templateIds = emptyList(),
+                                    title = task.title,
+                                    description = task.description ?: "",
+                                    weekdays = days,
+                                    points = task.points,
+                                    type = task.type,
+                                    conditionalTaskId = task.id
+                                )
+                            },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(task.title, fontSize = 16.sp, modifier = Modifier.weight(1f))
+                        Text(task.title, fontSize = 16.sp, modifier = Modifier.weight(1f, fill = false))
+                        Spacer(modifier = Modifier.width(6.dp))
                         Surface(shape = RoundedCornerShape(8.dp), color = PurpleLight) {
-                            Text("条件", modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                                fontSize = 12.sp, color = Purple)
+                            Text("条件", modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                fontSize = 11.sp, color = Purple)
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("${task.points}分", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Primary)
+                        if (task.type == "oral") {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Surface(shape = RoundedCornerShape(8.dp), color = PrimaryLight) {
+                                Text("🎤", modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                    fontSize = 11.sp, color = Primary)
+                            }
+                        } else if (task.type == "written") {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Surface(shape = RoundedCornerShape(8.dp), color = PrimaryLight) {
+                                Text("📷", modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                    fontSize = 11.sp, color = Primary)
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("${task.points}分", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Primary)
                         IconButton(onClick = {
                             scope.launch {
                                 RetrofitInstance.getApi(context).deleteConditionalTask(task.id)
                                 reload()
                             }
                         }) {
-                            Icon(Icons.Default.Delete, "删除", tint = Danger, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.Delete, "删除", tint = Danger, modifier = Modifier.size(18.dp))
                         }
                     }
                 }
@@ -243,7 +271,7 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
     if (showAddDialog) {
         AddTemplateDialog(
             onDismiss = { showAddDialog = false },
-            onConfirm = { data, isConditional ->
+            onConfirm = { data, isConditional, imageData ->
                 scope.launch {
                     try {
                         val api = RetrofitInstance.getApi(context)
@@ -254,6 +282,19 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                             api.createTemplateBatch(selectedChild!!.id, data)
                         } else null
                         if (resp != null && resp.isSuccessful) {
+                            // Upload oral image to each created template
+                            val imageBytes = imageData.first
+                            val imageFileName = imageData.second
+                            if (imageBytes != null && imageFileName != null && data.type == "oral" && !isConditional) {
+                                val templates = resp.body() as? List<TaskTemplate>
+                                templates?.forEach { t ->
+                                    val part = MultipartBody.Part.createFormData(
+                                        "image", imageFileName,
+                                        imageBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                                    )
+                                    api.uploadOralImage(t.id, part)
+                                }
+                            }
                             showAddDialog = false
                             reload()
                         } else {
@@ -318,7 +359,7 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                     try {
                         val api = RetrofitInstance.getApi(context)
                         val childId = selectedChild?.id ?: return@launch
-                        val type = if (newData.requirePhoto) "written" else "reading"
+                        val type = newData.type
                         val wasConditional = editData.isConditional
                         val nowConditional = newData.isConditional
 
@@ -385,6 +426,20 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
                                 weekdays = newData.weekdays.sorted().joinToString(",")
                             ))
                         }
+
+                        // Upload oral image if one was picked
+                        val imageBytes = newData.oralImageBytes
+                        val imageFileName = newData.oralImageFileName
+                        if (imageBytes != null && imageFileName != null && type == "oral") {
+                            for (templateId in newData.templateIds) {
+                                val part = MultipartBody.Part.createFormData(
+                                    "image", imageFileName,
+                                    imageBytes.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                                )
+                                api.uploadOralImage(templateId, part)
+                            }
+                        }
+
                         editingTemplate = null
                         reload()
                     } catch (e: Exception) {
@@ -397,13 +452,23 @@ fun TemplateManagementScreen(onBack: () -> Unit) {
 }
 
 @Composable
-fun AddTemplateDialog(onDismiss: () -> Unit, onConfirm: (TaskTemplateBatchCreate, Boolean) -> Unit) {
+fun AddTemplateDialog(onDismiss: () -> Unit, onConfirm: (TaskTemplateBatchCreate, Boolean, Pair<ByteArray?, String?>) -> Unit) {
+    val context = LocalContext.current
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var selectedDays by remember { mutableStateOf(setOf(1)) }
-    var requirePhoto by remember { mutableStateOf(false) }
+    var type by remember { mutableStateOf("reading") }
     var points by remember { mutableStateOf("5") }
     var isConditional by remember { mutableStateOf(false) }
+    var oralImageBytes by remember { mutableStateOf<ByteArray?>(null) }
+    var oralImageFileName by remember { mutableStateOf<String?>(null) }
+
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            oralImageBytes = PhotoCompressor.compressPhoto(context, uri)
+            oralImageFileName = "oral_${System.currentTimeMillis()}.jpg"
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -425,9 +490,46 @@ fun AddTemplateDialog(onDismiss: () -> Unit, onConfirm: (TaskTemplateBatchCreate
                     }
                 }
                 OutlinedTextField(value = points, onValueChange = { points = it }, label = { Text("积分") }, singleLine = true)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = requirePhoto, onCheckedChange = { requirePhoto = it })
-                    Text("要求拍照", fontSize = 14.sp)
+                Text("任务类型:", fontSize = 14.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = type == "written", onClick = { type = "written" }, label = { Text("📷 拍照") })
+                    FilterChip(selected = type == "reading", onClick = { type = "reading" }, label = { Text("阅读") })
+                    FilterChip(selected = type == "oral", onClick = { type = "oral" }, label = { Text("🎤 口语") })
+                }
+                if (type == "oral") {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    if (oralImageBytes != null) {
+                        val bitmap = remember(oralImageBytes) {
+                            oralImageBytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+                        }
+                        bitmap?.let {
+                            AsyncImage(
+                                model = it,
+                                contentDescription = "口语图片",
+                                modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(onClick = { galleryLauncher.launch("image/*") }) {
+                                Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("更换图片", fontSize = 12.sp)
+                            }
+                            OutlinedButton(onClick = { oralImageBytes = null; oralImageFileName = null }) {
+                                Icon(Icons.Default.Clear, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("移除", fontSize = 12.sp)
+                            }
+                        }
+                    } else {
+                        OutlinedButton(onClick = { galleryLauncher.launch("image/*") }, modifier = Modifier.fillMaxWidth()) {
+                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("选择图片（相册）")
+                        }
+                    }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = isConditional, onCheckedChange = { isConditional = it })
@@ -439,8 +541,11 @@ fun AddTemplateDialog(onDismiss: () -> Unit, onConfirm: (TaskTemplateBatchCreate
             TextButton(
                 onClick = {
                     if (title.isNotBlank() && selectedDays.isNotEmpty()) {
-                        val type = if (requirePhoto) "written" else "reading"
-                        onConfirm(TaskTemplateBatchCreate(selectedDays.sorted(), title, type, description = description.ifBlank { null }, points = points.toIntOrNull() ?: 5), isConditional)
+                        onConfirm(
+                            TaskTemplateBatchCreate(selectedDays.sorted(), title, type, description = description.ifBlank { null }, points = points.toIntOrNull() ?: 5),
+                            isConditional,
+                            Pair(oralImageBytes, oralImageFileName)
+                        )
                     }
                 },
                 enabled = title.isNotBlank() && selectedDays.isNotEmpty()
@@ -457,8 +562,11 @@ data class EditTemplateData(
     val description: String,
     val weekdays: Set<Int>,
     val points: Int,
-    val requirePhoto: Boolean,
-    val conditionalTaskId: Int?
+    val type: String,
+    val conditionalTaskId: Int?,
+    val oralImageUrl: String? = null,
+    val oralImageBytes: ByteArray? = null,
+    val oralImageFileName: String? = null
 )
 
 @Composable
@@ -467,12 +575,22 @@ fun EditTemplateDialog(
     onDismiss: () -> Unit,
     onSave: (EditTemplateData) -> Unit
 ) {
+    val context = LocalContext.current
     var title by remember { mutableStateOf(data.title) }
     var description by remember { mutableStateOf(data.description) }
     var selectedDays by remember { mutableStateOf(data.weekdays) }
-    var requirePhoto by remember { mutableStateOf(data.requirePhoto) }
+    var type by remember { mutableStateOf(data.type) }
     var points by remember { mutableStateOf(data.points.toString()) }
     var isConditional by remember { mutableStateOf(data.isConditional) }
+    var oralImageBytes by remember { mutableStateOf(data.oralImageBytes) }
+    var oralImageFileName by remember { mutableStateOf(data.oralImageFileName) }
+
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            oralImageBytes = PhotoCompressor.compressPhoto(context, uri)
+            oralImageFileName = "oral_${System.currentTimeMillis()}.jpg"
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -494,9 +612,63 @@ fun EditTemplateDialog(
                     }
                 }
                 OutlinedTextField(value = points, onValueChange = { points = it }, label = { Text("积分") }, singleLine = true)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(checked = requirePhoto, onCheckedChange = { requirePhoto = it })
-                    Text("要求拍照", fontSize = 14.sp)
+                Text("任务类型:", fontSize = 14.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = type == "written", onClick = { type = "written" }, label = { Text("📷 拍照") })
+                    FilterChip(selected = type == "reading", onClick = { type = "reading" }, label = { Text("阅读") })
+                    FilterChip(selected = type == "oral", onClick = { type = "oral" }, label = { Text("🎤 口语") })
+                }
+                if (type == "oral") {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    // Show existing server image or newly picked image
+                    val hasNewImage = oralImageBytes != null
+                    val hasExistingImage = data.oralImageUrl != null
+                    if (hasNewImage) {
+                        val bitmap = remember(oralImageBytes) {
+                            oralImageBytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+                        }
+                        bitmap?.let {
+                            AsyncImage(
+                                model = it,
+                                contentDescription = "口语图片",
+                                modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(onClick = { galleryLauncher.launch("image/*") }) {
+                                Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("更换图片", fontSize = 12.sp)
+                            }
+                            OutlinedButton(onClick = { oralImageBytes = null; oralImageFileName = null }) {
+                                Icon(Icons.Default.Clear, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("移除", fontSize = 12.sp)
+                            }
+                        }
+                    } else if (hasExistingImage) {
+                        val baseUrl = RetrofitInstance.effectiveBaseUrl().trimEnd('/')
+                        AsyncImage(
+                            model = "$baseUrl${data.oralImageUrl}",
+                            contentDescription = "当前口语图片",
+                            modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        OutlinedButton(onClick = { galleryLauncher.launch("image/*") }, modifier = Modifier.fillMaxWidth()) {
+                            Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("更换图片")
+                        }
+                    } else {
+                        OutlinedButton(onClick = { galleryLauncher.launch("image/*") }, modifier = Modifier.fillMaxWidth()) {
+                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("选择图片（相册）")
+                        }
+                    }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = isConditional, onCheckedChange = { isConditional = it })
@@ -515,8 +687,11 @@ fun EditTemplateDialog(
                             description = description,
                             weekdays = selectedDays,
                             points = points.toIntOrNull() ?: 5,
-                            requirePhoto = requirePhoto,
-                            conditionalTaskId = data.conditionalTaskId
+                            type = type,
+                            conditionalTaskId = data.conditionalTaskId,
+                            oralImageUrl = data.oralImageUrl,
+                            oralImageBytes = oralImageBytes,
+                            oralImageFileName = oralImageFileName
                         ))
                     }
                 },

@@ -34,6 +34,19 @@ python -m venv .venv
 
 ### Android (run from `android/`)
 
+**⚠️ 模拟器开发必须使用 `dev` flavor，不能连接线上服务端。** `prod`/`localProd` flavor 的 BASE_URL 指向线上服务器，模拟器连线上会导致新功能因线上未部署而失败，且会污染线上数据。
+
+```bash
+# 编译 dev flavor（BASE_URL = http://10.0.2.2:8000，指向本地后端）
+./gradlew assembleDevDebug
+
+# 安装到模拟器
+adb install -r app/build/outputs/apk/dev/debug/app-dev-debug.apk
+
+# ❌ 永远不要在模拟器上安装 prod flavor
+# ./gradlew assembleProdDebug  ← 不要这样做
+```
+
 Open in Android Studio, Sync, and run on emulator or device. The emulator uses `10.0.2.2:8000` to reach the local backend; real devices need the LAN IP set in `RetrofitInstance.kt`.
 
 ## Architecture

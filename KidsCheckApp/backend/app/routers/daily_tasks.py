@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.middleware.auth import get_current_user
 from app.models.models import User, DailyTask, TaskType, TaskStatus
-from app.schemas.schemas import DailyTaskResponse, CheckInPhotoResponse, AdhocTaskCreate
-from app.services import daily_task_service, photo_service
+from app.schemas.schemas import DailyTaskResponse, CheckInPhotoResponse, OralRecordingResponse, AdhocTaskCreate
+from app.services import daily_task_service, photo_service, oral_service
 from app.services.action_log_service import log_action
 
 router = APIRouter(prefix="/api/daily-tasks", tags=["daily-tasks"])
@@ -29,6 +29,7 @@ def _task_to_response(task, completed_by_username: str | None = None) -> DailyTa
         is_conditional=task.is_conditional,
         is_adhoc=task.is_adhoc,
         description=task.description,
+        oral_image_url=task.oral_image_url,
         photos=[
             CheckInPhotoResponse(
                 id=p.id, photo_url=p.photo_url, uploaded_by=p.uploaded_by,
@@ -36,7 +37,31 @@ def _task_to_response(task, completed_by_username: str | None = None) -> DailyTa
             )
             for p in (task.photos or [])
         ],
+        recordings=[
+            OralRecordingResponse(
+                id=r.id, audio_url=r.audio_url, duration=r.duration,
+                recorded_by=r.recorded_by, recorded_at=r.recorded_at,
+            )
+            for r in (task.recordings or [])
+        ],
     )
+
+
+@router.get("/{task_id}/recordings", response_model=list[OralRecordingResponse])
+async def get_recordings(
+    task_id: int,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get all recordings for an oral task."""
+    recordings = await oral_service.get_recordings(db, task_id)
+    return [
+        OralRecordingResponse(
+            id=r.id, audio_url=r.audio_url, duration=r.duration,
+            recorded_by=r.recorded_by, recorded_at=r.recorded_at,
+        )
+        for r in recordings
+    ]
 
 
 @router.get("/{child_id}/{target_date}", response_model=list[DailyTaskResponse])
@@ -108,6 +133,50 @@ async def undo_check_in(
     await log_action(db, user.id, "undo_check_in", "daily_task", task_id,
                      {"child_id": task.child_id})
     return _task_to_response(task)
+
+
+@router.post("/{task_id}/recording")
+async def upload_recording(
+    task_id: int,
+    audio: UploadFile = File(...),
+    duration: float = Form(...),
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Upload a recording for an oral task. Marks the task as completed."""
+    result = await db.execute(select(DailyTask).where(DailyTask.id == task_id))
+    task = result.scalar_one_or_none()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    if task.type != TaskType.oral:
+        raise HTTPException(status_code=400, detail="Recording upload only allowed for oral tasks")
+    if task.status == TaskStatus.done:
+        raise HTTPException(status_code=400, detail="Already completed")
+    if duration < 20:
+        raise HTTPException(status_code=400, detail="Recording too short (minimum 20 seconds)")
+
+    file_bytes = await audio.read()
+    content_type = audio.content_type or ""
+    if "mp4" not in content_type and "aac" not in content_type and "m4a" not in content_type:
+        raise HTTPException(status_code=400, detail="Audio format must be AAC/M4A")
+
+    try:
+        recording = await oral_service.save_recording(db, task_id, user.id, file_bytes, duration)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+    task = await daily_task_service.check_in_task(db, task_id, user.id, has_photo=False)
+
+    await log_action(db, user.id, "oral_recording", "daily_task", task_id,
+                     {"child_id": task.child_id, "duration": duration})
+
+    return {
+        "recording": OralRecordingResponse(
+            id=recording.id, audio_url=recording.audio_url, duration=recording.duration,
+            recorded_by=recording.recorded_by, recorded_at=recording.recorded_at,
+        ),
+        "task": _task_to_response(task, user.username),
+    }
 
 
 @router.post("/{child_id}/adhoc", response_model=DailyTaskResponse)
