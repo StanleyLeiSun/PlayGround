@@ -51,6 +51,8 @@ Open in Android Studio, Sync, and run on emulator or device. The emulator uses `
 
 ## Architecture
 
+任何服务端、数据库的改变都要向前兼容，确保客户端不升级也可以运行
+
 ### Backend (`backend/`)
 
 FastAPI async app with SQLAlchemy 2.0 async ORM (aiosqlite for SQLite, asyncpg for Postgres).
@@ -95,3 +97,26 @@ Backend tests use pytest-asyncio with an in-process ASGI test client (httpx). A 
 | JWT_SECRET | (hardcoded dev key) | Token signing |
 | UPLOAD_DIR | uploads/photos | Photo storage path |
 | LLM_API_KEY | (empty) | For voice intent parsing (Qwen via DashScope) |
+
+## 上线
+- 操作线上服务、版本时要遵守docs\sop中的流程
+- 任何数据库操作前先做备份
+
+### 功能自测 Checklist
+
+每个新功能交付前必须按以下维度逐一验证：
+
+- **分支覆盖**：`if/else` 的每个分支都要走到，特别是状态相关的分支（pending vs done、不同 type 等）
+- **旧功能回归**：新增数据实体（如 OralRecording）时，必须审核已有操作（undo、delete、list）是否覆盖对新实体的处理
+- **前后端校验对齐**：前端先拦（禁用按钮/提示），后端兜底；API 错误信息必须透传给用户，不能吞掉
+- **边界数据**：测试数据应包含长标题（20字+）、多标签组合等，及早暴露布局问题
+
+### 已踩过的坑
+
+| 问题 | 根因 | 防范 |
+|------|------|------|
+| `return@Box` 导致 Compose 闪退 | 在 `if` 块内用 `return@Box` 提前退出，破坏 Compose 组合树 startGroup/endGroup 配对 | 用顶层 `if/else` 互斥渲染替代 `return@Box` |
+| 模拟器连了线上服务器 | `assembleDebug` 编译所有 flavor，默认安装了 prod | 模拟器永远用 `assembleDevDebug`（见上方 Android 命令） |
+| 新增实体后 undo 不清理 | 只测了正向打卡流程，没回归 undo 路径 | 新增实体时必须检查所有已有操作 |
+| API 错误信息被吞 | `catch` 后只返回 null，400 response body 被丢弃 | 所有 API 调用必须解析并透传 `errorBody` 中的 detail |
+| Row 布局右侧被挤压 | `weight(1f)` 默认 `fill=true`，标签+积分+删除按钮占位过多 | 用 `weight(1f, fill=false)` + 精简标签文字 |
