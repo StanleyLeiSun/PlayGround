@@ -2,7 +2,12 @@ package com.kidscheck.app.data.api
 
 import android.content.Context
 import com.kidscheck.app.BuildConfig
+import com.kidscheck.app.util.AuthEvent
+import com.kidscheck.app.util.AuthEventBus
 import com.kidscheck.app.util.TokenManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -33,7 +38,17 @@ object RetrofitInstance {
                 } else {
                     chain.request()
                 }
-                chain.proceed(request)
+                val response = chain.proceed(request)
+
+                // 检测 401 响应，触发 Token 过期事件
+                if (response.code == 401 && token != null) {
+                    TokenManager.clear(context)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        AuthEventBus.emit(AuthEvent.TokenExpired)
+                    }
+                }
+
+                response
             })
             .addInterceptor(logging)
             .connectTimeout(30, TimeUnit.SECONDS)

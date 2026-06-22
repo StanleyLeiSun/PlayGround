@@ -1,11 +1,11 @@
 {
-  "version_code": 10107,
-  "version_name": "1.1.7",
-  "apk_filename": "kidscheck-1.1.7.apk",
-  "apk_size": 13311239,
-  "apk_md5": "7527605b7250fbc5ad75a9148925876e",
-  "release_notes": "英语口语练习功能、bug修复",
+  "version_code": 10108,
+  "version_name": "1.1.8",
+  "apk_filename": "kidscheck-1.1.8.apk",
+  "apk_size": 13315335,
+  "apk_md5": "bb9bce6e28c097a14c11a3f7cccc72be",
+  "release_notes": "修复Token过期白屏问题，增加错误提示和重试机制",
   "force_update": false,
-  "min_supported_version": 10106,
-  "created_at": "2026-06-05T08:45:00Z"
+  "min_supported_version": 1,
+  "created_at": "2026-06-22T03:01:09Z"
 }
