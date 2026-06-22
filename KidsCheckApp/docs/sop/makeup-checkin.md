@@ -29,6 +29,8 @@
 | 奶奶 | 4 |
 | 姥姥 | 5 |
 
+默认使用“爸爸”的 ID（1）进行打卡
+
 ## 操作步骤
 
 ### 1. 查询待补打的任务
@@ -57,12 +59,18 @@ sqlite3 -header -column /opt/kidscheck/backend/kidscheck_dev.db \
   "SELECT balance FROM point_account WHERE child_id = <CHILD_ID>;"
 ```
 
-### 3. 执行补打卡
+### 3. 让用户确认需要打卡的任务名称、ID和积分值
+
+展示信息，获得用户确认后。根据用户确认的任务名称或者ID执行补打卡操作。
+
+### 4. 执行补打卡
 
 根据第 1 步查询结果，替换 SQL 中的任务 ID 和积分值：
 
+**⚠️ 注意：需要使用 sudo 权限，否则会报 "readonly database" 错误**
+
 ```bash
-sqlite3 /opt/kidscheck/backend/kidscheck_dev.db << 'SQL'
+sudo sqlite3 /opt/kidscheck/backend/kidscheck_dev.db << 'SQL'
 BEGIN TRANSACTION;
 
 -- 1. 更新任务状态为已完成
@@ -84,7 +92,7 @@ COMMIT;
 SQL
 ```
 
-### 4. 验证结果
+### 5. 验证结果
 
 ```bash
 # 验证任务状态
@@ -112,6 +120,8 @@ sqlite3 -header -column /opt/kidscheck/backend/kidscheck_dev.db \
 # 查询当前积分
 sqlite3 -header -column /opt/kidscheck/backend/kidscheck_dev.db \
   "SELECT balance FROM point_account WHERE child_id = 1;"
+
+# 展示查询结果，等待用户确认
 
 # 执行补打卡（假设任务 ID 是 333-337，积分分别是 2,1,3,2,2，当前积分 180）
 sqlite3 /opt/kidscheck/backend/kidscheck_dev.db << 'SQL'
